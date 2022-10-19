@@ -1,15 +1,5 @@
+import { iChange, iChangeEntry, iChanges, iTableChanges } from '../types/changes';
 import { iTableEntity, iTables, tColumn } from '../types/entity';
-
-interface iChange {
-  key: string;
-  from: string | number | undefined;
-  to: string | number | undefined;
-}
-
-interface iColumnChange {
-  change: 'ADD' | 'REMOVE';
-  column: tColumn;
-}
 
 export const getChangesForColumn = (oldColumn: tColumn, newColumn: tColumn): iChange[] => {
   const changes: iChange[] = [];
@@ -29,25 +19,21 @@ export const getChangesForColumn = (oldColumn: tColumn, newColumn: tColumn): iCh
   return changes;
 };
 
-interface iChanges {
+interface iFieldChanges {
   [key: string]: tColumn;
 }
-export const getChangesForTables = (
-  oldEntity: iTableEntity,
-  newEntity: iTableEntity,
-): { dropped: iChanges; added: iChanges; changes: { [key: string]: iChange[] } } => {
+export const getChangesForTables = (oldEntity: iTableEntity, newEntity: iTableEntity): iTableChanges => {
   const changes: { [key: string]: iChange[] } = {};
 
   const oldFields = Object.keys(oldEntity.columns);
   const newFields = Object.keys(newEntity.columns);
   const existingFields = oldFields.filter((field) => newFields.includes(field));
 
-  const dropped = oldFields
-    .filter((field) => !newFields.includes(field))
-    .reduce((acc, field) => ({ ...acc, [field]: oldEntity.columns[field] }), {} as iChanges);
-  const added = newFields
+  const dropped = oldFields.filter((field) => !newFields.includes(field));
+
+  const added: any = newFields
     .filter((field) => !oldFields.includes(field))
-    .reduce((acc, field) => ({ ...acc, [field]: newEntity.columns[field] }), {} as iChanges);
+    .reduce((acc, field) => ({ ...acc, [field]: newEntity.columns[field] }), {} as iChangeEntry) as iChangeEntry;
 
   existingFields.forEach((field) => {
     const fieldChanges = getChangesForColumn(oldEntity.columns[field], newEntity.columns[field]);
@@ -63,7 +49,7 @@ export const getChangesForTables = (
  * @param state current state
  * @returns
  */
-export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables) => {
+export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables): iChanges => {
   const currentTables = Object.keys(state).map((key) => state[key]?.name || key);
   const previousTables = Object.keys(snapshot).map((key) => snapshot[key]?.name || key);
 
@@ -73,7 +59,7 @@ export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables) =
   const updatedTables = previousTables.filter((table) => currentTables.includes(table));
 
   const changes = updatedTables.map((key) => {
-    let changes = {};
+    let changes: iTableChanges = { changes: {}, dropped: [], added: {} };
 
     if (snapshot[key]?.type !== 'VIEW') {
       const oldTable = getTable(snapshot, key);

@@ -59,11 +59,13 @@ export interface iStringColumn extends iRegularColumnOptions {
 }
 
 export interface iUUIDColumn extends iBaseColumnOptions {
+  kind?: 'REGULAR';
   type: 'uuid';
   generated?: boolean;
 }
 
-export type tColumn = iNumberColumn | iStringColumn | iUUIDColumn | iComputedColumn | iResolvedColumn;
+export type tRegularColumn = iNumberColumn | iStringColumn | iUUIDColumn;
+export type tColumn = tRegularColumn | iComputedColumn | iResolvedColumn;
 
 export interface iTableEntity {
   type?: 'TABLE';

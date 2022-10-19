@@ -1,9 +1,10 @@
 import { join } from 'path';
 import { readdir } from 'fs-extra';
+import { iTableEntity, iTables, tEntity } from '../types/entity';
 
 const validExtensions = ['.ts', '.js', '.json'];
 
-export const loadEntities = async (directory: string) => {
+export const loadEntities = async (directory: string): Promise<tEntity[]> => {
   const path = join(process.cwd(), directory);
   const content = await readdir(path);
 
@@ -22,6 +23,8 @@ export const loadEntities = async (directory: string) => {
       if (entity.endsWith('.js') || entity.endsWith('.ts')) {
         const module = await import(entityPath);
 
+        module.default.key = entity.replace(/\.entity\..+/, '');
+
         // todo: find correct export automatically
         return module.default;
       }
@@ -30,4 +33,10 @@ export const loadEntities = async (directory: string) => {
 
   return modules.filter(Boolean);
   // console.log(path);
+};
+
+export const getTables = (entities: tEntity[]): iTables => {
+  const tables = entities.filter((e) => e.type !== 'VIEW') as iTableEntity[];
+
+  return tables.reduce((acc, table) => ({ ...acc, [table.name]: table }), {});
 };
