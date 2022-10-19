@@ -1,0 +1,26 @@
+{
+  "id": "init-202210191750",
+  "tables": {
+    "users": {
+      "columns": {
+        "id": {
+          "type": "uuid",
+          "comment": "ID of the user",
+          "primary": true
+        },
+        "firstname": {
+          "type": "varchar",
+          "default": ""
+        },
+        "lastname": {
+          "type": "varchar",
+          "default": ""
+        },
+        "name": {
+          "kind": "RESOLVED",
+          "resolver": "TRIM(firstname || ' ' || lastname)"
+        }
+      }
+    }
+  }
+}
