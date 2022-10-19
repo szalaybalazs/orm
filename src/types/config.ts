@@ -1,3 +1,6 @@
 export interface iOrmConfig {
-  namingConvention?: "SNAKE" | "CAMEL";
+  entities?: string | string[];
+  migrations?: string | string[];
+  snapshots?: string | string[];
+  namingConvention?: 'SNAKE' | 'CAMEL';
 }

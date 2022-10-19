@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { readdir, readFile, existsSync, writeFile } from 'fs-extra';
+import { readdir, readFile, existsSync, writeFile, pathExistsSync, mkdirsSync } from 'fs-extra';
 import { iSnapshot, iTables } from '../types/entity';
 
 /**
@@ -8,37 +8,44 @@ import { iSnapshot, iTables } from '../types/entity';
  * @returns
  */
 export const loadSnapshots = async (directory: string) => {
-  const path = join(process.cwd(), directory);
-  const content = await readdir(path);
+  try {
+    const path = join(process.cwd(), directory);
+    const content = await readdir(path);
 
-  const files = content.filter((file) => file.endsWith('.snapshot'));
+    const files = content.filter((file) => file.endsWith('.snapshot'));
 
-  // todo: handle malformed files
-  const snapshots = await Promise.all(
-    files.map(async (file) => {
-      const snapshotPath = join(path, file);
-      const rawSnapshot = await readFile(snapshotPath, 'utf8').catch(() => null);
-      if (!rawSnapshot) return;
-      const snapshot = JSON.parse(rawSnapshot);
-      return { ...snapshot, timestamp: new Date(snapshot.timestamp) };
-    }),
-  );
+    // todo: handle malformed files
+    const snapshots = await Promise.all(
+      files.map(async (file) => {
+        const snapshotPath = join(path, file);
+        const rawSnapshot = await readFile(snapshotPath, 'utf8').catch(() => null);
+        if (!rawSnapshot) return;
+        const snapshot = JSON.parse(rawSnapshot);
+        return { ...snapshot, timestamp: new Date(snapshot.timestamp) };
+      }),
+    );
 
-  const validSnapshots: iSnapshot[] = snapshots.filter(Boolean);
+    const validSnapshots: iSnapshot[] = snapshots.filter(Boolean);
 
-  return validSnapshots.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    return validSnapshots.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  } catch (error) {
+    return [];
+  }
 };
 
-export const loadLastSnapshot = async (directory: string) => {
+export const loadLastSnapshot = async (directory: string): Promise<iSnapshot | null> => {
   const snapshots = await loadSnapshots(directory);
-  return snapshots[0];
+  return snapshots[0] || null;
 };
 
 export const saveSnapshot = async (directory: string, id: string, state: iTables) => {
   const snapshot: iSnapshot = { id, timestamp: new Date(), tables: state };
-  const rawSnapshot = JSON.stringify(snapshot);
+  const rawSnapshot = JSON.stringify(snapshot, null, 2);
 
-  const fileName = join(process.cwd(), directory, `${id}.snapshot`);
+  const base = join(process.cwd(), directory);
+  const fileName = join(base, `${Math.round(Date.now() / 1000)}-${id}.snapshot`);
+
+  if (!pathExistsSync(base)) mkdirsSync(base);
   if (existsSync(fileName)) throw new Error('Snapshot already exists with the same ID');
 
   await writeFile(fileName, rawSnapshot, { encoding: 'utf-8' });

@@ -1,0 +1,59 @@
+{
+  "id": "addedSubtitle",
+  "timestamp": "2022-10-19T19:12:21.828Z",
+  "tables": {
+    "posts": {
+      "name": "posts",
+      "columns": {
+        "id": {
+          "type": "uuid",
+          "comment": "ID of the post",
+          "primary": true,
+          "generated": true
+        },
+        "title": {
+          "type": "varchar",
+          "default": "Unnamed post",
+          "nullable": false
+        },
+        "sub_title": {
+          "type": "varchar",
+          "nullable": true
+        },
+        "author_id": {
+          "type": "uuid",
+          "comment": "ID of the posts author"
+        }
+      },
+      "key": "post"
+    },
+    "users": {
+      "name": "users",
+      "columns": {
+        "id": {
+          "type": "uuid",
+          "comment": "ID of the user",
+          "primary": true,
+          "generated": true
+        },
+        "firstname": {
+          "type": "varchar",
+          "default": "John"
+        },
+        "lastname": {
+          "type": "varchar",
+          "default": "Doe"
+        },
+        "name": {
+          "kind": "RESOLVED",
+          "resolver": "TRIM(firstname || ' ' || lastname)"
+        },
+        "email": {
+          "type": "varchar",
+          "unique": true
+        }
+      },
+      "key": "user"
+    }
+  }
+}

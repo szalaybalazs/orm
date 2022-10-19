@@ -9,6 +9,15 @@ const post: tEntity = {
       primary: true,
       generated: true,
     },
+    title: {
+      type: 'varchar',
+      default: 'Unnamed post',
+      nullable: false,
+    },
+    sub_title: {
+      type: 'varchar',
+      nullable: true,
+    },
     author_id: {
       type: 'uuid',
       comment: 'ID of the posts author',

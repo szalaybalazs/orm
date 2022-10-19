@@ -1,6 +1,7 @@
 import { describe, test } from '@jest/globals';
 
 import { getTables, loadEntities } from '../../src/entities/load';
+import { getMigrationContent, runMigration } from '../../src/migrations';
 import { generateQueries } from '../../src/migrations/sql';
 import { iChanges } from '../../src/types/changes';
 
@@ -12,12 +13,6 @@ const changes: iChanges = {
       key: 'users',
       changes: {
         changes: {
-          id: [
-            {
-              key: 'generated',
-              to: true,
-            },
-          ],
           firstname: [
             {
               key: 'default',
@@ -50,6 +45,11 @@ describe('Migrations', () => {
     const entities = await loadEntities('./example/entities');
     const tables = getTables(entities);
     const queries = generateQueries(changes, tables);
-    console.log(queries);
+    const migration = getMigrationContent('test', queries);
+    console.log(migration);
+  });
+
+  test('Generate new migration from changes', async () => {
+    await runMigration('added post title', './example/entities', './example/snapshots', './example/migrations');
   });
 });

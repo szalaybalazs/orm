@@ -50,6 +50,8 @@ export interface iRegularColumnOptions extends iBaseColumnOptions {
 export interface iNumberColumn extends iRegularColumnOptions {
   type: eNumberType;
   default?: number | DefaultFunction<number>;
+
+  // todo: handle
   precision?: number;
 }
 

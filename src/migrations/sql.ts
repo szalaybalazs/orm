@@ -1,10 +1,16 @@
 import { iChanges, iTableChanges } from '../types/changes';
-import { iRegularColumnOptions, iTableEntity, iTables, tColumn, tEntity, tRegularColumn } from '../types/entity';
+import {
+  DefaultFunction,
+  iRegularColumnOptions,
+  iTableEntity,
+  iTables,
+  tColumn,
+  tEntity,
+  tRegularColumn,
+} from '../types/entity';
 
 export const generateQueries = (changes: iChanges, tables: iTables) => {
   const transactions: string[] = [];
-  console.log(JSON.stringify(changes, null, 2));
-  console.log(JSON.stringify(tables, null, 2));
 
   // Handle removes
   changes.deleted.forEach((key) => {
@@ -30,11 +36,17 @@ const updateTable = (table: tEntity, changes: iTableChanges): string => {
   const transactions: string[] = [];
   if (table.type === 'VIEW') return '';
 
-  Object.keys(changes.added).map((key) => {
-    transactions.push();
+  Object.keys(changes.added).forEach((key) => {
+    transactions.push(`ADD COLUMN ${createColumn(table.columns[key], key)}`);
   });
-  Object.keys(changes.dropped).map((key) => {
+  changes.dropped.forEach((key) => {
     transactions.push(`DROP COLUMN "${key}"`);
+  });
+  Object.keys(changes.changes).map((key) => {
+    changes.changes[key].forEach((change) => {
+      const changeSql = getChangeKey(change.key, change.to);
+      transactions.push(`ALTER COLUMN "${key}" ${changeSql}`);
+    });
   });
 
   return formatSql(`
@@ -42,6 +54,13 @@ const updateTable = (table: tEntity, changes: iTableChanges): string => {
     ${transactions}
     ;
   `);
+};
+
+// todo: handle other changes
+
+const getChangeKey = (key: string, value: DefaultFunction<any> | any) => {
+  if (key === 'unique') return `UNIQUE ${value}`;
+  if (key === 'default') return `DEFAULT ${getDefault(value)}`;
 };
 
 const createTable = (table: iTableEntity): string => {
@@ -55,6 +74,12 @@ const createTable = (table: iTableEntity): string => {
   `;
 
   return formatSql(sql);
+};
+
+// todo: escale keywords
+const getDefault = (val: DefaultFunction<string | number> | any) => {
+  const value = typeof val === 'function' ? val() : val;
+  return typeof value === 'string' ? `'${value}'` : value;
 };
 
 const getColumnOptions = (column: tColumn): Partial<iRegularColumnOptions & { default: any }> => {
@@ -72,8 +97,15 @@ const getColumnOptions = (column: tColumn): Partial<iRegularColumnOptions & { de
 
   return {
     ...column,
-    default: typeof column.default === 'function' ? column.default() : column.default,
+    default: getDefault(column.default),
   };
+};
+
+const getConstraint = (key: 'REQUIRED' | 'UNIQUE' | 'PRIMARY' | 'DEFAULT', value: string = '') => {
+  if (key === 'REQUIRED') return 'NOT NULL';
+  if (key === 'UNIQUE') return 'UNIQUE';
+  if (key === 'PRIMARY') return 'PRIMARY KEY';
+  if (key === 'DEFAULT') return `DEFAULT ${value}`;
 };
 
 const createColumn = (column: tColumn, key: string): string => {
@@ -85,16 +117,18 @@ const createColumn = (column: tColumn, key: string): string => {
   // todo: update column based on types
 
   const constraints: string[] = [];
-  if (!options.nullable) constraints.push('NOT NULL');
-  if (options.unique) constraints.push('UNIQUE');
-  if (options.primary) constraints.push('PRIMARY KEY');
-  if (options.default) constraints.push(`DEFAULT ${options.default}`);
+  if (!options.nullable) constraints.push(getConstraint('REQUIRED'));
+  if (options.unique) constraints.push(getConstraint('UNIQUE'));
+  if (options.primary) constraints.push(getConstraint('PRIMARY'));
+  if (options.default) constraints.push(getConstraint('DEFAULT', options.default));
 
   // todo: support arrays
 
-  return `${key} ${column.type} ${constraints.join(' ')}`.trim();
+  return `"${key}" ${column.type} ${constraints.join(' ')}`.trim();
 };
 
 const formatSql = (sql: string) => {
   return sql.replace(/\n/g, '').replace(/\s\s+/g, ' ');
 };
+
+// todo: generate revert logic

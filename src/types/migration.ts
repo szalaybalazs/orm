@@ -1,7 +1,15 @@
+export interface iContext {
+  schema: string;
+}
+
 /**
  * Return either a single or multiple SQL queries
  */
-export type LifecycleFunction = (() => Promise<string>) | (() => string) | (() => Promise<string[]>) | (() => string[]);
+export type LifecycleFunction =
+  | ((ctx: iContext) => Promise<string>)
+  | ((ctx: iContext) => string)
+  | ((ctx: iContext) => Promise<string[]>)
+  | ((ctx: iContext) => string[]);
 
 export interface iMigration {
   id: string;

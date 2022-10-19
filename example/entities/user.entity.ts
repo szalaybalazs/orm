@@ -25,6 +25,9 @@ const user: tEntity = {
       type: 'varchar',
       unique: true,
     },
+    password: {
+      type: 'varchar',
+    },
   },
 };
 
