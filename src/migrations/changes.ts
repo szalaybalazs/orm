@@ -1,4 +1,4 @@
-import { iSnapshot, iTableEntity, tColumn, tEntity } from '../types/entity';
+import { iTableEntity, iTables, tColumn } from '../types/entity';
 
 interface iChange {
   key: string;
@@ -57,7 +57,7 @@ export const getChangesForTables = (
   return { changes, dropped, added };
 };
 
-export const getChangesBetweenMigrations = (snapshot: iSnapshot, state: iSnapshot) => {
+export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables) => {
   const currentTables = Object.keys(state).map((key) => state[key]?.name || key);
   const previousTables = Object.keys(snapshot).map((key) => snapshot[key]?.name || key);
 

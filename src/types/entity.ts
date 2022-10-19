@@ -60,6 +60,7 @@ export interface iStringColumn extends iRegularColumnOptions {
 
 export interface iUUIDColumn extends iBaseColumnOptions {
   type: 'uuid';
+  generated?: boolean;
 }
 
 export type tColumn = iNumberColumn | iStringColumn | iUUIDColumn | iComputedColumn | iResolvedColumn;
@@ -77,4 +78,10 @@ export interface iViewEntity {
 
 export type tEntity = iTableEntity | iViewEntity;
 
-export interface iSnapshot extends Record<string, tEntity> {}
+export interface iTables extends Record<string, tEntity> {}
+
+export interface iSnapshot {
+  tables: iTables;
+  id: string;
+  timestamp: string | Date;
+}

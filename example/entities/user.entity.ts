@@ -7,6 +7,7 @@ const user: tEntity = {
       type: 'uuid',
       comment: 'ID of the user',
       primary: true,
+      generated: true,
     },
     firstname: {
       type: 'varchar',
