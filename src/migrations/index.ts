@@ -8,10 +8,6 @@ import { getChangesBetweenMigrations } from './changes';
 import { generateQueries } from './sql';
 import { getMigrationTemplate } from './template';
 
-export const getMigrationContent = (id: string, up: string[]) => {
-  return getMigrationTemplate(id, up);
-};
-
 export const runMigration = async (
   id: string,
   entityDirectory: string,
@@ -31,10 +27,10 @@ export const runMigration = async (
   debug(verbose, chalk.gray('Generating queries...'));
   const queries = generateQueries(changes, tables);
 
-  if (queries.length === 0) throw new Error('NO_CHANGES');
+  if (queries.up.length === 0) throw new Error('NO_CHANGES');
 
   debug(verbose, chalk.gray('Generating migration...'));
-  const migration = getMigrationContent(id, queries);
+  const migration = getMigrationTemplate(id, queries.up, queries.down);
 
   debug(verbose, chalk.gray('Saving migration and new snapshot...'));
   await Promise.all([saveMigration(id, migration, migrationDirectory), saveSnapshot(snapshotDirectory, id, tables)]);

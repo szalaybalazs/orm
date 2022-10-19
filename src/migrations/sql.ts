@@ -9,51 +9,64 @@ import {
   tRegularColumn,
 } from '../types/entity';
 
-export const generateQueries = (changes: iChanges, tables: iTables) => {
-  const transactions: string[] = [];
+export const generateQueries = (changes: iChanges, tables: iTables): { up: string[]; down: string[] } => {
+  const up: string[] = [];
+  const down: string[] = [];
 
   // Handle removes
   changes.deleted.forEach((key) => {
-    transactions.push(`DROP TABLE IF EXISTS "__SCHEMA__"."${key}" CASCADE;`);
+    up.push(`DROP TABLE IF EXISTS "__SCHEMA__"."${key}" CASCADE;`);
+
+    // todo: create table when reverted
+    // needs previous tables
   });
 
   // Handle creates
   changes.created.forEach((key) => {
     const table = tables[key];
-    if (table.type !== 'VIEW') transactions.push(createTable(tables[key] as iTableEntity));
+    if (table.type !== 'VIEW') up.push(createTable(tables[key] as iTableEntity));
+
+    // Destroying table when reverted
+    down.push(`DROP TABLE IF EXISTS "__SCHEMA__"."${key}" CASCADE;`);
   });
 
   // Handle updates
   changes.updated.forEach((change) => {
-    const transaction = updateTable(tables[change.key], change.changes);
-    if (transaction) transactions.push(transaction);
+    const [transactionUp, transactionDown] = updateTable(tables[change.key], change.changes);
+    if (transactionUp) up.push(transactionUp);
+    if (transactionDown) down.push(transactionDown);
   });
 
-  return transactions.map((t) => t.trim());
+  return { up, down };
 };
 
-const updateTable = (table: tEntity, changes: iTableChanges): string => {
-  const transactions: string[] = [];
-  if (table.type === 'VIEW') return '';
+const updateTable = (table: tEntity, changes: iTableChanges): [string, string] => {
+  const up: string[] = [];
+  const down: string[] = [];
+  if (table.type === 'VIEW') return ['', ''];
 
   Object.keys(changes.added).forEach((key) => {
-    transactions.push(`ADD COLUMN ${createColumn(table.columns[key], key)}`);
+    up.push(`ADD COLUMN ${createColumn(table.columns[key], key)}`);
+    down.push(`DROP COLUMN "${key}"`);
   });
   changes.dropped.forEach((key) => {
-    transactions.push(`DROP COLUMN "${key}"`);
+    up.push(`DROP COLUMN "${key}"`);
+
+    // todo: create column when reverted - NEEDS previews tables
+    // up.push(`ADD COLUMN ${createColumn(table.columns[key], key)}`);
   });
+
   Object.keys(changes.changes).map((key) => {
     changes.changes[key].forEach((change) => {
-      const changeSql = getChangeKey(change.key, change.to);
-      transactions.push(`ALTER COLUMN "${key}" ${changeSql}`);
+      up.push(`ALTER COLUMN "${key}" ${getChangeKey(change.key, change.to)}`);
+      down.push(`ALTER COLUMN "${key}" ${getChangeKey(change.key, change.from)}`);
     });
   });
 
-  return formatSql(`
-    ALTER TABLE "__SCHEMA__"."${table.name}"
-    ${transactions}
-    ;
-  `);
+  const upSql = formatSql(`ALTER TABLE "__SCHEMA__"."${table.name}" ${up};`);
+
+  const downSql = formatSql(`ALTER TABLE "__SCHEMA__"."${table.name}" ${down};`);
+  return [upSql, downSql];
 };
 
 // todo: handle other changes

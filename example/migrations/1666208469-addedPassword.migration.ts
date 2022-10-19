@@ -1,7 +1,7 @@
 import { iMigration, iContext } from '../../src/types/migration';
 
-class addedPasswordToUserMigration implements iMigration {
-  id: 'addedPasswordToUser';
+class addedPasswordMigration implements iMigration {
+  id: 'addedPassword';
 
   up = (ctx: iContext) => {
     return [
@@ -15,9 +15,16 @@ class addedPasswordToUserMigration implements iMigration {
   };
 
   // TODO: generate revert SQL queries
-  down = () => {
-    return [];
+  down = (ctx: iContext) => {
+    return [
+      `
+        ALTER TABLE
+          "${ctx.schema}"."users"
+        DROP COLUMN
+          "password";
+      `,
+    ];
   };
 }
 
-export default addedPasswordToUserMigration;
+export default addedPasswordMigration;
