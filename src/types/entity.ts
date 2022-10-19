@@ -83,5 +83,5 @@ export interface iTables extends Record<string, tEntity> {}
 export interface iSnapshot {
   tables: iTables;
   id: string;
-  timestamp: string | Date;
+  timestamp: Date;
 }
