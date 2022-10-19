@@ -76,8 +76,8 @@ export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables) =
     let changes = {};
 
     if (snapshot[key]?.type !== 'VIEW') {
-      const oldTable = (snapshot[key] ?? Object.values(snapshot).find((table) => table.name === key)) as iTableEntity;
-      const newTable = (state[key] ?? Object.values(state).find((table) => table.name === key)) as iTableEntity;
+      const oldTable = getTable(snapshot, key);
+      const newTable = getTable(state, key);
       changes = getChangesForTables(oldTable, newTable);
     }
 
@@ -92,4 +92,8 @@ export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables) =
     created: createdTables,
     updated: changes.filter(Boolean),
   };
+};
+
+const getTable = (snapshot: iTables, key: string) => {
+  return (snapshot[key] ?? Object.values(snapshot).find((table) => table.name === key)) as iTableEntity;
 };
