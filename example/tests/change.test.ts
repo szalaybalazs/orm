@@ -8,7 +8,9 @@ import { loadLastSnapshot } from '../../src/snapshots';
 describe('Migrations', () => {
   test('Summarise changes between migrations', async () => {
     const snapshot = await loadLastSnapshot('./example/snapshots');
+
     const changes = getChangesBetweenMigrations(snapshot.tables, { user, post });
+
     console.log(JSON.stringify(changes, null, 2));
   });
 });

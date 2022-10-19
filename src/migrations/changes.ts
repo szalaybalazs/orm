@@ -57,6 +57,12 @@ export const getChangesForTables = (
   return { changes, dropped, added };
 };
 
+/**
+ * Get changes to be generated to the migrations
+ * @param snapshot previous state
+ * @param state current state
+ * @returns
+ */
 export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables) => {
   const currentTables = Object.keys(state).map((key) => state[key]?.name || key);
   const previousTables = Object.keys(snapshot).map((key) => snapshot[key]?.name || key);
@@ -65,21 +71,25 @@ export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables) =
   const createdTables = currentTables.filter((table) => !previousTables.includes(table));
 
   const updatedTables = previousTables.filter((table) => currentTables.includes(table));
+
   const changes = updatedTables.map((key) => {
     let changes = {};
 
     if (snapshot[key]?.type !== 'VIEW') {
-      const oldTable = snapshot[key] as iTableEntity;
+      const oldTable = (snapshot[key] ?? Object.values(snapshot).find((table) => table.name === key)) as iTableEntity;
       const newTable = (state[key] ?? Object.values(state).find((table) => table.name === key)) as iTableEntity;
       changes = getChangesForTables(oldTable, newTable);
     }
 
+    const allChanges = Object.values(changes).map((f) => Object.values(f));
+
+    if (allChanges.flat().length === 0) return undefined;
     return { key, changes };
   });
 
   return {
     deleted: deletedTables,
     created: createdTables,
-    updated: changes,
+    updated: changes.filter(Boolean),
   };
 };
