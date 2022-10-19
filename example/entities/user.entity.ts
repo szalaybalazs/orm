@@ -10,15 +10,19 @@ const user: tEntity = {
     },
     firstname: {
       type: 'varchar',
-      default: '',
+      default: 'John',
     },
     lastname: {
       type: 'varchar',
-      default: '',
+      default: 'Doe',
     },
     name: {
       kind: 'RESOLVED',
       resolver: `TRIM(firstname || ' ' || lastname)`,
+    },
+    email: {
+      type: 'varchar',
+      unique: true,
     },
   },
 };

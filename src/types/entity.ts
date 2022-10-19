@@ -67,7 +67,7 @@ export type tColumn = iNumberColumn | iStringColumn | iUUIDColumn | iComputedCol
 export interface iTableEntity {
   type?: 'TABLE';
   name: string;
-  columns: { [name: string]: tColumn };
+  columns: Record<string, tColumn>;
 }
 
 export interface iViewEntity {
@@ -76,3 +76,5 @@ export interface iViewEntity {
 }
 
 export type tEntity = iTableEntity | iViewEntity;
+
+export interface iSnapshot extends Record<string, tEntity> {}
