@@ -1,4 +1,4 @@
-import { tColumn } from './entity';
+import { iIndex, tColumn } from './entity';
 
 export interface iChange {
   key: string;
@@ -10,10 +10,17 @@ export interface iChangeEntry {
   [key: string]: iChange[];
 }
 
+export interface iIndexChange {
+  dropped: string[];
+  updated: iIndex[];
+  created: iIndex[];
+}
+
 export interface iTableChanges {
   changes: iChangeEntry;
   dropped: string[];
   added: { [key: string]: tColumn };
+  indices: Partial<iIndexChange>;
 }
 
 export interface iChanges {

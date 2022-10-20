@@ -72,6 +72,7 @@
     },
     "users": {
       "name": "users",
+      "indices": [{ "columns": ["username"], "includes": ["password"], "unique": true }],
       "columns": {
         "id": {
           "type": "uuid",
