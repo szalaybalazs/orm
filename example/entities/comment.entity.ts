@@ -26,6 +26,7 @@ const comment: tEntity = {
       comment: 'ID of the post the message was sent under',
     },
   },
+  indices: [{ columns: ['user_id'] }, { columns: ['post_id'], includes: ['user_id'] }],
 };
 
 export default comment;

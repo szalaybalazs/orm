@@ -69,10 +69,23 @@ export interface iUUIDColumn extends iBaseColumnOptions {
 export type tRegularColumn = iNumberColumn | iStringColumn | iUUIDColumn;
 export type tColumn = tRegularColumn | iComputedColumn | iResolvedColumn;
 
+export interface iIndex {
+  // By default uses the standard naming convention
+  // https://gist.github.com/popravich/d6816ef1653329fb1745
+  name?: string;
+
+  unique?: boolean;
+  method?: 'btree' | 'hash' | 'gist' | 'spgist' | 'gin' | 'brin';
+
+  columns: (string | { column: string; order?: 'ASC' | 'DESC'; nulls?: 'FIRST' | 'LAST' })[];
+  includes?: (string | { column: string })[];
+}
+
 export interface iTableEntity {
   type?: 'TABLE';
   name: string;
   columns: Record<string, tColumn>;
+  indices?: iIndex[];
 }
 
 export interface iViewEntity {

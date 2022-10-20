@@ -29,6 +29,7 @@ const user: tEntity = {
       type: 'varchar',
     },
   },
+  indices: [{ columns: ['username'], includes: ['password'], unique: true }],
 };
 
 export default user;
