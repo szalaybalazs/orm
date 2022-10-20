@@ -21,15 +21,12 @@ export const runMutations = async (options: iVerboseConfig) => {
     debug(options.verbose, chalk.gray(`Creating migrations table...`));
     await createMutationsTable(migrationsTable, query, schema);
 
-    // query mutations
-
-    debug(options.verbose, chalk.gray(`Loading last migration...`));
-    const lastMigration = await getLastMigrationId(migrationsTable, query, schema);
-
-    debug(options.verbose, chalk.gray(`Loaded last migration: ${lastMigration}`));
     debug(options.verbose, chalk.gray(`Loading migrations...`));
-
-    const allMigrations: iMigration[] = await loadMigrations(options.migrations);
+    const [allMigrations, lastMigration]: [iMigration[], string | null] = await Promise.all([
+      loadMigrations(options.migrations),
+      getLastMigrationId(migrationsTable, query, schema),
+    ]);
+    debug(options.verbose, chalk.gray(`Loaded last migration: ${lastMigration}`));
 
     const lastMigrationIndex = allMigrations.findIndex((m) => m.id === lastMigration);
 
@@ -38,12 +35,9 @@ export const runMutations = async (options: iVerboseConfig) => {
     if (migrations.length < 1) throw new Error('NO_NEW_MIGRATIONS');
 
     for (const migration of migrations) {
-      console.log(migration);
       // todo: handle revert queries
       const allQueries = await migration.up({ schema, query });
       const queries = Array.isArray(allQueries) ? allQueries : [allQueries];
-
-      console.log(queries);
 
       debug(options.verbose, chalk.gray(`Executing migration: ${migration.id}...`));
       await Promise.all(queries.map((sql) => query(sql)));

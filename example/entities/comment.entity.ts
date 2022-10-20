@@ -12,6 +12,10 @@ const comment: tEntity = {
       type: 'varchar',
       nullable: true,
     },
+    reply_to: {
+      type: 'uuid',
+      generated: true,
+    },
     user_id: {
       type: 'uuid',
       generated: false,
