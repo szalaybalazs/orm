@@ -4,6 +4,7 @@ import { parseConfig } from './core/config';
 import { formatId } from './core/id';
 import { debug } from './core/log';
 import { runMigration } from './migrations';
+import { runMutations } from './migrations/run';
 
 const program = new Command();
 
@@ -37,7 +38,16 @@ program
 program
   .command('run')
   .description('Run all available migrations')
-  .action(() => console.log('WIP'));
+  .option('--verbose')
+  .action(async (params) => {
+    debug(params.verbose, chalk.gray('Loading orm config...'));
+    const options = await parseConfig(params);
+    try {
+      await runMutations(options);
+    } catch (error) {
+      console.log(error);
+    }
+  });
 
 program
   .command('pull')

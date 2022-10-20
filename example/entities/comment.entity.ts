@@ -10,6 +10,7 @@ const comment: tEntity = {
     },
     message: {
       type: 'varchar',
+      nullable: true,
     },
     user_id: {
       type: 'uuid',

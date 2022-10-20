@@ -1,10 +1,6 @@
 import { existsSync, readFileSync } from 'fs-extra';
 import { isAbsolute, join } from 'path';
-import { iOrmConfig } from '../types/config';
-
-interface iVerboseConfig extends iOrmConfig {
-  verbose?: boolean;
-}
+import { iOrmConfig, iVerboseConfig } from '../types/config';
 
 // Supported config files
 const configFiles = ['ormconfig.js', 'ormconfig.ts', 'ormconfig.json'];
@@ -69,11 +65,13 @@ export const parseConfig = async (params: any): Promise<iVerboseConfig> => {
   const config: iOrmConfig = await loadFile(params.config).catch((err) => {
     if (err === 'CONFIG_MISSING') {
       console.log('No config file found, using default value...');
-      return {};
+      return {
+        driver: 'postgres',
+      };
     }
     console.log(err);
     // todo: handle errors
-    return {};
+    return { driver: 'postgres' };
   });
 
   return { ...config, ...params };

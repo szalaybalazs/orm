@@ -21,7 +21,6 @@ class initMigration implements iMigration {
             "id" uuid NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4 (),
             "firstname" varchar NOT NULL DEFAULT 'John',
             "lastname" varchar NOT NULL DEFAULT 'Doe',
-            "name" undefined NOT NULL,
             "email" varchar NOT NULL UNIQUE
           );
       `,

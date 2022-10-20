@@ -101,6 +101,7 @@ const updateTable = (changes: iTableChanges, state: tEntity, snapshot: tEntity):
 // todo: handle other changes
 const getChangeKey = (key: string, value: DefaultFunction<any> | any) => {
   if (key === 'unique') return `UNIQUE ${value}`;
+  if (key === 'nullable') return `${!value ? '' : 'DROP '}NOT NULL`;
   if (key === 'default') return `DEFAULT ${getDefault(value)}`;
 };
 
@@ -173,3 +174,5 @@ const formatSql = (sql: string) => {
 };
 
 // todo: generate revert logic
+
+// todo: handle multiple foreign keys
