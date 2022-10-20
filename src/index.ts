@@ -1,8 +1,10 @@
 import * as chalk from 'chalk';
 import { Command } from 'commander';
-import { loadFile, parseConfig } from './core/config';
+import { parseConfig } from './core/config';
+import { formatId } from './core/id';
+import { debug } from './core/log';
 import { runMigration } from './migrations';
-import { iOrmConfig } from './types/config';
+
 const program = new Command();
 
 program.version('0.0.1', '-v, --version', 'Output the current version');
@@ -16,20 +18,12 @@ program
   .option('-c, --config <config file>', 'Path to the config file', '.')
   .option('--verbose')
   .action(async (name: string, params) => {
-    const options = await parseConfig(params);
-
-    const id = name
-      .replace(/[^\w\s]/gi, '')
-      .replace(/\s+/g, ' ')
-      .split(' ')
-      .map((w: string, i: number) => {
-        if (i < 1) return w.toLowerCase();
-        return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
-      })
-      .join('');
     try {
-      await runMigration(id, options.entities, options.snapshots, options.migrations, options.verbose);
+      debug(params.verbose, chalk.gray('Loading orm config...'));
+      const options = await parseConfig(params);
+      await runMigration(formatId(name), options.entities, options.snapshots, options.migrations, options.verbose);
     } catch (error) {
+      // todo: handle config errors
       if (error.message === 'NO_CHANGES') console.log(chalk.reset('No changes found in schema...'));
       else console.log(error);
     }
