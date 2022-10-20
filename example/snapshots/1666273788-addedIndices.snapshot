@@ -1,6 +1,6 @@
 {
-  "id": "attachmentEntityAndRemovedPostTopics",
-  "timestamp": "2022-10-20T12:16:21.879Z",
+  "id": "addedIndices",
+  "timestamp": "2022-10-20T13:49:47.567Z",
   "tables": {
     "attachments": {
       "name": "attachments",
@@ -43,6 +43,21 @@
           "comment": "ID of the post the message was sent under"
         }
       },
+      "indices": [
+        {
+          "columns": [
+            "user_id"
+          ]
+        },
+        {
+          "columns": [
+            "post_id"
+          ],
+          "includes": [
+            "user_id"
+          ]
+        }
+      ],
       "key": "comment"
     },
     "posts": {
@@ -72,7 +87,6 @@
     },
     "users": {
       "name": "users",
-      "indices": [{ "columns": ["username"], "includes": ["password"] }],
       "columns": {
         "id": {
           "type": "uuid",
@@ -100,6 +114,17 @@
           "type": "varchar"
         }
       },
+      "indices": [
+        {
+          "columns": [
+            "username"
+          ],
+          "includes": [
+            "password"
+          ],
+          "unique": true
+        }
+      ],
       "key": "user"
     }
   }

@@ -14,18 +14,20 @@ export const getIndexChanges = (table: string, oldIndices: iIndex[], newIndices:
   const oldNames = Array.from(new Set(oldNamedIndicies.map((index) => index.name)));
   const newNames = Array.from(new Set(newNamedIndices.map((index) => index.name)));
 
-  const dropped = oldNames.filter((name) => !newNames.includes(name));
+  const dropped = oldNamedIndicies.filter((index) => !newNames.includes(index.name));
   const created = newNamedIndices.filter((index) => !oldNames.includes(index.name));
 
   const same = newNamedIndices.filter((index) => oldNames.includes(index.name));
-  const updated = same.filter((newIndex) => {
+  const updatedIndices = same.map((newIndex) => {
     const oldIndex = oldNamedIndicies.find((i) => i.name === newIndex.name);
 
-    if (!newIndex || !oldIndex) return false;
+    if (!newIndex || !oldIndex) return null;
     const isSame = deepEqual(oldIndex, newIndex);
 
-    return !isSame;
+    if (isSame) return null;
+    return { from: oldIndex, to: newIndex };
   });
+  const updated = updatedIndices.filter(Boolean);
 
   return {
     dropped,

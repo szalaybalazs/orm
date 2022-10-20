@@ -24,7 +24,7 @@ export const getMigrationTemplate = (id: string, up: string[], down: string[]) =
   const upSql = up
     .map((sql) => formatSql(sql, { language: 'postgresql', expressionWidth: 120 }))
     .map((l) =>
-      `\`\n${l.replace(/__SCHEMA__/, '${ctx.schema}')}\n\``
+      `\`\n${l.replace(/__SCHEMA__/g, '${ctx.schema}')}\n\``
         .split('\n')
         .map((l, i, arr) => `${createPadding(i < arr.length - 1 ? 8 : 6)}${l}`)
         .join('\n'),
@@ -33,7 +33,7 @@ export const getMigrationTemplate = (id: string, up: string[], down: string[]) =
   const downSql = down
     .map((sql) => formatSql(sql, { language: 'postgresql', expressionWidth: 120 }))
     .map((l) =>
-      `\`\n${l.replace(/__SCHEMA__/, '${ctx.schema}')}\n\``
+      `\`\n${l.replace(/__SCHEMA__/g, '${ctx.schema}')}\n\``
         .split('\n')
         .map((l, i, arr) => `${createPadding(i < arr.length - 1 ? 8 : 6)}${l}`)
         .join('\n'),

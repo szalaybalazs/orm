@@ -1,6 +1,7 @@
 import { iChanges, iTableChanges } from '../types/changes';
 import {
   DefaultFunction,
+  iIndex,
   iRegularColumnOptions,
   iTableEntity,
   iTables,
@@ -46,13 +47,13 @@ export const generateQueries = (
 
   // Handle updates
   changes.updated.forEach((change) => {
-    const [transactionUp, transactionDown] = updateTable(change.changes, state[change.key], snapshot[change.key]);
+    const [transactionsUp, transactionsDown] = updateTable(change.changes, state[change.key], snapshot[change.key]);
 
     // Commit changes to tables
-    if (transactionUp) up.push(transactionUp);
+    if (transactionsUp) up.push(...transactionsUp);
 
     // Revert changes
-    if (transactionDown) down.push(transactionDown);
+    if (transactionsDown) down.push(...transactionsDown);
   });
 
   return { up, down };
@@ -65,37 +66,81 @@ export const generateQueries = (
  * @param snapshot previous table schema
  * @returns
  */
-const updateTable = (changes: iTableChanges, state: tEntity, snapshot: tEntity): [string, string] => {
+const updateTable = (changes: iTableChanges, state: tEntity, snapshot: tEntity): [string[], string[]] => {
   const up: string[] = [];
   const down: string[] = [];
-  if (state.type === 'VIEW') return ['', ''];
+
+  const tableUp: string[] = [];
+  const tableDown: string[] = [];
+
+  const indicesUp: string[] = [];
+  const indicesDown: string[] = [];
+
+  if (state.type === 'VIEW') return [[], []];
 
   Object.keys(changes.added).forEach((key) => {
-    up.push(`ADD COLUMN ${createColumn(state.columns[key], key)}`);
-    down.push(`DROP COLUMN "${key}"`);
+    tableUp.push(`ADD COLUMN ${createColumn(state.columns[key], key)}`);
+    tableDown.push(`DROP COLUMN "${key}"`);
   });
 
   changes.dropped.forEach((key) => {
     // Drop column
-    up.push(`DROP COLUMN "${key}"`);
+    tableUp.push(`DROP COLUMN "${key}"`);
 
     // Add column when reverting
     if (snapshot.type !== 'VIEW') {
-      down.push(`ADD COLUMN ${createColumn(snapshot.columns[key], key)}`);
+      tableDown.push(`ADD COLUMN ${createColumn(snapshot.columns[key], key)}`);
     }
   });
 
   Object.keys(changes.changes).map((key) => {
     changes.changes[key].forEach((change) => {
-      up.push(`ALTER COLUMN "${key}" ${getChangeKey(change.key, change.to)}`);
-      down.push(`ALTER COLUMN "${key}" ${getChangeKey(change.key, change.from)}`);
+      tableUp.push(`ALTER COLUMN "${key}" ${getChangeKey(change.key, change.to)}`);
+      tableDown.push(`ALTER COLUMN "${key}" ${getChangeKey(change.key, change.from)}`);
     });
   });
 
-  const upSql = formatSql(`ALTER TABLE "__SCHEMA__"."${state.name}" ${up};`);
-  const downSql = formatSql(`ALTER TABLE "__SCHEMA__"."${state.name}" ${down};`);
+  if (tableUp.length) up.push(formatSql(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableUp};`));
+  if (tableDown.length) down.push(formatSql(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableDown};`));
 
-  return [upSql, downSql];
+  changes.indices.dropped.forEach((index) => {
+    up.push(`DROP INDEX IF EXISTS "__SCHEMA__"."${index.name}" CASCADE`);
+
+    down.push(createIndex(state.name, index));
+  });
+
+  changes.indices.updated.forEach((index) => {
+    up.push(`DROP INDEX IF EXISTS "__SCHEMA__"."${index.from.name}" CASCADE`);
+    up.push(createIndex(state.name, index.to));
+
+    down.push(`DROP INDEX IF EXISTS "__SCHEMA__"."${index.to.name}" CASCADE`);
+    down.push(createIndex(state.name, index.from));
+  });
+
+  changes.indices.created.forEach((index) => {
+    up.push(createIndex(state.name, index));
+
+    down.push(`DROP INDEX IF EXISTS "__SCHEMA__"."${index.name}" CASCADE`);
+  });
+
+  return [[...up].filter(Boolean), [...down].filter(Boolean)];
+};
+
+const createIndex = (table: string, index: iIndex): string => {
+  const columns = index.columns.map((column) => {
+    if (typeof column === 'string') return `"${column}"`;
+
+    return `"${column.column}" ${column.order ?? ''} ${column.nulls ? `NULLS ${column.nulls}` : ''}`.trim();
+  });
+
+  const method = index.method ? `USING ${index.method}` : '';
+  const include = index.includes?.length ? `INCLUDE (${index.includes})` : '';
+
+  return `
+    CREATE ${index.unique ? 'UNIQUE' : ''} INDEX 
+    "${index.name}" ON "__SCHEMA__"."${table}" ${method}
+    (${columns}) ${include}
+  `;
 };
 
 // todo: handle other changes

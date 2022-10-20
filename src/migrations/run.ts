@@ -22,7 +22,11 @@ export const runMutations = async (options: iVerboseConfig) => {
   const { query, close } = createPostgresConnection(options);
 
   try {
-    // create mutations table if nothing exists
+    debug(options.verbose, chalk.gray(`Making sure schema exists...`));
+    await query(`CREATE SCHEMA IF NOT EXISTS "${schema}"`);
+
+    // todo: create needed extensions
+
     debug(options.verbose, chalk.gray(`Creating migrations table...`));
     await createMutationsTable(migrationsTable, query, schema);
 
@@ -45,7 +49,9 @@ export const runMutations = async (options: iVerboseConfig) => {
       const queries = Array.isArray(allQueries) ? allQueries : [allQueries];
 
       debug(options.verbose, chalk.gray(`Executing migration: ${migration.id}...`));
-      await Promise.all(queries.map((sql) => query(sql)));
+      for (const sql of queries) {
+        await query(sql);
+      }
     }
 
     debug(options.verbose, chalk.gray('Updating migrations table...'));
@@ -95,7 +101,7 @@ export const getLastMigrationId = async (
   schema: string = 'PUBLIC',
 ): Promise<string | null> => {
   const migrations = await query(
-    `SELECT id, index, commited_at FROM "${schema}"."${name}" ORDER BY commited_at, index DESC LIMIT 1`,
+    `SELECT id, index, commited_at FROM "${schema}"."${name}" ORDER BY commited_at DESC, index DESC LIMIT 1`,
   );
 
   return migrations?.[0]?.id ?? null;

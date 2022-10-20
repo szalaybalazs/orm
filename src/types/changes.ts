@@ -11,8 +11,8 @@ export interface iChangeEntry {
 }
 
 export interface iIndexChange {
-  dropped: string[];
-  updated: iIndex[];
+  dropped: iIndex[];
+  updated: { from: iIndex; to: iIndex }[];
   created: iIndex[];
 }
 
