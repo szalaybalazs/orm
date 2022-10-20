@@ -1,7 +1,9 @@
 import { iMigration, iContext } from '../../src/types/migration';
 
 class addedPasswordMigration implements iMigration {
-  id: 'addedPassword';
+  id = 'addedPassword';
+
+  timestamp = new Date(1666208469000);
 
   up = (ctx: iContext) => {
     return [

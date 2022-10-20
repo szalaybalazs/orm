@@ -9,22 +9,36 @@ import {
   tRegularColumn,
 } from '../types/entity';
 
-export const generateQueries = (changes: iChanges, tables: iTables): { up: string[]; down: string[] } => {
+/**
+ * Generate schema changing SQL queries
+ * @param changes changes between the two schemas
+ * @param state current table definition
+ * @param snapshot previous definitions
+ * @returns schema changes
+ */
+export const generateQueries = (
+  changes: iChanges,
+  state: iTables,
+  snapshot: iTables,
+): { up: string[]; down: string[] } => {
   const up: string[] = [];
   const down: string[] = [];
 
   // Handle removes
   changes.deleted.forEach((key) => {
+    // Drop table from current schema
     up.push(`DROP TABLE IF EXISTS "__SCHEMA__"."${key}" CASCADE;`);
 
-    // todo: create table when reverted
-    // needs previous tables
+    // Create table based on previous snapshot
+    const table = snapshot[key];
+    if (table.type !== 'VIEW') down.push(createTable(table as iTableEntity));
   });
 
   // Handle creates
   changes.created.forEach((key) => {
-    const table = tables[key];
-    if (table.type !== 'VIEW') up.push(createTable(tables[key] as iTableEntity));
+    // Create table based on current schema
+    const table = state[key];
+    if (table.type !== 'VIEW') up.push(createTable(table as iTableEntity));
 
     // Destroying table when reverted
     down.push(`DROP TABLE IF EXISTS "__SCHEMA__"."${key}" CASCADE;`);
@@ -32,28 +46,43 @@ export const generateQueries = (changes: iChanges, tables: iTables): { up: strin
 
   // Handle updates
   changes.updated.forEach((change) => {
-    const [transactionUp, transactionDown] = updateTable(tables[change.key], change.changes);
+    const [transactionUp, transactionDown] = updateTable(change.changes, state[change.key], snapshot[change.key]);
+
+    // Commit changes to tables
     if (transactionUp) up.push(transactionUp);
+
+    // Revert changes
     if (transactionDown) down.push(transactionDown);
   });
 
   return { up, down };
 };
 
-const updateTable = (table: tEntity, changes: iTableChanges): [string, string] => {
+/**
+ * Generate changes inside a single table
+ * @param changes changes in the table
+ * @param state current schema
+ * @param snapshot previous table schema
+ * @returns
+ */
+const updateTable = (changes: iTableChanges, state: tEntity, snapshot: tEntity): [string, string] => {
   const up: string[] = [];
   const down: string[] = [];
-  if (table.type === 'VIEW') return ['', ''];
+  if (state.type === 'VIEW') return ['', ''];
 
   Object.keys(changes.added).forEach((key) => {
-    up.push(`ADD COLUMN ${createColumn(table.columns[key], key)}`);
+    up.push(`ADD COLUMN ${createColumn(state.columns[key], key)}`);
     down.push(`DROP COLUMN "${key}"`);
   });
+
   changes.dropped.forEach((key) => {
+    // Drop column
     up.push(`DROP COLUMN "${key}"`);
 
-    // todo: create column when reverted - NEEDS previews tables
-    // up.push(`ADD COLUMN ${createColumn(table.columns[key], key)}`);
+    // Add column when reverting
+    if (snapshot.type !== 'VIEW') {
+      down.push(`ADD COLUMN ${createColumn(snapshot.columns[key], key)}`);
+    }
   });
 
   Object.keys(changes.changes).map((key) => {
@@ -63,14 +92,13 @@ const updateTable = (table: tEntity, changes: iTableChanges): [string, string] =
     });
   });
 
-  const upSql = formatSql(`ALTER TABLE "__SCHEMA__"."${table.name}" ${up};`);
+  const upSql = formatSql(`ALTER TABLE "__SCHEMA__"."${state.name}" ${up};`);
+  const downSql = formatSql(`ALTER TABLE "__SCHEMA__"."${state.name}" ${down};`);
 
-  const downSql = formatSql(`ALTER TABLE "__SCHEMA__"."${table.name}" ${down};`);
   return [upSql, downSql];
 };
 
 // todo: handle other changes
-
 const getChangeKey = (key: string, value: DefaultFunction<any> | any) => {
   if (key === 'unique') return `UNIQUE ${value}`;
   if (key === 'default') return `DEFAULT ${getDefault(value)}`;

@@ -1,7 +1,9 @@
 import { iMigration, iContext } from '../../src/types/migration';
 
 class initMigration implements iMigration {
-  id: 'init';
+  id = 'init';
+
+  timestamp = new Date(1666206729000);
 
   up = (ctx: iContext) => {
     return [

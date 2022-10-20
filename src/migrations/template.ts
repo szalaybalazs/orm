@@ -4,13 +4,14 @@ import { format as formatSql } from 'sql-formatter';
 const template = `import { iMigration, iContext } from '../../src/types/migration';
 
 class __ID__Migration implements iMigration {
-  id: '__ID__';
+  id = '__ID__';
+  
+  timestamp = __TIMESTAMP__;
 
   up = (ctx: iContext) => {
     return [__UP__];
   };
 
-  // TODO: generate revert SQL queries
   down = (ctx: iContext) => {
     return [__DOWN__];
   };
@@ -42,6 +43,7 @@ export const getMigrationTemplate = (id: string, up: string[], down: string[]) =
   return format(
     template
       .replace(/__ID__/g, id)
+      .replace(/__TIMESTAMP__/g, `new Date('${new Date().toUTCString()}')`)
       .replace(/__UP__/g, upSql)
       .replace(/__DOWN__/g, downSql),
     {

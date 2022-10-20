@@ -5,6 +5,7 @@
  */
 export const formatId = (id: string) => {
   return id
+    .replace(/&/g, 'and')
     .replace(/[^\w\s]/gi, '')
     .replace(/\s+/g, ' ')
     .split(' ')

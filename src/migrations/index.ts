@@ -25,7 +25,7 @@ export const runMigration = async (
   const changes = getChangesBetweenMigrations(snapshot?.tables || {}, tables);
 
   debug(verbose, chalk.gray('Generating queries...'));
-  const queries = generateQueries(changes, tables);
+  const queries = generateQueries(changes, tables, snapshot?.tables ?? {});
 
   if (queries.up.length === 0) throw new Error('NO_CHANGES');
 

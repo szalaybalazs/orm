@@ -21,7 +21,7 @@ const user: tEntity = {
       kind: 'RESOLVED',
       resolver: `TRIM(firstname || ' ' || lastname)`,
     },
-    email: {
+    username: {
       type: 'varchar',
       unique: true,
     },

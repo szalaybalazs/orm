@@ -12,7 +12,15 @@ export type LifecycleFunction =
   | ((ctx: iContext) => string[]);
 
 export interface iMigration {
+  /**
+   * ID of the migration - should be unique
+   */
   id: string;
+
+  /**
+   * Date of generation
+   */
+  timestamp: Date;
 
   /**
    * Return all the SQL queries necesarry to implement the changes
