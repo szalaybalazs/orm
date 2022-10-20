@@ -7,6 +7,11 @@ import { iMigration } from '../types/migration';
 import { finished } from 'stream';
 
 // todo: support multiple schemas
+
+/**
+ * Run all available migrations
+ * @param options orm config
+ */
 export const runMutations = async (options: iVerboseConfig) => {
   const migrationsTable = options.migrationsTable || '__migrations__';
   const schema = 'public';
@@ -77,6 +82,13 @@ export const createMutationsTable = (name: string, query: QueryFunction, schema:
   return query(sql);
 };
 
+/**
+ * Getting last migration from database, returns null if no prior migrations wre found
+ * @param name name of the migrations table
+ * @param query query runner
+ * @param schema name of the schema (default: PUBLIC)
+ * @returns id of the last migration or null
+ */
 export const getLastMigrationId = async (
   name: string,
   query: QueryFunction,
