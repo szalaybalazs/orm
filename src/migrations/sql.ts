@@ -73,9 +73,6 @@ const updateTable = (changes: iTableChanges, state: tEntity, snapshot: tEntity):
   const tableUp: string[] = [];
   const tableDown: string[] = [];
 
-  const indicesUp: string[] = [];
-  const indicesDown: string[] = [];
-
   if (state.type === 'VIEW') return [[], []];
 
   Object.keys(changes.added).forEach((key) => {
@@ -95,6 +92,7 @@ const updateTable = (changes: iTableChanges, state: tEntity, snapshot: tEntity):
 
   Object.keys(changes.changes).map((key) => {
     changes.changes[key].forEach((change) => {
+      if (change.key === 'primary') return;
       tableUp.push(`ALTER COLUMN "${key}" ${getChangeKey(change.key, change.to)}`);
       tableDown.push(`ALTER COLUMN "${key}" ${getChangeKey(change.key, change.from)}`);
     });
@@ -123,7 +121,35 @@ const updateTable = (changes: iTableChanges, state: tEntity, snapshot: tEntity):
     down.push(`DROP INDEX IF EXISTS "__SCHEMA__"."${index.name}" CASCADE`);
   });
 
-  return [[...up].filter(Boolean), [...down].filter(Boolean)];
+  const [primariesUp, primariesDown] = changePrimaries(changes, state, snapshot);
+
+  return [[...up, ...primariesUp].filter(Boolean), [...down, ...primariesDown].filter(Boolean)];
+};
+
+const changePrimaries = (changes: iTableChanges, state: tEntity, snapshot: tEntity): [string[], string[]] => {
+  const up: string[] = [];
+  const down: string[] = [];
+
+  if (state.type === 'VIEW') return;
+  if (snapshot.type === 'VIEW') return;
+
+  const allChanges = Object.values(changes.changes).flat();
+  const isPrimaryColumnChanged = allChanges.find((change) => change.key === 'primary');
+
+  if (isPrimaryColumnChanged) {
+    const newPrimaries = getPrimaryKeys(state);
+    const oldPrimaries = getPrimaryKeys(snapshot);
+
+    const dropPrimary = `ALTER TABLE "__SCHEMA__"."${state.name}" DROP CONSTRAINT "${state.name}_pkey";`;
+
+    up.push(dropPrimary);
+    if (newPrimaries.length) up.push(`ALTER TABLE "__SCHEMA__".${state.name} ADD PRIMARY KEY (${newPrimaries});`);
+
+    down.push(dropPrimary);
+    if (oldPrimaries.length) down.push(`ALTER TABLE "__SCHEMA__".${state.name} ADD PRIMARY KEY (${oldPrimaries});`);
+  }
+
+  return [up, down];
 };
 
 const createIndex = (table: string, index: iIndex): string => {
@@ -151,16 +177,28 @@ const getChangeKey = (key: string, value: DefaultFunction<any> | any) => {
 };
 
 const createTable = (table: iTableEntity): string => {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS "__SCHEMA__"."${table.name}" (
-      ${Object.keys(table.columns)
-        .map((key) => createColumn(table.columns[key], key))
-        .filter(Boolean)
-        .join(', ')}
-    );
-  `;
+  const columns = Object.keys(table.columns).map((key) => createColumn(table.columns[key], key));
+
+  const primaryKeys = getPrimaryKeys(table);
+  const primary = primaryKeys.length && `PRIMARY KEY (${primaryKeys})`;
+
+  const sql = `CREATE TABLE IF NOT EXISTS "__SCHEMA__"."${table.name}" (${[columns, primary].filter(Boolean)});`;
 
   return formatSql(sql);
+};
+
+const getPrimaryKeys = (table: iTableEntity) => {
+  const columns = Object.keys(table.columns);
+  const primaryColumns = columns.filter((key) => {
+    const column = table.columns[key];
+
+    if (column.kind === 'COMPUTED') return false;
+    if (column.kind === 'RESOLVED') return false;
+
+    return column.primary;
+  });
+
+  return primaryColumns.map((key) => `"${key}"`);
 };
 
 // todo: escale keywords
@@ -191,7 +229,6 @@ const getColumnOptions = (column: tColumn): Partial<iRegularColumnOptions & { de
 const getConstraint = (key: 'REQUIRED' | 'UNIQUE' | 'PRIMARY' | 'DEFAULT', value: string = '') => {
   if (key === 'REQUIRED') return 'NOT NULL';
   if (key === 'UNIQUE') return 'UNIQUE';
-  if (key === 'PRIMARY') return 'PRIMARY KEY';
   if (key === 'DEFAULT') return `DEFAULT ${value}`;
 };
 
@@ -206,7 +243,6 @@ const createColumn = (column: tColumn, key: string): string => {
   const constraints: string[] = [];
   if (!options.nullable) constraints.push(getConstraint('REQUIRED'));
   if (options.unique) constraints.push(getConstraint('UNIQUE'));
-  if (options.primary) constraints.push(getConstraint('PRIMARY'));
   if (options.default) constraints.push(getConstraint('DEFAULT', options.default));
 
   // todo: support arrays

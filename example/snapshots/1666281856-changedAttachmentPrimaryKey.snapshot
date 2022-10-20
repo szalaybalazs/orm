@@ -1,0 +1,132 @@
+{
+  "id": "changedAttachmentPrimaryKey",
+  "timestamp": "2022-10-20T16:04:15.571Z",
+  "tables": {
+    "attachments": {
+      "name": "attachments",
+      "columns": {
+        "id": {
+          "type": "uuid",
+          "comment": "ID of the attachment",
+          "primary": false
+        },
+        "key": {
+          "type": "varchar",
+          "comment": "Attachment key on S3",
+          "primary": true
+        }
+      },
+      "key": "attachment"
+    },
+    "comments": {
+      "name": "comments",
+      "columns": {
+        "id": {
+          "type": "uuid",
+          "comment": "ID of the comment",
+          "primary": true
+        },
+        "message": {
+          "type": "varchar",
+          "nullable": true
+        },
+        "reply_to": {
+          "type": "uuid",
+          "generated": true
+        },
+        "user_id": {
+          "type": "uuid",
+          "generated": false,
+          "comment": "ID of the messages author"
+        },
+        "post_id": {
+          "type": "uuid",
+          "comment": "ID of the post the message was sent under"
+        }
+      },
+      "indices": [
+        {
+          "columns": [
+            "user_id"
+          ]
+        },
+        {
+          "columns": [
+            "post_id"
+          ],
+          "includes": [
+            "user_id"
+          ]
+        }
+      ],
+      "key": "comment"
+    },
+    "posts": {
+      "name": "posts",
+      "columns": {
+        "id": {
+          "type": "uuid",
+          "comment": "ID of the post",
+          "primary": true,
+          "generated": true
+        },
+        "title": {
+          "type": "varchar",
+          "default": "Unnamed post",
+          "nullable": false
+        },
+        "sub_title": {
+          "type": "varchar",
+          "nullable": true
+        },
+        "author_id": {
+          "type": "uuid",
+          "comment": "ID of the posts author"
+        }
+      },
+      "key": "post"
+    },
+    "users": {
+      "name": "users",
+      "columns": {
+        "id": {
+          "type": "uuid",
+          "comment": "ID of the user",
+          "primary": true,
+          "generated": true
+        },
+        "firstname": {
+          "type": "varchar",
+          "default": "John"
+        },
+        "lastname": {
+          "type": "varchar",
+          "default": "Doe"
+        },
+        "name": {
+          "kind": "RESOLVED",
+          "resolver": "TRIM(firstname || ' ' || lastname)"
+        },
+        "username": {
+          "type": "varchar",
+          "unique": true
+        },
+        "password": {
+          "type": "varchar"
+        }
+      },
+      "indices": [
+        {
+          "columns": [
+            "username"
+          ],
+          "includes": [
+            "password"
+          ],
+          "unique": true
+        }
+      ],
+      "key": "user"
+    }
+  }
+}

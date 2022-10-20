@@ -11,6 +11,7 @@ const attachment: tEntity = {
     key: {
       type: 'varchar',
       comment: 'Attachment key on S3',
+      primary: true,
     },
   },
 };
