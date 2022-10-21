@@ -4,6 +4,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
+    "@types/inquirer": "^9.0.2",
     "@types/node": "^18.11.2",
     "@types/pg": "^8.6.5",
     "jest": "^29.2.1",
@@ -12,8 +13,10 @@
   },
   "dependencies": {
     "chalk": "4.1.0",
+    "cli-select": "^1.1.2",
     "commander": "^9.4.1",
     "fs-extra": "^10.1.0",
+    "inquirer": "^9.1.4",
     "pg": "^8.8.0",
     "prettier": "^2.7.1",
     "sql-formatter": "^11.0.2"

@@ -115,3 +115,20 @@ export const getLastMigrationId = async (
 
   return migrations?.[0]?.id ?? null;
 };
+
+/**
+ * Getting last migration from database, returns null if no prior migrations wre found
+ * @param name name of the migrations table
+ * @param query query runner
+ * @param schema name of the schema (default: PUBLIC)
+ * @returns id of the last migration or null
+ */
+export const getExecutedMigrations = async (
+  name: string,
+  query: QueryFunction,
+  schema: string = 'PUBLIC',
+): Promise<{ id: string; commited_at: string }[]> => {
+  const sql = `SELECT id, index, commited_at FROM "${schema}"."${name}" ORDER BY commited_at DESC, index DESC`;
+
+  return query(sql);
+};
