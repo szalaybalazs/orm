@@ -4,17 +4,14 @@ import { join } from 'path';
 import { debug } from '../core/log';
 import { getTables, loadEntities } from '../entities/load';
 import { loadLastSnapshot, saveSnapshot } from '../snapshots';
+import { iVerboseConfig } from '../types/config';
 import { getChangesBetweenMigrations } from './changes';
 import { generateQueries } from './sql';
 import { getMigrationTemplate } from './template';
 
-export const runMigration = async (
-  id: string,
-  entityDirectory: string,
-  snapshotDirectory: string,
-  migrationDirectory: string,
-  verbose: boolean = false,
-) => {
+export const runMigration = async (id: string, name: string, options: iVerboseConfig) => {
+  const { entities: entityDirectory, snapshots: snapshotDirectory, migrations: migrationDirectory, verbose } = options;
+
   debug(verbose, chalk.gray('Loading entities and latest snapshot...'));
   const [entities, snapshot] = await Promise.all([loadEntities(entityDirectory), loadLastSnapshot(snapshotDirectory)]);
 
@@ -30,7 +27,7 @@ export const runMigration = async (
   if (queries.up.length === 0) throw new Error('NO_CHANGES');
 
   debug(verbose, chalk.gray('Generating migration...'));
-  const migration = getMigrationTemplate(id, queries.up, queries.down);
+  const migration = getMigrationTemplate(id, name, queries.up, queries.down);
 
   debug(verbose, chalk.gray('Saving migration and new snapshot...'));
   await Promise.all([saveMigration(id, migration, migrationDirectory), saveSnapshot(snapshotDirectory, id, tables)]);

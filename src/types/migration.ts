@@ -18,6 +18,8 @@ export interface iMigration {
    */
   id: string;
 
+  name: string;
+
   /**
    * Date of generation
    */

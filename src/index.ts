@@ -22,7 +22,7 @@ program
     try {
       debug(params.verbose, chalk.gray('Loading orm config...'));
       const options = await parseConfig(params);
-      await runMigration(formatId(name), options.entities, options.snapshots, options.migrations, options.verbose);
+      await runMigration(formatId(name), name, options);
     } catch (error) {
       // todo: handle config errors
       if (error.message === 'NO_CHANGES') console.log(chalk.reset('No changes found in schema...'));
