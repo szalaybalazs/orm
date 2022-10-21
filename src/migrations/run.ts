@@ -1,10 +1,12 @@
+import * as chalk from 'chalk';
 import { debug } from '../core/log';
 import { createPostgresConnection, QueryFunction } from '../drivers/pg';
-import { iOrmConfig, iVerboseConfig } from '../types/config';
-import * as chalk from 'chalk';
-import { loadMigrations } from './load';
+import { loadLastSnapshot } from '../snapshots';
+import { iVerboseConfig } from '../types/config';
+import { iSnapshot } from '../types/entity';
 import { iMigration } from '../types/migration';
-import { finished } from 'stream';
+import { createExtensions } from './extensions';
+import { loadMigrations } from './load';
 
 // todo: support multiple schemas
 
@@ -17,6 +19,8 @@ export const runMutations = async (options: iVerboseConfig) => {
   const schema = 'public';
   debug(options.verbose, chalk.gray(`Running migrations using table: ${migrationsTable}...`));
 
+  // todo: get last snapshot
+
   // Creating SQL handler
   debug(options.verbose, chalk.gray(`Establishing connection to database...`));
   const { query, close } = createPostgresConnection(options);
@@ -25,17 +29,22 @@ export const runMutations = async (options: iVerboseConfig) => {
     debug(options.verbose, chalk.gray(`Making sure schema exists...`));
     await query(`CREATE SCHEMA IF NOT EXISTS "${schema}"`);
 
-    // todo: create needed extensions
-
     debug(options.verbose, chalk.gray(`Creating migrations table...`));
     await createMutationsTable(migrationsTable, query, schema);
 
     debug(options.verbose, chalk.gray(`Loading migrations...`));
-    const [allMigrations, lastMigration]: [iMigration[], string | null] = await Promise.all([
-      loadMigrations(options.migrations),
-      getLastMigrationId(migrationsTable, query, schema),
-    ]);
+    const [allMigrations, lastMigration, lastSnapshot]: [iMigration[], string | null, iSnapshot | null] =
+      await Promise.all([
+        loadMigrations(options.migrations),
+        getLastMigrationId(migrationsTable, query, schema),
+        loadLastSnapshot(options.snapshots),
+      ]);
     debug(options.verbose, chalk.gray(`Loaded last migration: ${lastMigration}`));
+
+    if (lastSnapshot) {
+      debug(options.verbose, chalk.gray(`Creating necesarry extensions...`));
+      await createExtensions(lastSnapshot?.tables, query);
+    }
 
     const lastMigrationIndex = allMigrations.findIndex((m) => m.id === lastMigration);
 

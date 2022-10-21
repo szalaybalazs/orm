@@ -6,6 +6,7 @@ import { getTables, loadEntities } from '../entities/load';
 import { loadLastSnapshot, saveSnapshot } from '../snapshots';
 import { iVerboseConfig } from '../types/config';
 import { getChangesBetweenMigrations } from './changes';
+import { createExtensions } from './extensions';
 import { generateQueries } from './sql';
 import { getMigrationTemplate } from './template';
 
