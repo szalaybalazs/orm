@@ -5,7 +5,7 @@ import { debug } from '../core/log';
 import { getEntities, loadEntities } from '../entities/load';
 import { loadLastSnapshot, saveSnapshot } from '../snapshots';
 import { generateQueries } from '../sql';
-import { iVerboseConfig } from '../types/config';
+import { iVerboseConfig } from '../types';
 import { getChangesBetweenMigrations } from './changes';
 import { getMigrationTemplate } from './template';
 

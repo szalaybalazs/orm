@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import { iPostgresConfig } from '../types/config';
+import { iPostgresConfig } from '../types';
 
 export type QueryFunction = (sql: string, variables?: any[]) => Promise<any[]>;
 

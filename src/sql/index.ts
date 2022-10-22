@@ -1,5 +1,4 @@
-import { iChanges } from '../types/changes';
-import { iTableEntity, iTables, iViewEntity } from '../types/entity';
+import { iChanges, iTables, iViewEntity } from '../types';
 import { createTable, dropTable, updateTable } from './table';
 import { createView, dropView } from './view';
 

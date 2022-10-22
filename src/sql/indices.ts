@@ -1,4 +1,4 @@
-import { iIndex } from '../types/entity';
+import { iIndex } from '../types';
 
 /**
  * Create index based on configuration on table

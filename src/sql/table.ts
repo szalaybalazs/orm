@@ -1,5 +1,4 @@
-import { iTableChanges } from '../types/changes';
-import { iTableEntity, tEntity } from '../types/entity';
+import { iTableChanges, iTableEntity, tEntity } from '../types';
 import { changeColumn, createColumn } from './column';
 import { createIndex, dropIndex } from './indices';
 import { changePrimaries, getPrimaryKeys } from './primary';

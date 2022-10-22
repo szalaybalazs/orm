@@ -2,9 +2,7 @@ import * as chalk from 'chalk';
 import { debug } from '../core/log';
 import { createPostgresConnection, QueryFunction } from '../drivers/pg';
 import { loadLastSnapshot } from '../snapshots';
-import { iVerboseConfig } from '../types/config';
-import { iSnapshot } from '../types/entity';
-import { iMigration } from '../types/migration';
+import { iMigration, iSnapshot, iVerboseConfig } from '../types';
 import { createExtensions } from './extensions';
 import { loadMigrations } from './load';
 

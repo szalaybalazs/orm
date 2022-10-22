@@ -1,6 +1,6 @@
+import { existsSync, mkdirsSync, pathExistsSync, readdir, readFile, writeFile } from 'fs-extra';
 import { join } from 'path';
-import { readdir, readFile, existsSync, writeFile, pathExistsSync, mkdirsSync } from 'fs-extra';
-import { iSnapshot, iTables } from '../types/entity';
+import { iSnapshot, iTables } from '../types';
 
 /**
  * Load all the snapshots from the defined directory

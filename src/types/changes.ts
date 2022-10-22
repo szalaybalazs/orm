@@ -1,4 +1,5 @@
-import { iIndex, tColumn } from './entity';
+import { tColumn } from './column';
+import { iIndex } from './entity';
 
 export interface iChange {
   key: string;

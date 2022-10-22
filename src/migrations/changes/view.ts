@@ -1,9 +1,9 @@
 import { format } from 'sql-formatter';
 import { getViewResolver } from '../../helpers/view';
-import { iViewChanges } from '../../types/changes';
-import { iViewEntity } from '../../types/entity';
+import { iViewChanges, iViewEntity } from '../../types';
 
 // todo: load columns from resolver & throw error if columns not match the set columns
+// todo: save resolver function in schema
 
 /**
  * Get changes between previous and current view
@@ -18,8 +18,8 @@ export const getChangesForViews = (oldView: iViewEntity, newView: iViewEntity): 
     replace: { up: false, down: false },
   };
 
-  const oldQuery = format(getViewResolver(oldView.name, oldView.resolver).query);
-  const newQuery = format(getViewResolver(newView.name, newView.resolver).query);
+  const oldQuery = format(getViewResolver(oldView.name, oldView.resolver || '').query);
+  const newQuery = format(getViewResolver(newView.name, newView.resolver || '').query);
 
   if (oldQuery !== newQuery) {
     changes.resolver = {

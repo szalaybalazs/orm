@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { readdir } from 'fs-extra';
-import { iTableEntity, iTables, tEntity } from '../types/entity';
+import { iTables, tEntity } from '../types';
 
 const validExtensions = ['.entity.ts', '.entity.js', '.entity.json'];
 

@@ -1,6 +1,4 @@
-import { eUpdate, iChanges, iTableChanges } from '../../types/changes';
-import { iTableEntity, iTables, iViewEntity } from '../../types/entity';
-import { getIndexChanges } from './indices';
+import { eUpdate, iChanges, iTableEntity, iTables, iViewEntity } from '../../types';
 import { getChangesForTables } from './table';
 import { getChangesForViews } from './view';
 

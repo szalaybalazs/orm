@@ -1,6 +1,6 @@
 import { readdir } from 'fs-extra';
 import { join } from 'path';
-import { iMigration } from '../types/migration';
+import { iMigration } from '../types';
 
 /**
  * Load all the migrations from the defined directory

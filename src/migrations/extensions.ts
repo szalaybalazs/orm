@@ -1,5 +1,5 @@
 import { QueryFunction } from '../drivers/pg';
-import { iTables, tRegularColumn } from '../types/entity';
+import { iTables, tRegularColumn } from '../types';
 
 type tExtension = 'uuid';
 

@@ -110,6 +110,7 @@ The repo contains an example folder - feel free to clone and play around with it
   - [x] Incremental migrations
   - [x] Keywords in default
   - [x] Indices
+  - [ ] Autogenerate table names (pluralize)
   - [x] Handle primary keys
   - [ ] Orm configs
     - [x] js/ts support

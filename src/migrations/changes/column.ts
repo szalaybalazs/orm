@@ -1,5 +1,4 @@
-import { iChange, iChangeEntry, iChanges, iTableChanges } from '../../types/changes';
-import { iTableEntity, iTables, tColumn } from '../../types/entity';
+import { iChange, tColumn } from '../../types';
 
 /**
  * List all the changes for columns

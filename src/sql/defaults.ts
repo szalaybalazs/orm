@@ -1,4 +1,4 @@
-import { tColumn } from '../types/entity';
+import { tColumn } from '../types';
 
 /**
  * Generate the default value of the column, based on config
@@ -21,6 +21,7 @@ export const getDefault = async (column: tColumn): Promise<string | null> => {
 
   if (type === 'string') return `'${String(value).replace(/'/g, '')}'`;
   if (type === 'number') return `${Number(value)}`;
+  if (type === 'boolean') return `${String(Boolean(value)).toUpperCase()}`;
 
   return null;
 };

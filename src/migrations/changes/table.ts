@@ -1,5 +1,4 @@
-import { iChange, iChangeEntry, iTableChanges } from '../../types/changes';
-import { iTableEntity } from '../../types/entity';
+import { iChange, iChangeEntry, iTableChanges, iTableEntity } from '../../types';
 import { getChangesForColumn } from './column';
 import { getIndexChanges } from './indices';
 

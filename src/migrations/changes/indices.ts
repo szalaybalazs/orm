@@ -1,6 +1,5 @@
 import { deepEqual } from '../../core/object';
-import { iIndexChange } from '../../types/changes';
-import { iIndex } from '../../types/entity';
+import { iIndex, iIndexChange } from '../../types';
 
 // By default uses the standard naming convention
 // https://gist.github.com/popravich/d6816ef1653329fb1745

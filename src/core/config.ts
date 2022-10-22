@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'fs-extra';
 import { isAbsolute, join } from 'path';
-import { iOrmConfig, iVerboseConfig } from '../types/config';
+import { iOrmConfig, iVerboseConfig } from '../types';
 
 // Supported config files
 const configFiles = ['ormconfig.js', 'ormconfig.ts', 'ormconfig.json'];

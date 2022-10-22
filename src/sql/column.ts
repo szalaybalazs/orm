@@ -1,13 +1,4 @@
-import { iChange, iTableChanges } from '../types/changes';
-import {
-  iDateColumn,
-  iNumberColumn,
-  iRegularColumnOptions,
-  iStringColumn,
-  iUUIDColumn,
-  tColumn,
-  tRegularColumn,
-} from '../types/entity';
+import { eColumnKeys, iChange, iRegularColumnOptions, tColumn, tRegularColumn } from '../types';
 import { getDefault } from './defaults';
 
 /**
@@ -63,8 +54,6 @@ const getConstraint = (key: 'REQUIRED' | 'UNIQUE' | 'PRIMARY' | 'DEFAULT', value
   if (key === 'UNIQUE') return 'UNIQUE';
   if (key === 'DEFAULT') return `DEFAULT ${value}`;
 };
-
-type eColumnKeys = keyof iNumberColumn | keyof iStringColumn | keyof iUUIDColumn | keyof iDateColumn;
 
 /**
  * Generate change query for column change

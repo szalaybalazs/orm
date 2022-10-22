@@ -2,8 +2,7 @@ import * as chalk from 'chalk';
 import cliSelect from 'cli-select';
 import { debug } from '../core/log';
 import { createPostgresConnection, QueryFunction } from '../drivers/pg';
-import { iVerboseConfig } from '../types/config';
-import { iMigration } from '../types/migration';
+import { iMigration, iVerboseConfig } from '../types';
 import { loadMigrations } from './load';
 import { getExecutedMigrations } from './run';
 
