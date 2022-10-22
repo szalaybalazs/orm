@@ -2,8 +2,8 @@ import { describe, expect, test } from '@jest/globals';
 import { getChangesBetweenMigrations } from '../../src/migrations/changes';
 
 import user from '../entities/user.entity';
-import post from '../entities/post.entity';
-import attachment from '../entities/attachment.entity';
+import post from '../entities/department.entity';
+import attachment from '../entities/employee.entity';
 import comment from '../entities/comment.entity';
 import { loadLastSnapshot } from '../../src/snapshots';
 

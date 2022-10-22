@@ -3,7 +3,7 @@ import { Command } from 'commander';
 import { parseConfig } from './core/config';
 import { formatId } from './core/id';
 import { debug } from './core/log';
-import { runMigration } from './migrations';
+import { createEmptyMigration, runMigration } from './migrations';
 import { revertMigrations } from './migrations/revert';
 import { runMutations } from './migrations/run';
 
@@ -34,11 +34,20 @@ addOptions(program.command('generate'))
       else console.log(error);
     }
   });
-
-program
-  .command('create')
+addOptions(program.command('create'))
   .description('Create empty migration')
-  .action(() => console.log('WIP'));
+  .argument('<name>', 'The name of the new migration')
+  .action(async (name, params) => {
+    try {
+      debug(params.verbose, chalk.gray('Loading orm config...'));
+      const options = await parseConfig(params);
+      await createEmptyMigration(formatId(name), name, options);
+    } catch (error) {
+      // todo: handle config errors
+      if (error.message === 'NO_CHANGES') console.log(chalk.reset('No changes found in schema...'));
+      else console.log(error);
+    }
+  });
 
 program
   .command('run')

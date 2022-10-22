@@ -48,6 +48,7 @@ const getColumnOptions = async (column: tColumn): Promise<Partial<iRegularColumn
     return {
       default: column.generated ? 'uuid_generate_v4()' : undefined,
       primary: column.primary,
+      nullable: column.nullable,
     };
   }
 

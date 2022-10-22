@@ -44,3 +44,8 @@ export const saveMigration = async (id: string, content: string, migrationDirect
 
   await writeFile(fileName, content, { encoding: 'utf-8' });
 };
+
+export const createEmptyMigration = async (id: string, name: string, options: iVerboseConfig) => {
+  const migration = getMigrationTemplate(id, name, [], []);
+  await saveMigration(id, migration, options.migrations);
+};

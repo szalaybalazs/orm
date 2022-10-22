@@ -89,6 +89,7 @@ export interface iUUIDColumn extends iBaseColumnOptions {
   kind?: 'REGULAR';
   type: eUUIDType;
   generated?: boolean;
+  nullable?: boolean;
 }
 
 export type tRegularColumn = iNumberColumn | iStringColumn | iUUIDColumn | iDateColumn;

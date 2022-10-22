@@ -1,26 +1,28 @@
 import { tEntity } from '../../src/types/entity';
 
-const post: tEntity = {
-  name: 'posts',
+const department: tEntity = {
+  name: 'departments',
   columns: {
     id: {
       type: 'uuid',
-      comment: 'ID of the post',
+      comment: 'ID of the department',
       primary: true,
       generated: true,
     },
-    title: {
+    name: {
       type: 'varchar',
-      default: 'Unnamed post',
+      default: 'Unnamed department',
       nullable: false,
     },
-    sub_title: {
+    description: {
       type: 'varchar',
       nullable: true,
     },
-    author_id: {
+    lead_id: {
       type: 'uuid',
-      comment: 'ID of the posts author',
+      comment: 'ID of the departments lead',
+      generated: false,
+      nullable: true,
     },
     created_at: {
       type: 'timestamptz',
@@ -29,4 +31,4 @@ const post: tEntity = {
   },
 };
 
-export default post;
+export default department;

@@ -4,7 +4,8 @@
     "start": "ts-node src/index.ts",
     "generate": "ts-node src/index.ts generate",
     "revert": "ts-node src/index.ts revert",
-    "execute": "ts-node src/index.ts run"
+    "execute": "ts-node src/index.ts run",
+    "migration:create": "ts-node src/index.ts create"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
