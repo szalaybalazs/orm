@@ -82,4 +82,44 @@ program
   .description('Pull schema from database and update snapshots')
   .action(() => console.log('WIP'));
 
+program
+  .command('show')
+  .description('Show Orm ASCII Text')
+  .action(async () => {
+    const figlet = await import('figlet');
+
+    const res = figlet.textSync('PostgresORM', {});
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log(
+      chalk.cyan(
+        res
+          .split('\n')
+          .map((l) => `      ${l}`)
+          .join('\n'),
+      ),
+    );
+    console.log(chalk.dim('       Advanced PostgreSQL focused ORM and Query Builder'));
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+    console.log('');
+  });
+
 program.parse();
