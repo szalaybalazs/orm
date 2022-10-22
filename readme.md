@@ -2,11 +2,25 @@ Features
 
 - ORM
   - [x] Incremental migrations
-  - [ ] Keywords in default
+  - [x] Keywords in default
   - [x] Indices
   - [x] Handle primary keys
+  - [ ] Orm configs
+    - [x] js/ts support
+    - [x] json support
+    - [ ] xml support
+    - [ ] yml support
+    - [ ] .env support
   - [ ] Plugin manager
+  - [ ] Enum support
+  - [ ] Foreign key support
+    - [ ] Relation support
   - [x] View support
+    - [ ] Add 'with check' option
+  - [ ] Function support
   - [ ] Trigger support
+  - [ ] GIS Support
+  - [ ] Convert codebase to classes for easier maintenance
+  - [ ] Handle naming conventions
 - Query Builder
 - Graphql Types

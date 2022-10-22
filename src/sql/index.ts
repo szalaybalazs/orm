@@ -3,6 +3,9 @@ import { iTableEntity, iTables, iViewEntity } from '../types/entity';
 import { createTable, dropTable, updateTable } from './table';
 import { createView, dropView } from './view';
 
+// todo: creation order: function -> table -> trigger & views
+// todo: drop order: views -> trigger -> table & function
+
 /**
  * Generate schema changing SQL queries
  * @param changes changes between the two schemas
