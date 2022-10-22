@@ -3,6 +3,7 @@ import { tEntity } from '../../src/types/entity';
 const reporting: tEntity = {
   name: 'statistics',
   type: 'VIEW',
+  materialized: true,
   resolver: `
     SELECT
       name,

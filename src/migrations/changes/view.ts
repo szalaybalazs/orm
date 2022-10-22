@@ -20,6 +20,13 @@ export const getChangesForViews = (key: string, oldView: iViewEntity, newView: i
     };
   }
 
+  if (oldView.materialized !== newView.materialized) {
+    changes.materialized = {
+      from: oldView.materialized,
+      to: newView.materialized,
+    };
+  }
+
   const oldColumns = Object.keys(oldView.columns);
   const newColumns = Object.keys(newView.columns);
 
@@ -36,13 +43,16 @@ export const getChangesForViews = (key: string, oldView: iViewEntity, newView: i
     };
   }
 
-  const isReplaceNeeded = intersection.reduce((prev, col) => {
+  const isEitherMaterialized = oldView.materialized || newView.materialized;
+  const isTypeChanged = intersection.reduce((prev, col) => {
     if (prev) return true;
     const oldType = oldView.columns[col];
     const newType = newView.columns[col];
 
     return oldType !== newType;
   }, false);
+
+  const isReplaceNeeded = isEitherMaterialized || isTypeChanged;
 
   const replace = {
     up: isReplaceNeeded || columnsRemoved,

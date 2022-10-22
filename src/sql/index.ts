@@ -22,7 +22,7 @@ export const generateQueries = async (
   const droppedPromise = changes.deleted.map(async (key) => {
     const entity = snapshot[key];
     // Drop table from current schema
-    if (entity.type === 'VIEW') up.push(dropView(key));
+    if (entity.type === 'VIEW') up.push(dropView(entity));
     else up.push(dropTable(key));
 
     // Create table based on previous snapshot
@@ -39,15 +39,15 @@ export const generateQueries = async (
     else up.push(await createTable(entity));
 
     // Destroying table when reverted
-    if (entity.type === 'VIEW') down.push(dropView(key));
+    if (entity.type === 'VIEW') down.push(dropView(entity));
     else down.push(dropTable(key));
   });
 
   // Handle updates
   const udpatedPromise = changes.updated.map(async (change) => {
     if (change.kind === 'VIEW') {
-      if (change.changes.replace.up) up.push(dropView(change.key));
-      if (change.changes.replace.down) down.push(dropView(change.key));
+      if (change.changes.replace.up) up.push(dropView(snapshot[change.key] as iViewEntity));
+      if (change.changes.replace.down) down.push(dropView(state[change.key] as iViewEntity));
 
       up.push(createView(state[change.key] as iViewEntity));
       down.push(createView(snapshot[change.key] as iViewEntity));

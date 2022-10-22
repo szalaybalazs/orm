@@ -34,6 +34,7 @@ export interface iViewChanges {
   replace: { up: boolean; down: boolean };
   resolver?: { from: string; to: string };
   columns?: { from: string[]; to: string[] };
+  materialized?: { from: boolean; to: boolean };
 }
 
 export interface iViewUpdate {
