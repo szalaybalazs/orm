@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, test } from '@jest/globals';
 import { getEntities, loadEntities } from '../entities/load';
 import { getChangesBetweenMigrations } from '../migrations/changes';
 

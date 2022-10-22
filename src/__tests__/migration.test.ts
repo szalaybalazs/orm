@@ -3,7 +3,7 @@ import { describe, test } from '@jest/globals';
 import { getEntities, loadEntities } from '../entities/load';
 import { runMigration } from '../migrations';
 import { generateQueries } from '../sql';
-import { iChanges } from '../types';
+import { iChanges, iVerboseConfig } from '../types';
 
 const changes: iChanges = {
   deleted: [],
@@ -40,6 +40,13 @@ const changes: iChanges = {
   ],
 };
 
+const options: iVerboseConfig = {
+  driver: 'postgres',
+  entities: './example/entities',
+  snapshots: './example/snapshots',
+  migrations: './example/migrations',
+};
+
 describe('Migrations', () => {
   test('Generate SQL migration', async () => {
     const entities = await loadEntities('./example/entities');
@@ -50,6 +57,6 @@ describe('Migrations', () => {
   });
 
   test('Generate new migration from changes', async () => {
-    await runMigration('added post title', './example/entities', './example/snapshots', './example/migrations');
+    await runMigration('addedPostTitle', 'added post title', options);
   });
 });
