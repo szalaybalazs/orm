@@ -72,6 +72,8 @@ export const updateTable = async (
     return await Promise.all(promises);
   });
 
+  await Promise.all([...added, ...dropped, ...updates]);
+
   if (tableUp.length) up.push(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableUp};`);
   if (tableDown.length) down.push(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableDown};`);
 

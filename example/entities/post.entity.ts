@@ -24,6 +24,7 @@ const post: tEntity = {
     },
     created_at: {
       type: 'timestamptz',
+      default: 'now',
     },
   },
 };

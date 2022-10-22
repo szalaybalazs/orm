@@ -30,7 +30,7 @@ export type eDateTypes =
 
 export type eUUIDType = 'uuid';
 
-export type allTypes = eNumberType | eStringType | eUUIDType;
+export type allTypes = eNumberType | eStringType | eUUIDType | eDateTypes;
 
 export type DefaultFunction<T> = (() => Promise<T>) | (() => T);
 

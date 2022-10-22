@@ -1,7 +1,10 @@
 {
   "scripts": {
     "test": "jest",
-    "start": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts",
+    "generate": "ts-node src/index.ts generate",
+    "revert": "ts-node src/index.ts revert",
+    "execute": "ts-node src/index.ts run"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",
