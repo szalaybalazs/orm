@@ -1,6 +1,9 @@
 import { existsSync, readFileSync } from 'fs-extra';
 import { isAbsolute, join } from 'path';
+import { program } from '../cli';
 import { iOrmConfig, iVerboseConfig } from '../types';
+import { chalk } from './chalk';
+import { debug } from './log';
 
 // Supported config files
 const configFiles = ['ormconfig.js', 'ormconfig.ts', 'ormconfig.json'];
@@ -62,15 +65,16 @@ const loadConfig = async (path: string): Promise<iVerboseConfig> => {
  * @returns orm config
  */
 export const parseConfig = async (params: any): Promise<iVerboseConfig> => {
+  debug(params.verbose, chalk.gray('Loading orm config...'));
   const config: iOrmConfig = await loadFile(params.config).catch((err) => {
     if (err === 'CONFIG_MISSING') {
-      console.log('No config file found, using default value...');
+      debug(params.verbose, chalk.gray('No config file found, using default value...'));
       return {
         driver: 'postgres',
       };
     }
-    console.log(err);
     // todo: handle errors
+    program.error(`Failed to load config: ${err.message}`);
     return { driver: 'postgres' };
   });
 

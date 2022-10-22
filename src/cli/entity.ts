@@ -9,11 +9,10 @@ import { addOptions } from './options';
 
 export const createEntityProgram = (program: Command) => {
   addOptions(program.command('entity:create'))
-    .description('Create empty entity')
+    .description('Create new, empty entities')
     .argument('<name>', 'The name of the new entity')
     .action(async (input, params) => {
       try {
-        debug(params.verbose, chalk.gray('Loading orm config...'));
         const name = formatId(input);
         const options = await parseConfig(params);
         const content = getEmptyEntityContent(name);

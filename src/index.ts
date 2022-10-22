@@ -1,5 +1,3 @@
-import { createProgram } from './cli';
-
-const program = createProgram();
+import { program } from './cli';
 
 program.parse();

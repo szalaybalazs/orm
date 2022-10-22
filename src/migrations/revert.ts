@@ -3,8 +3,8 @@ import cliSelect from 'cli-select';
 import { debug } from '../core/log';
 import { createPostgresConnection, QueryFunction } from '../drivers/pg';
 import { iMigration, iVerboseConfig } from '../types';
-import { loadMigrations } from './load';
-import { getExecutedMigrations } from './run';
+import { loadMigrations } from './filesystem';
+import { getExecutedMigrations } from './migrations';
 
 export const revertMigrations = async (options: iVerboseConfig) => {
   const migrationsTable = options.migrationsTable || '__migrations__';

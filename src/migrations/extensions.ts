@@ -1,29 +1,47 @@
 import { QueryFunction } from '../drivers/pg';
-import { iTables, tRegularColumn } from '../types';
+import { eExtension, iTables, tRegularColumn } from '../types';
 
-type tExtension = 'uuid';
-
-export const createExtensions = async (state: iTables, query: QueryFunction) => {
+/**
+ * Generate extension creation queries
+ * @param state current schema state
+ * @param query Query function
+ */
+export const createExtensions = async (state: iTables, query: QueryFunction): Promise<void> => {
   const queries = createExtensionQueries(state);
   await Promise.all(queries.map((sql) => query(sql)));
 };
 
+/**
+ * Generate extension creation queries
+ * @param state current schema state
+ * @returns queries
+ */
 export const createExtensionQueries = (state: iTables): string[] => {
-  const extensions: tExtension[] = [];
+  const extensions: Set<eExtension> = new Set();
   const tableList = Object.values(state).map((table) => (table.type !== 'VIEW' && Object.values(table.columns)) || []);
   const columns: tRegularColumn[] = tableList.flat().filter((c) => c.kind === 'REGULAR') as tRegularColumn[];
   const types = columns.map((column) => column.type);
 
-  if (types.includes('uuid')) extensions.push('uuid');
+  if (types.includes('uuid')) extensions.add('uuid');
 
-  return extensions.map(createSql).flat();
+  return Array.from(extensions).map(createSql).flat();
 };
 
-const getExtensionName = (extension: tExtension): string[] => {
-  if (extension === 'uuid') return ['"uuid-ossp"'];
-};
-
-const createSql = (extension: tExtension) => {
+/**
+ * Generate creation query
+ * @param extension extension name
+ * @returns
+ */
+const createSql = (extension: eExtension): string[] => {
   const names = getExtensionName(extension);
   return names.map((name) => `CREATE EXTENSION IF NOT EXISTS ${name}`);
+};
+
+/**
+ * Get the official name of the extension
+ * @param extension internal extension identified
+ * @returns extension names
+ */
+const getExtensionName = (extension: eExtension): string[] => {
+  if (extension === 'uuid') return ['"uuid-ossp"'];
 };

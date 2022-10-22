@@ -1,11 +1,26 @@
-import { readdir } from 'fs-extra';
+import { existsSync, mkdirSync, pathExistsSync, readdir, writeFile } from 'fs-extra';
 import { join } from 'path';
 import { iMigration } from '../types';
 
 /**
+ * Save migration to the file system
+ * @param id id of the migration
+ * @param content content of the migration
+ * @param migrationDirectory directory to be saved to
+ */
+export const saveMigration = async (id: string, content: string, migrationDirectory: string) => {
+  const base = join(process.cwd(), migrationDirectory);
+  const fileName = join(base, `${Math.round(Date.now() / 1000)}-${id}.migration.ts`);
+  if (!pathExistsSync(base)) mkdirSync(base);
+  if (existsSync(fileName)) throw new Error('Snapshot already exists with the same ID');
+
+  await writeFile(fileName, content, { encoding: 'utf-8' });
+};
+
+/**
  * Load all the migrations from the defined directory
  * @param directory directory containing all the migrations
- * @returns
+ * @returns migration list
  */
 export const loadMigrations = async (directory: string) => {
   try {

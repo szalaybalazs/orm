@@ -15,3 +15,8 @@ export interface iOrmConfig extends iPostgresConfig {
 export interface iVerboseConfig extends iOrmConfig {
   verbose?: boolean;
 }
+
+export interface iQueryOptions {
+  migrationsTable: string;
+  schema: string;
+}

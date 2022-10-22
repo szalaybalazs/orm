@@ -3,7 +3,7 @@ import { createBannerProgram } from './banner';
 import { createEntityProgram } from './entity';
 import { createMigraationProgram } from './migration';
 
-export const createProgram = (): Command => {
+const createProgram = (): Command => {
   const program = new Command();
   program.version('0.0.1', '-v, --version', 'Output the current version');
 
@@ -13,3 +13,5 @@ export const createProgram = (): Command => {
 
   return program;
 };
+
+export const program = createProgram();

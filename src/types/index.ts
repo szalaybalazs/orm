@@ -1,46 +1,42 @@
 export type {
+  eUpdate,
   iChange,
   iChangeEntry,
+  iChanges,
   iIndexChange,
   iTableChanges,
+  iTableUpdate,
   iViewChanges,
   iViewUpdate,
-  iTableUpdate,
-  eUpdate,
-  iChanges,
 } from './changes';
-
 export type {
-  iResolvedColumn,
-  iComputedColumn,
-  iBaseColumnOptions,
-  iRegularColumnOptions,
-  iNumberColumn,
-  iDateColumn,
-  iStringColumn,
-  iBinaryColumn,
-  iIntervalColumn,
-  iBooleanColumn,
-  iUUIDColumn,
-  tRegularColumn,
-  tColumn,
   eColumnKeys,
+  iBaseColumnOptions,
+  iBinaryColumn,
+  iBooleanColumn,
+  iComputedColumn,
+  iDateColumn,
+  iIntervalColumn,
+  iNumberColumn,
+  iRegularColumnOptions,
+  iResolvedColumn,
+  iStringColumn,
+  iUUIDColumn,
+  tColumn,
+  tRegularColumn,
 } from './column';
-
-export type { iPostgresConfig, iOrmConfig, iVerboseConfig } from './config';
-
+export type { iOrmConfig, iPostgresConfig, iQueryOptions, iVerboseConfig } from './config';
 export type {
-  eNumberType,
-  eStringType,
-  eDateTypes,
-  eUUIDType,
-  eIntervalType,
-  eBinaryType,
-  eBooleanType,
   allTypes,
   DefaultFunction,
+  eBinaryType,
+  eBooleanType,
+  eDateTypes,
+  eIntervalType,
+  eNumberType,
+  eStringType,
+  eUUIDType,
 } from './datatypes';
-
-export type { iIndex, iTableEntity, iViewEntity, tEntity, iTables, iSnapshot } from './entity';
-
-export type { iContext, LifecycleFunction, iMigration } from './migration';
+export type { iIndex, iSnapshot, iTableEntity, iTables, iViewEntity, tEntity } from './entity';
+export type { eExtension } from './extension';
+export type { iContext, iMigration, LifecycleFunction } from './migration';

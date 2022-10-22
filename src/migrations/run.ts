@@ -1,10 +1,9 @@
 import * as chalk from 'chalk';
 import { debug } from '../core/log';
 import { createPostgresConnection, QueryFunction } from '../drivers/pg';
-import { loadLastSnapshot } from '../snapshots';
-import { iMigration, iSnapshot, iVerboseConfig } from '../types';
-import { createExtensions } from './extensions';
-import { loadMigrations } from './load';
+import { iMigration, iVerboseConfig } from '../types';
+import { initMigrationExecution } from './init';
+import { getAvailableMigrations } from './migrations';
 
 // todo: support multiple schemas
 
@@ -17,57 +16,20 @@ export const runMutations = async (options: iVerboseConfig) => {
   const schema = 'public';
   debug(options.verbose, chalk.gray(`Running migrations using table: ${migrationsTable}...`));
 
-  // todo: get last snapshot
-
   // Creating SQL handler
   debug(options.verbose, chalk.gray(`Establishing connection to database...`));
   const { query, close } = createPostgresConnection(options);
 
   try {
-    debug(options.verbose, chalk.gray(`Making sure schema exists...`));
-    await query(`CREATE SCHEMA IF NOT EXISTS "${schema}"`);
-
-    debug(options.verbose, chalk.gray(`Creating migrations table...`));
-    await createMutationsTable(migrationsTable, query, schema);
+    await initMigrationExecution(migrationsTable, schema, query, options);
 
     debug(options.verbose, chalk.gray(`Loading migrations...`));
-    const [allMigrations, lastMigration, lastSnapshot]: [iMigration[], string | null, iSnapshot | null] =
-      await Promise.all([
-        loadMigrations(options.migrations),
-        getLastMigrationId(migrationsTable, query, schema),
-        loadLastSnapshot(options.snapshots),
-      ]);
-    debug(options.verbose, chalk.gray(`Loaded last migration: ${lastMigration}`));
 
-    if (lastSnapshot) {
-      debug(options.verbose, chalk.gray(`Creating necesarry extensions...`));
-      await createExtensions(lastSnapshot?.tables, query);
-    }
-
-    const lastMigrationIndex = allMigrations.findIndex((m) => m.id === lastMigration);
-
-    const migrations = allMigrations.slice(lastMigrationIndex + 1, allMigrations.length);
-
+    const migrations = await getAvailableMigrations(query, options, { schema, migrationsTable });
     if (migrations.length < 1) throw new Error('NO_NEW_MIGRATIONS');
 
-    for (const migration of migrations) {
-      // todo: handle revert queries
-      const allQueries = await migration.up({ schema, query });
-      const queries = Array.isArray(allQueries) ? allQueries : [allQueries];
+    await executeMigrations({ migrations, query, schema, options, migrationsTable });
 
-      debug(options.verbose, chalk.gray(`Executing migration: ${migration.id}...`));
-      // todo: revert migrations on fail
-      for (const sql of queries) {
-        await query(sql);
-      }
-    }
-
-    debug(options.verbose, chalk.gray('Updating migrations table...'));
-
-    const sql = `INSERT INTO "${schema}"."${migrationsTable}" (id) VALUES ${migrations.map(
-      (migration) => `('${migration.id}')`,
-    )}`;
-    await query(sql);
     debug(options.verbose, chalk.gray('Migrations commited...'));
   } catch (error) {
     throw error;
@@ -77,57 +39,33 @@ export const runMutations = async (options: iVerboseConfig) => {
   }
 };
 
-/**
- * Create the mutation table
- * @param name name of the table
- * @param query query function
- * @param schema name of the function - fallbacks to PUBLIC
- * @returns
- */
-export const createMutationsTable = (name: string, query: QueryFunction, schema: string = 'PUBLIC') => {
-  const sql = `
-    CREATE TABLE IF NOT EXISTS "${schema}"."${name}" (
-      index SERIAL PRIMARY KEY NOT NULL,
-      id VARCHAR NOT NULL UNIQUE,
-      commited_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-    )
-  `;
+export const executeMigrations = async ({
+  migrations,
+  schema,
+  query,
+  options,
+  migrationsTable,
+}: {
+  migrations: iMigration[];
+  schema: string;
+  migrationsTable: string;
+  query: QueryFunction;
+  options: iVerboseConfig;
+}) => {
+  for (const migration of migrations) {
+    // todo: handle revert queries
+    const allQueries = await migration.up({ schema, query });
+    const queries = Array.isArray(allQueries) ? allQueries : [allQueries];
 
-  return query(sql);
-};
+    // todo: revert migrations on fail
+    debug(options.verbose, chalk.gray(`Executing migration: ${migration.id}...`));
+    for (const sql of queries) await query(sql);
+  }
 
-/**
- * Getting last migration from database, returns null if no prior migrations wre found
- * @param name name of the migrations table
- * @param query query runner
- * @param schema name of the schema (default: PUBLIC)
- * @returns id of the last migration or null
- */
-export const getLastMigrationId = async (
-  name: string,
-  query: QueryFunction,
-  schema: string = 'PUBLIC',
-): Promise<string | null> => {
-  const migrations = await query(
-    `SELECT id, index, commited_at FROM "${schema}"."${name}" ORDER BY commited_at DESC, index DESC LIMIT 1`,
-  );
+  debug(options.verbose, chalk.gray('Updating migrations table...'));
 
-  return migrations?.[0]?.id ?? null;
-};
-
-/**
- * Getting last migration from database, returns null if no prior migrations wre found
- * @param name name of the migrations table
- * @param query query runner
- * @param schema name of the schema (default: PUBLIC)
- * @returns id of the last migration or null
- */
-export const getExecutedMigrations = async (
-  name: string,
-  query: QueryFunction,
-  schema: string = 'PUBLIC',
-): Promise<{ id: string; commited_at: string }[]> => {
-  const sql = `SELECT id, index, commited_at FROM "${schema}"."${name}" ORDER BY commited_at DESC, index DESC`;
-
-  return query(sql);
+  const sql = `INSERT INTO "${schema}"."${migrationsTable}" (id) VALUES ${migrations.map(
+    (migration) => `('${migration.id}')`,
+  )}`;
+  await query(sql);
 };

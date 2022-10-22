@@ -1,5 +1,6 @@
 import { existsSync, mkdirsSync, pathExistsSync, readdir, readFile, writeFile } from 'fs-extra';
 import { join } from 'path';
+import { getViewResolver } from '../helpers/view';
 import { iSnapshot, iTables } from '../types';
 
 /**
@@ -38,8 +39,17 @@ export const loadLastSnapshot = async (directory: string): Promise<iSnapshot | n
   return snapshots[0] || null;
 };
 
+export const getSnapshotTables = (state: iTables): iTables => {
+  const tableMap: iTables = Object.entries(state).reduce((acc, [key, table]) => {
+    if (table.type === 'VIEW') table.resolver = getViewResolver(table.name || key, table.resolver).query;
+    return { ...acc, [key]: table };
+  }, {});
+
+  return tableMap;
+};
+
 export const saveSnapshot = async (directory: string, id: string, state: iTables) => {
-  const snapshot: iSnapshot = { id, timestamp: new Date(), tables: state };
+  const snapshot: iSnapshot = { id, timestamp: new Date(), tables: getSnapshotTables(state) };
   const rawSnapshot = JSON.stringify(snapshot, null, 2);
 
   const base = join(process.cwd(), directory);
