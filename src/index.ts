@@ -3,6 +3,8 @@ import { Command } from 'commander';
 import { parseConfig } from './core/config';
 import { formatId } from './core/id';
 import { debug } from './core/log';
+import { getEmptyEntityContent } from './entities/template';
+import { writeEntity } from './entities/write';
 import { createEmptyMigration, runMigration } from './migrations';
 import { revertMigrations } from './migrations/revert';
 import { runMutations } from './migrations/run';
@@ -34,7 +36,8 @@ addOptions(program.command('generate'))
       else console.log(error);
     }
   });
-addOptions(program.command('create'))
+
+addOptions(program.command('migration:create'))
   .description('Create empty migration')
   .argument('<name>', 'The name of the new migration')
   .action(async (name, params) => {
@@ -42,6 +45,24 @@ addOptions(program.command('create'))
       debug(params.verbose, chalk.gray('Loading orm config...'));
       const options = await parseConfig(params);
       await createEmptyMigration(formatId(name), name, options);
+    } catch (error) {
+      // todo: handle config errors
+      if (error.message === 'NO_CHANGES') console.log(chalk.reset('No changes found in schema...'));
+      else console.log(error);
+    }
+  });
+
+addOptions(program.command('entity:create'))
+  .description('Create empty entity')
+  .argument('<name>', 'The name of the new entity')
+  .action(async (input, params) => {
+    try {
+      debug(params.verbose, chalk.gray('Loading orm config...'));
+      const name = formatId(input);
+      const options = await parseConfig(params);
+      const content = getEmptyEntityContent(name);
+      debug(params.verbose, chalk.gray('Saving new entity...'));
+      await writeEntity(name, options.entities, content);
     } catch (error) {
       // todo: handle config errors
       if (error.message === 'NO_CHANGES') console.log(chalk.reset('No changes found in schema...'));
