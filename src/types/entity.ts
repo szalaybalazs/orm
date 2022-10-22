@@ -119,7 +119,7 @@ export interface iViewEntity {
   name: string;
   resolver: string;
 
-  rercursiveResolver?: string;
+  recursive?: boolean;
 
   // Column definitions are required to detect return type changes
   // Views can not be replaced if a column type has changed

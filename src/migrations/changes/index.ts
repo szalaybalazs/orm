@@ -1,7 +1,8 @@
-import { iChanges, iTableChanges } from '../../types/changes';
-import { iTableEntity, iTables } from '../../types/entity';
+import { eUpdate, iChanges, iTableChanges } from '../../types/changes';
+import { iTableEntity, iTables, iViewEntity } from '../../types/entity';
 import { getIndexChanges } from './indices';
 import { getChangesForTables } from './table';
+import { getChangesForViews } from './view';
 
 // todo: handle views
 
@@ -20,19 +21,25 @@ export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables): 
 
   const updatedTables = previousTables.filter((table) => currentTables.includes(table));
 
-  const changes = updatedTables.map((key) => {
-    let changes: iTableChanges = { changes: {}, dropped: [], added: {}, indices: {} };
+  const changes = updatedTables.map((key): eUpdate => {
+    if (snapshot[key]?.type === 'VIEW') {
+      const oldView = getView(snapshot, key);
+      const newView = getView(state, key);
+      const changes = getChangesForViews(key, oldView, newView);
 
-    if (snapshot[key]?.type !== 'VIEW') {
+      if (!['resolver', 'columns'].some((key) => key in changes)) return undefined;
+      return { key, kind: 'VIEW', changes };
+    } else {
       const oldTable = getTable(snapshot, key);
       const newTable = getTable(state, key);
-      changes = getChangesForTables(key, oldTable, newTable);
+
+      const changes = getChangesForTables(key, oldTable, newTable);
+
+      const allChanges = Object.values(changes).map((f) => Object.values(f));
+
+      if (allChanges.flat(100).length === 0) return undefined;
+      return { key, changes };
     }
-
-    const allChanges = Object.values(changes).map((f) => Object.values(f));
-
-    if (allChanges.flat().length === 0) return undefined;
-    return { key, changes };
   });
 
   return {
@@ -44,4 +51,7 @@ export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables): 
 
 const getTable = (snapshot: iTables, key: string) => {
   return (snapshot[key] ?? Object.values(snapshot).find((table) => table.name === key)) as iTableEntity;
+};
+const getView = (snapshot: iTables, key: string) => {
+  return (snapshot[key] ?? Object.values(snapshot).find((table) => table.name === key)) as iViewEntity;
 };

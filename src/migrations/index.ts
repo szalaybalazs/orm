@@ -2,7 +2,7 @@ import * as chalk from 'chalk';
 import { existsSync, mkdirSync, pathExistsSync, writeFile } from 'fs-extra';
 import { join } from 'path';
 import { debug } from '../core/log';
-import { getTables, loadEntities } from '../entities/load';
+import { getEntities, loadEntities } from '../entities/load';
 import { loadLastSnapshot, saveSnapshot } from '../snapshots';
 import { generateQueries } from '../sql';
 import { iVerboseConfig } from '../types/config';
@@ -19,7 +19,7 @@ export const runMigration = async (id: string, name: string, options: iVerboseCo
   const [entities, snapshot] = await Promise.all([loadEntities(entityDirectory), loadLastSnapshot(snapshotDirectory)]);
 
   debug(verbose, chalk.gray('Generating tables...'));
-  const tables = getTables(entities);
+  const tables = getEntities(entities);
 
   debug(verbose, chalk.gray('Generating changes...'));
   const changes = getChangesBetweenMigrations(snapshot?.tables || {}, tables);

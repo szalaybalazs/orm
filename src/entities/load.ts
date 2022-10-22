@@ -36,8 +36,11 @@ export const loadEntities = async (directory: string): Promise<tEntity[]> => {
   return modules.filter(Boolean);
 };
 
-export const getTables = (entities: tEntity[]): iTables => {
-  const tables = entities.filter((e) => e.type !== 'VIEW') as iTableEntity[];
-
-  return tables.reduce((acc, table) => ({ ...acc, [table.name]: table }), {});
+/**
+ * Generate entity map from array
+ * @param entities input array
+ * @returns { [key: string]: entity } map
+ */
+export const getEntities = (entities: tEntity[]): iTables => {
+  return entities.reduce((acc, table) => ({ ...acc, [table.name]: table }), {});
 };

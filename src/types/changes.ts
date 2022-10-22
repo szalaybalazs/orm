@@ -17,17 +17,40 @@ export interface iIndexChange {
 }
 
 export interface iTableChanges {
-  changes: iChangeEntry;
-  dropped: string[];
-  added: { [key: string]: tColumn };
-  indices: Partial<iIndexChange>;
+  kind?: 'TABLE';
+  changes?: iChangeEntry;
+  dropped?: string[];
+  added?: { [key: string]: tColumn };
+  indices?: Partial<iIndexChange>;
 }
+
+export interface iViewChanges {
+  kind: 'VIEW';
+  /**
+   * Whether view should be dropped and recreated
+   *
+   * Only needed if column types change - by default query will use CREATE OR REPLACE
+   */
+  replace: { up: boolean; down: boolean };
+  resolver?: { from: string; to: string };
+  columns?: { from: string[]; to: string[] };
+}
+
+export interface iViewUpdate {
+  key: string;
+  kind: 'VIEW';
+  changes: iViewChanges;
+}
+export interface iTableUpdate {
+  key: string;
+  kind?: 'TABLE';
+  changes: iTableChanges;
+}
+
+export type eUpdate = iViewUpdate | iTableUpdate;
 
 export interface iChanges {
   deleted: string[];
   created: string[];
-  updated: {
-    key: string;
-    changes: iTableChanges;
-  }[];
+  updated: eUpdate[];
 }

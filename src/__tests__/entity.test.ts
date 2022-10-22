@@ -1,5 +1,5 @@
 import { describe, test } from '@jest/globals';
-import { loadEntities } from '../../src/entities/load';
+import { loadEntities } from '../entities/load';
 
 describe('Entities', () => {
   test('Load entities from directory', async () => {

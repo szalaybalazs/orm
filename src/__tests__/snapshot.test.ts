@@ -1,7 +1,7 @@
 import { describe, test } from '@jest/globals';
-import { loadSnapshots, saveSnapshot } from '../../src/snapshots';
+import { loadSnapshots, saveSnapshot } from '../snapshots';
 import user from '../entities/user.entity';
-import post from '../entities/department.entity';
+import post from '../../example/entities/department.entity';
 describe('Snapshots', () => {
   test('Load snapshots', async () => {
     const snapshots = await loadSnapshots('./example/snapshots');
