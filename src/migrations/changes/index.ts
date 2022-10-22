@@ -25,7 +25,7 @@ export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables): 
     if (snapshot[key]?.type === 'VIEW') {
       const oldView = getView(snapshot, key);
       const newView = getView(state, key);
-      const changes = getChangesForViews(key, oldView, newView);
+      const changes = getChangesForViews(oldView, newView);
 
       if (Object.keys(changes).every((c) => ['kind', 'replace'].includes(c))) return undefined;
       return { key, kind: 'VIEW', changes };

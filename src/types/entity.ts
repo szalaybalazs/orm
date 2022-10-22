@@ -70,7 +70,6 @@ export interface iNumberColumn extends iRegularColumnOptions {
 }
 
 type eDateDefaults = 'CURRENT_TIMESTAMP' | 'NOW()' | 'now' | 'today' | 'tomorrow' | 'yesterday';
-// todo: create default resolvers in sql.ts
 
 export interface iDateColumn extends iRegularColumnOptions {
   type: eDateTypes;

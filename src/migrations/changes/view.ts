@@ -5,7 +5,14 @@ import { iViewEntity } from '../../types/entity';
 
 // todo: load columns from resolver & throw error if columns not match the set columns
 
-export const getChangesForViews = (key: string, oldView: iViewEntity, newView: iViewEntity): iViewChanges => {
+/**
+ * Get changes between previous and current view
+ * Determine whether the old view should be dropped or replace is enough
+ * @param oldView the old view config
+ * @param newView the new view config
+ * @returns changes between the views
+ */
+export const getChangesForViews = (oldView: iViewEntity, newView: iViewEntity): iViewChanges => {
   const changes: iViewChanges = {
     kind: 'VIEW',
     replace: { up: false, down: false },
@@ -43,6 +50,12 @@ export const getChangesForViews = (key: string, oldView: iViewEntity, newView: i
       to: newColumns,
     };
   }
+
+  // The previous view should be dropped if:
+  // - Any of the views are materialized views (mat. views can not be "replaced")
+  // - Any of the column types changed
+  // - Columns have been removed from the view (views can only be extended, not shrinked)
+  //   Since when the column list changes there is both addition and substraction to the column list, the view will be either dropped in the "up" or "down" cycle
 
   const isEitherMaterialized = oldView.materialized || newView.materialized;
   const isTypeChanged = intersection.reduce((prev, col) => {

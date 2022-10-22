@@ -1,7 +1,12 @@
+import { getQuery } from '../core/commands';
 import { getViewResolver } from '../helpers/view';
 import { iViewEntity } from '../types/entity';
 
-// todo: support functional resolver
+/**
+ * Create new view
+ * @param view view config
+ * @returns SQL Query
+ */
 export const createView = (view: iViewEntity): string => {
   const name = view.name;
   const columns = Object.keys(view.columns).map((c) => `"${c}"`);
@@ -21,6 +26,11 @@ export const createView = (view: iViewEntity): string => {
   );
 };
 
+/**
+ * Drop existing view by config
+ * @param view view config
+ * @returns SQL Query
+ */
 export const dropView = (view: iViewEntity): string => {
   return getQuery(
     'DROP',
@@ -30,8 +40,4 @@ export const dropView = (view: iViewEntity): string => {
     `"__SCHEMA__"."${view.name}"`,
     'CASCADE',
   );
-};
-
-const getQuery = (...commands: (string | undefined | boolean | null)[]) => {
-  return commands.filter(Boolean).join(' ');
 };
