@@ -1,12 +1,12 @@
+import { getViewResolver } from '../helpers/view';
 import { iViewEntity } from '../types/entity';
 
+// todo: support functional resolver
 export const createView = (view: iViewEntity): string => {
-  const columns = Object.keys(view.columns).map((c) => `"${c}"`);
-  const isRecursive = view.recursive || view.resolver.includes('__NAME__');
-  const isMaterialized = view.materialized;
-
   const name = view.name;
-  const query = view.resolver.replace(/__NAME__/g, `"${name}"`);
+  const columns = Object.keys(view.columns).map((c) => `"${c}"`);
+  const { query, isRecursive } = getViewResolver(name, view.resolver);
+  const isMaterialized = view.materialized;
 
   return getQuery(
     'CREATE',

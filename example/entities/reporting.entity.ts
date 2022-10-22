@@ -3,24 +3,26 @@ import { tEntity } from '../../src/types/entity';
 const reporting: tEntity = {
   name: 'reporting-line',
   type: 'VIEW',
-  resolver: `
-    SELECT
-      id,
-      full_name AS subordinates
-    FROM
-      employees
-    WHERE
-      manager_id IS NULL
-    UNION ALL
+  resolver: (name: string) => {
+    return `
       SELECT
-        e.id,
-        (
-          rl.subordinates || ' > ' || e.full_name
-        ) AS subordinates
+        id,
+        full_name AS subordinates
       FROM
-        employees e
-      INNER JOIN __NAME__ rl ON e.manager_id = rl.id
-  `,
+        employees
+      WHERE
+        manager_id IS NULL
+      UNION ALL
+        SELECT
+          e.id,
+          (
+            rl.subordinates || ' > ' || e.full_name
+          ) AS subordinates
+        FROM
+          employees e
+        INNER JOIN "${name}" rl ON e.manager_id = rl.id
+    `;
+  },
   columns: {
     id: 'uuid',
     subordinates: 'varchar',

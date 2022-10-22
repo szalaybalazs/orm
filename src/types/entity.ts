@@ -117,7 +117,7 @@ export interface iTableEntity {
 export interface iViewEntity {
   type: 'VIEW';
   name: string;
-  resolver: string;
+  resolver: string | ((name: string) => string);
 
   recursive?: boolean;
   materialized?: boolean;
