@@ -3,6 +3,7 @@
     "test": "jest",
     "start": "ts-node src/index.ts",
     "generate": "ts-node src/index.ts generate",
+    "show": "ts-node src/index.ts show",
     "revert": "ts-node src/index.ts revert",
     "execute": "ts-node src/index.ts run",
     "migration:create": "ts-node src/index.ts create"

@@ -103,7 +103,7 @@ The repo contains an example folder - feel free to clone and play around with it
 
 - ORM
   - [ ] CLI
-    - [ ] Create new, empty entity
+    - [x] Create new, empty entity
     - [x] Create new, empty migration
     - [x] Generate migration based on entity changes
     - [x] Run all available migrations
