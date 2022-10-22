@@ -22,7 +22,7 @@ const addOptions = (command: Command): Command => {
     .option('--verbose');
 };
 
-addOptions(program.command('generate'))
+addOptions(program.command('migration:generate'))
   .argument('<name>', 'The name of the new migration')
 
   .action(async (name: string, params) => {
@@ -71,7 +71,7 @@ addOptions(program.command('entity:create'))
   });
 
 program
-  .command('run')
+  .command('migration:run')
   .description('Run all available migrations')
   .option('--verbose')
   .action(async (params) => {
@@ -84,7 +84,7 @@ program
     }
   });
 
-addOptions(program.command('revert'))
+addOptions(program.command('migration:revert'))
   .description('Revert database to a specific migration')
   .option('-m, --migration <migration  id>', 'ID of the migration the database will be reverted to.')
   .action(async (params) => {

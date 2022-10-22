@@ -76,16 +76,19 @@ List of all the currently supported commands.
 
 ```bash
 # Generate new migration
-generate <migration  name>
+migration:generate <migration  name>
 
 # Create empty migration
-create <migration  name>
+migration:create <migration  name>
 
 # Run all available migrations
-run
+migration:run
 
 # Revert database to the selected migration
-revert
+migration:revert
+
+# Create a new, empty entity
+entity:create
 ```
 
 ### Examples
