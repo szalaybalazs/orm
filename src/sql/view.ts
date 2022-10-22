@@ -6,7 +6,7 @@ export const createView = (view: iViewEntity): string => {
   const isMaterialized = view.materialized;
 
   const name = view.name;
-  const query = view.resolver.replace(/__NAME__/g, name);
+  const query = view.resolver.replace(/__NAME__/g, `"${name}"`);
 
   return getQuery(
     'CREATE',

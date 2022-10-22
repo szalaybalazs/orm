@@ -5,7 +5,7 @@ const reporting: tEntity = {
   type: 'VIEW',
   resolver: `
     SELECT
-      employee_id,
+      id,
       full_name AS subordinates
     FROM
       employees
@@ -13,18 +13,17 @@ const reporting: tEntity = {
       manager_id IS NULL
     UNION ALL
       SELECT
-        e.employee_id,
+        e.id,
         (
           rl.subordinates || ' > ' || e.full_name
         ) AS subordinates
       FROM
         employees e
-      INNER JOIN reporting_line rl ON e.manager_id = rl.employee_id
+      INNER JOIN __NAME__ rl ON e.manager_id = rl.id
   `,
   columns: {
-    hour: 'timestamptz',
-    count: 'int',
-    lead: 'varchar',
+    id: 'uuid',
+    subordinates: 'varchar',
   },
 };
 
