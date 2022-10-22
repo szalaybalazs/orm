@@ -58,6 +58,7 @@ export const runMutations = async (options: iVerboseConfig) => {
       const queries = Array.isArray(allQueries) ? allQueries : [allQueries];
 
       debug(options.verbose, chalk.gray(`Executing migration: ${migration.id}...`));
+      // todo: revert migrations on fail
       for (const sql of queries) {
         await query(sql);
       }

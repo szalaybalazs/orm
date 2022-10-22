@@ -1,4 +1,4 @@
-// hstore, bytea, bit, varbit, bit varying, timetz, timestamptz, timestamp, timestamp without time zone, timestamp with time zone, date, time, time without time zone, time with time zone, interval, bool, boolean, enum, point, line, lseg, box, path, polygon, circle, cidr, inet, macaddr, tsvector, tsquery, uuid, xml, json, jsonb, int4range, int8range, numrange, tsrange, tstzrange, daterange, geometry, geography, cube, ltree
+// hstore, bytea, bit, varbit, bit varying, interval, bool, boolean, enum, point, line, lseg, box, path, polygon, circle, cidr, inet, macaddr, tsvector, tsquery, uuid, xml, json, jsonb, int4range, int8range, numrange, tsrange, tstzrange, daterange, geometry, geography, cube, ltree
 
 export type eNumberType =
   | 'int'
@@ -17,6 +17,20 @@ export type eNumberType =
   | 'bigseria';
 
 export type eStringType = 'character varying' | 'varchar' | 'character' | 'char' | 'text' | 'citext';
+export type eDateTypes =
+  | 'timetz'
+  | 'timestamptz'
+  | 'timestamp'
+  | 'timestamp without time zone'
+  | 'timestamp with time zone'
+  | 'date'
+  | 'time'
+  | 'time without time zone'
+  | 'time with time zone';
+
+export type eUUIDType = 'uuid';
+
+export type allTypes = eNumberType | eStringType | eUUIDType;
 
 export type DefaultFunction<T> = (() => Promise<T>) | (() => T);
 
@@ -55,6 +69,17 @@ export interface iNumberColumn extends iRegularColumnOptions {
   precision?: number;
 }
 
+type eDateDefaults = 'CURRENT_TIMESTAMP' | 'NOW()' | 'now' | 'today' | 'tomorrow' | 'yesterday';
+// todo: create default resolvers in sql.ts
+
+export interface iDateColumn extends iRegularColumnOptions {
+  type: eDateTypes;
+  default?: eDateDefaults | Date | DefaultFunction<eDateDefaults | Date>;
+
+  // todo: handle
+  precision?: number;
+}
+
 export interface iStringColumn extends iRegularColumnOptions {
   type: eStringType;
   default?: string | DefaultFunction<string>;
@@ -62,11 +87,11 @@ export interface iStringColumn extends iRegularColumnOptions {
 
 export interface iUUIDColumn extends iBaseColumnOptions {
   kind?: 'REGULAR';
-  type: 'uuid';
+  type: eUUIDType;
   generated?: boolean;
 }
 
-export type tRegularColumn = iNumberColumn | iStringColumn | iUUIDColumn;
+export type tRegularColumn = iNumberColumn | iStringColumn | iUUIDColumn | iDateColumn;
 export type tColumn = tRegularColumn | iComputedColumn | iResolvedColumn;
 
 export interface iIndex {
@@ -90,7 +115,16 @@ export interface iTableEntity {
 
 export interface iViewEntity {
   type: 'VIEW';
-  name: 'string';
+  name: string;
+  resolver: string;
+
+  rercursiveResolver?: string;
+
+  // Column definitions are required to detect return type changes
+  // Views can not be replaced if a column type has changed
+  columns: {
+    [key: string]: allTypes;
+  };
 }
 
 export type tEntity = iTableEntity | iViewEntity;

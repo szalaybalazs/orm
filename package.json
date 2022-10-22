@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "ts-node src/index.ts"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.13",

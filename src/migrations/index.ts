@@ -1,14 +1,16 @@
 import * as chalk from 'chalk';
-import { existsSync, writeFile, pathExistsSync, mkdirSync } from 'fs-extra';
+import { existsSync, mkdirSync, pathExistsSync, writeFile } from 'fs-extra';
 import { join } from 'path';
 import { debug } from '../core/log';
 import { getTables, loadEntities } from '../entities/load';
 import { loadLastSnapshot, saveSnapshot } from '../snapshots';
+import { generateQueries } from '../sql';
 import { iVerboseConfig } from '../types/config';
 import { getChangesBetweenMigrations } from './changes';
-import { createExtensions } from './extensions';
-import { generateQueries } from './sql';
 import { getMigrationTemplate } from './template';
+
+// todo: move extension creation to migration
+// todo: save default value for stanpshots by running resolver functions when saving
 
 export const runMigration = async (id: string, name: string, options: iVerboseConfig) => {
   const { entities: entityDirectory, snapshots: snapshotDirectory, migrations: migrationDirectory, verbose } = options;
@@ -23,7 +25,7 @@ export const runMigration = async (id: string, name: string, options: iVerboseCo
   const changes = getChangesBetweenMigrations(snapshot?.tables || {}, tables);
 
   debug(verbose, chalk.gray('Generating queries...'));
-  const queries = generateQueries(changes, tables, snapshot?.tables ?? {});
+  const queries = await generateQueries(changes, tables, snapshot?.tables ?? {});
 
   if (queries.up.length === 0) throw new Error('NO_CHANGES');
 

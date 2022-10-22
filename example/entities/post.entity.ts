@@ -22,6 +22,9 @@ const post: tEntity = {
       type: 'uuid',
       comment: 'ID of the posts author',
     },
+    created_at: {
+      type: 'timestamptz',
+    },
   },
 };
 

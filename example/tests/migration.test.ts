@@ -1,8 +1,8 @@
 import { describe, test } from '@jest/globals';
 
 import { getTables, loadEntities } from '../../src/entities/load';
-import { getMigrationContent, runMigration } from '../../src/migrations';
-import { generateQueries } from '../../src/migrations/sql';
+import { runMigration } from '../../src/migrations';
+import { generateQueries } from '../../src/sql';
 import { iChanges } from '../../src/types/changes';
 
 const changes: iChanges = {
@@ -44,9 +44,9 @@ describe('Migrations', () => {
   test('Generate SQL migration', async () => {
     const entities = await loadEntities('./example/entities');
     const tables = getTables(entities);
-    const queries = generateQueries(changes, tables);
-    const migration = getMigrationContent('test', queries);
-    console.log(migration);
+    const queries = await generateQueries(changes, tables, {});
+
+    console.log(queries);
   });
 
   test('Generate new migration from changes', async () => {

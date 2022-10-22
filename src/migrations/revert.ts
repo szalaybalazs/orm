@@ -1,7 +1,7 @@
 import * as chalk from 'chalk';
 import cliSelect from 'cli-select';
 import { debug } from '../core/log';
-import { createPostgresConnection } from '../drivers/pg';
+import { createPostgresConnection, QueryFunction } from '../drivers/pg';
 import { iVerboseConfig } from '../types/config';
 import { iMigration } from '../types/migration';
 import { loadMigrations } from './load';
@@ -25,6 +25,12 @@ export const revertMigrations = async (options: iVerboseConfig) => {
       (acc, { id }) => ({ ...acc, [id]: localMigrations.find((m) => m.id === id)?.name }),
       {},
     );
+
+    console.log(
+      chalk.cyan.yellow('❯'),
+      chalk.reset('Select the migration to revert to:'),
+      chalk.dim('(The selected migtion will be the last migration to keep)'),
+    );
     const migration = await cliSelect({
       values,
       unselected: chalk.dim('○'),
@@ -40,24 +46,46 @@ export const revertMigrations = async (options: iVerboseConfig) => {
 
     if (!migration) return;
 
+    debug(options.verbose, chalk.gray('Reverting to selected migration...'));
+
     const index = executedMigrations.findIndex((m) => m.id === migration.id);
     const revertedMigrations = executedMigrations.slice(0, index);
 
-    console.log(revertedMigrations);
+    await revertMigrationsById(
+      revertedMigrations.map(({ id }) => id),
+      migrationsTable,
+      schema,
+      query,
+      options,
+    );
 
-    for (const executedMigration of revertedMigrations) {
-      const migration = localMigrations.find((m) => m.id === executedMigration.id);
-      const queries = await migration.down({ schema, query });
-
-      for (const sql of queries) {
-        await query(sql);
-      }
-    }
-
-    await query(`DELETE FROM "${migrationsTable}" WHERE id IN (${revertedMigrations.map(({ id }) => `'${id}'`)})`);
+    debug(options.verbose, chalk.gray('Revert finished...'));
   } catch (error) {
     throw error;
   } finally {
     close();
   }
+};
+
+export const revertMigrationsById = async (
+  reverts: string[],
+  table: string,
+  schema: string,
+  query: QueryFunction,
+  options: iVerboseConfig,
+) => {
+  const migrations = await loadMigrations(options.migrations);
+
+  debug(options.verbose, chalk.gray('Reverting migration changes...'));
+  for (const executedMigration of reverts) {
+    const migration = migrations.find((m) => executedMigration === m.id);
+    const queries = await migration.down({ schema, query });
+
+    for (const sql of queries) {
+      await query(sql);
+    }
+  }
+
+  debug(options.verbose, chalk.gray('Removing migrations from migration table...'));
+  await query(`DELETE FROM "${table}" WHERE id IN (${reverts.map((id) => `'${id}'`)})`);
 };
