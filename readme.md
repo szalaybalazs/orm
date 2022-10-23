@@ -108,6 +108,7 @@ The repo contains an example folder - feel free to clone and play around with it
     - [x] Generate migration based on entity changes
     - [x] Run all available migrations
     - [x] Revert to a specific migration
+    - [ ] Handle other object depend on error when trying to replace a column which is used by a view
     - [ ] Drop migrations
       - [ ] Drop last migration
   - [x] Incremental migrations

@@ -27,7 +27,7 @@ export type {
 } from './column';
 export type { iOrmConfig, iPostgresConfig, iQueryOptions, iVerboseConfig } from './config';
 export type {
-  allTypes,
+  eAllTypes,
   DefaultFunction,
   eBinaryType,
   eBooleanType,

@@ -1,5 +1,5 @@
 import { tColumn } from './column';
-import { allTypes } from './datatypes';
+import { eAllTypes } from './datatypes';
 
 export interface iIndex {
   // By default uses the standard naming convention
@@ -31,7 +31,7 @@ export interface iViewEntity {
   // Column definitions are required to detect return type changes
   // Views can not be replaced if a column type has changed
   columns: {
-    [key: string]: allTypes;
+    [key: string]: eAllTypes;
   };
 }
 

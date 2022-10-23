@@ -13,6 +13,7 @@ export interface iOrmConfig extends iPostgresConfig {
 }
 
 export interface iVerboseConfig extends iOrmConfig {
+  dryrun?: boolean;
   verbose?: boolean;
 }
 

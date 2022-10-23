@@ -1,5 +1,6 @@
 import {
   DefaultFunction,
+  eAllTypes,
   eBinaryType,
   eBooleanType,
   eDateTypes,
@@ -13,10 +14,6 @@ export interface iResolvedColumn {
   kind: 'RESOLVED';
 
   resolver: string;
-}
-
-export interface iComputedColumn {
-  kind: 'COMPUTED';
 }
 
 export interface iBaseColumnOptions {
@@ -86,6 +83,12 @@ export type tRegularColumn =
   | iBinaryColumn
   | iIntervalColumn
   | iBooleanColumn;
+
+export interface iComputedColumn {
+  kind: 'COMPUTED';
+  resolver: string;
+  type: eAllTypes;
+}
 
 export type eColumnKeys =
   | keyof iNumberColumn

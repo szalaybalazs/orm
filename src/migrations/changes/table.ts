@@ -11,8 +11,9 @@ import { getIndexChanges } from './indices';
 export const getChangesForTables = (key: string, oldEntity: iTableEntity, newEntity: iTableEntity): iTableChanges => {
   const changes: { [key: string]: iChange[] } = {};
 
-  const oldFields = Object.keys(oldEntity.columns);
-  const newFields = Object.keys(newEntity.columns);
+  const oldFields = getFields(oldEntity);
+  const newFields = getFields(newEntity);
+
   const existingFields = oldFields.filter((field) => newFields.includes(field));
 
   const dropped = oldFields.filter((field) => !newFields.includes(field));
@@ -29,4 +30,16 @@ export const getChangesForTables = (key: string, oldEntity: iTableEntity, newEnt
   const indices = getIndexChanges(key, oldEntity.indices ?? [], newEntity?.indices ?? []);
 
   return { changes, dropped, added, indices };
+};
+
+const getType = (key: string, entity: iTableEntity): number => {
+  if (entity.columns[key].kind === 'COMPUTED') return 1;
+  return 0;
+};
+
+export const getFields = (entity: iTableEntity) => {
+  const allFields = Object.keys(entity.columns);
+  const sqlCompatibleFields = allFields.filter((key) => entity.columns[key].kind !== 'RESOLVED');
+
+  return sqlCompatibleFields.sort((a, b) => getType(a, entity) - getType(b, entity));
 };

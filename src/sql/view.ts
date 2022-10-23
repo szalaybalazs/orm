@@ -2,6 +2,8 @@ import { getQuery } from '../core/commands';
 import { getViewResolver } from '../helpers/view';
 import { iViewEntity } from '../types';
 
+// todo: create view column rename logic
+
 /**
  * Create new view
  * @param view view config

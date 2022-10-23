@@ -8,20 +8,21 @@ import { getDefault } from './defaults';
  * @returns SQL Query
  */
 export const createColumn = async (key: string, column: tColumn): Promise<string> => {
-  if (['COMPUTED', 'RESOLVED'].includes(column.kind)) return '';
+  if (column.kind === 'COMPUTED') {
+    return `"${key}" ${column.type} GENERATED ALWAYS AS (${column.resolver}) STORED`.trim();
+  } else if (column.kind === 'RESOLVED') return '';
+  else {
+    const options = await getColumnOptions(column);
+    // todo: update column based on types
 
-  column = column as tRegularColumn;
+    const constraints: string[] = [];
+    if (!options.nullable) constraints.push(getConstraint('REQUIRED'));
+    if (options.default) constraints.push(getConstraint('DEFAULT', options.default));
 
-  const options = await getColumnOptions(column);
-  // todo: update column based on types
+    // todo: support arrays
 
-  const constraints: string[] = [];
-  if (!options.nullable) constraints.push(getConstraint('REQUIRED'));
-  if (options.default) constraints.push(getConstraint('DEFAULT', options.default));
-
-  // todo: support arrays
-
-  return `"${key}" ${column.type} ${constraints.join(' ')}`.trim();
+    return `"${key}" ${column.type} ${constraints.join(' ')}`.trim();
+  }
 };
 
 /**

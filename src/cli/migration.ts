@@ -12,6 +12,7 @@ import { addOptions } from './options';
 export const createMigraationProgram = (program: Command) => {
   addOptions(program.command('migration:generate'))
     .argument('<name>', 'The name of the new migration')
+    .option('-d, --dryrun', 'Dry run')
     .action(async (name: string, params) => {
       try {
         debug(params.verbose, chalk.gray('Loading orm config...'));

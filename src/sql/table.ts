@@ -1,4 +1,4 @@
-import { iTableChanges, iTableEntity, tEntity } from '../types';
+import { iTableChanges, iTableEntity, tColumn, tEntity } from '../types';
 import { changeColumn, createColumn } from './column';
 import { createIndex, dropIndex } from './indices';
 import { changePrimaries, getPrimaryKeys } from './primary';
@@ -39,6 +39,8 @@ export const updateTable = async (
 
   const tableUp: string[] = [];
   const tableDown: string[] = [];
+  const tableComputedUp: string[] = [];
+  const tableComputedDown: string[] = [];
 
   if (state.type === 'VIEW') return [[], []];
 
@@ -58,23 +60,34 @@ export const updateTable = async (
   });
 
   const updates = Object.keys(changes.changes).map(async (key) => {
-    const promises = changes.changes[key].map(async (change) => {
-      const column = state.columns[key];
-      if (column.kind === 'COMPUTED') return;
-      if (column.kind === 'RESOLVED') return;
+    const column = state.columns[key];
+    const prevColumn = snapshot.columns[key];
 
-      const { up, down } = await changeColumn(key, column, change);
+    if (column.kind === 'RESOLVED') return;
+    if (column.kind === 'COMPUTED') {
+      if (prevColumn) tableComputedUp.push(`DROP COLUMN IF EXISTS "${key}"`);
+      tableComputedUp.push(`ADD COLUMN IF NOT EXISTS ${await createColumn(key, column)}`);
 
-      tableUp.push(up);
-      tableDown.push(down);
-    });
-    return await Promise.all(promises);
+      tableComputedDown.push(`DROP COLUMN IF EXISTS "${key}"`);
+      if (prevColumn)
+        tableComputedDown.push(`ADD COLUMN IF NOT EXISTS ${await createColumn(key, prevColumn as tColumn)}`);
+    } else {
+      const promises = changes.changes[key].map(async (change) => {
+        const { up, down } = await changeColumn(key, column, change);
+
+        tableUp.push(up);
+        tableDown.push(down);
+      });
+      return await Promise.all(promises);
+    }
   });
 
   await Promise.all([...added, ...dropped, ...updates]);
 
   if (tableUp.length) up.push(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableUp};`);
+  if (tableComputedUp.length) up.push(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableComputedUp};`);
   if (tableDown.length) down.push(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableDown};`);
+  if (tableComputedDown.length) down.push(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableComputedDown};`);
 
   changes.indices.dropped.forEach((index) => {
     up.push(dropIndex(index.name));

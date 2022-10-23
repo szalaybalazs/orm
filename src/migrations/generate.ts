@@ -41,6 +41,9 @@ export const generateMigration = async (id: string, name: string, options: iVerb
   debug(verbose, chalk.gray('Generating migration...'));
   const migration = getMigrationTemplate(id, name, queries.up, queries.down);
 
+  if (options.dryrun) {
+    return console.log(migration);
+  }
   debug(verbose, chalk.gray('Saving migration and new snapshot...'));
   await Promise.all([saveMigration(id, migration, migrationDirectory), saveSnapshot(snapshotDirectory, id, tables)]);
 };

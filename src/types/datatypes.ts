@@ -37,6 +37,6 @@ export type eBinaryType = 'bytea' | 'bit' | 'varbit' | 'bit varying';
 
 export type eBooleanType = 'bool' | 'boolean';
 
-export type allTypes = eNumberType | eStringType | eUUIDType | eDateTypes;
+export type eAllTypes = eNumberType | eStringType | eUUIDType | eDateTypes;
 
 export type DefaultFunction<T> = (() => Promise<T>) | (() => T);
