@@ -1,10 +1,11 @@
 import { join } from 'path';
 import { readdir } from 'fs-extra';
 import { iTables, tEntity } from '../types';
+import { tLoadedEntity } from '../types';
 
 const validExtensions = ['.entity.ts', '.entity.js', '.entity.json'];
 
-export const loadEntities = async (directory: string): Promise<tEntity[]> => {
+export const loadEntities = async (directory: string): Promise<tLoadedEntity[]> => {
   const path = join(process.cwd(), directory);
   const content = await readdir(path);
 

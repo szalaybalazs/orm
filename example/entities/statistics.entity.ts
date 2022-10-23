@@ -21,9 +21,9 @@ const reporting: tEntity = {
       LEFT JOIN employees AS e ON e.id = lead_id
   `,
   columns: {
-    name: 'varchar',
-    employees: 'int',
-    lead: 'varchar',
+    name: { type: 'varchar' },
+    employees: { type: 'int' },
+    lead: { type: 'varchar' },
   },
 };
 

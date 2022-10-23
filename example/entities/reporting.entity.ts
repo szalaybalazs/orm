@@ -24,8 +24,8 @@ const reporting: tEntity = {
     `;
   },
   columns: {
-    id: 'uuid',
-    subordinates: 'varchar',
+    id: { type: 'uuid' },
+    subordinates: { type: 'varchar' },
   },
 };
 

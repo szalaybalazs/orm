@@ -37,6 +37,8 @@ export const generateQueries = async (
     // Create table based on current schema
     const entity = state[key];
 
+    console.log(entity, state, key);
+
     if (entity.type === 'VIEW') up.push(createView(entity));
     else up.push(await createTable(entity));
 

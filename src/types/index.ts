@@ -37,6 +37,6 @@ export type {
   eStringType,
   eUUIDType,
 } from './datatypes';
-export type { iIndex, iSnapshot, iTableEntity, iTables, iViewEntity, tEntity } from './entity';
+export type { iIndex, iSnapshot, iTableEntity, iTables, iViewEntity, tEntity, tLoadedEntity } from './entity';
 export type { eExtension } from './extension';
 export type { iContext, iMigration, LifecycleFunction } from './migration';

@@ -60,8 +60,8 @@ export const getChangesForViews = (oldView: iViewEntity, newView: iViewEntity): 
   const isEitherMaterialized = oldView.materialized || newView.materialized;
   const isTypeChanged = intersection.reduce((prev, col) => {
     if (prev) return true;
-    const oldType = oldView.columns[col];
-    const newType = newView.columns[col];
+    const oldType = oldView.columns[col].type;
+    const newType = newView.columns[col].type;
 
     return oldType !== newType;
   }, false);

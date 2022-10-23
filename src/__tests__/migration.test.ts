@@ -1,7 +1,7 @@
 import { describe, test } from '@jest/globals';
 
 import { getEntities, loadEntities } from '../entities/load';
-import { runMigration } from '../migrations';
+import { generateMigration } from '../migrations';
 import { generateQueries } from '../sql';
 import { iChanges, iVerboseConfig } from '../types';
 
@@ -48,15 +48,18 @@ const options: iVerboseConfig = {
 };
 
 describe('Migrations', () => {
-  test('Generate SQL migration', async () => {
-    const entities = await loadEntities('./example/entities');
-    const tables = getEntities(entities);
-    const queries = await generateQueries(changes, tables, {});
+  // test('Generate SQL migration', async () => {
+  //   const entities = await loadEntities('./example/entities');
+  //   const tables = getEntities(entities);
+  //   const queries = await generateQueries(changes, tables, {});
 
-    console.log(queries);
-  });
+  //   console.log(queries);
+  // });
 
   test('Generate new migration from changes', async () => {
-    await runMigration('addedPostTitle', 'added post title', options);
+    await generateMigration('test', 'test', {
+      dryrun: true,
+      ...options,
+    });
   });
 });

@@ -16,6 +16,7 @@ export interface iIndex {
 export interface iTableEntity {
   type?: 'TABLE';
   name: string;
+  comment?: string;
   columns: Record<string, tColumn>;
   indices?: iIndex[];
 }
@@ -23,6 +24,7 @@ export interface iTableEntity {
 export interface iViewEntity {
   type: 'VIEW';
   name: string;
+  comment?: string;
   resolver: string | ((name: string) => string);
 
   recursive?: boolean;
@@ -31,11 +33,12 @@ export interface iViewEntity {
   // Column definitions are required to detect return type changes
   // Views can not be replaced if a column type has changed
   columns: {
-    [key: string]: eAllTypes;
+    [key: string]: { type: eAllTypes; nullable?: boolean; comment?: string };
   };
 }
 
 export type tEntity = iTableEntity | iViewEntity;
+export type tLoadedEntity = tEntity & { key: string };
 
 export interface iTables extends Record<string, tEntity> {}
 

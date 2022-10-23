@@ -10,12 +10,6 @@ import {
   eUUIDType,
 } from './datatypes';
 
-export interface iResolvedColumn {
-  kind: 'RESOLVED';
-
-  resolver: string;
-}
-
 export interface iBaseColumnOptions {
   name?: string;
 
@@ -88,6 +82,14 @@ export interface iComputedColumn {
   kind: 'COMPUTED';
   resolver: string;
   type: eAllTypes;
+  comment?: string;
+}
+
+export interface iResolvedColumn {
+  kind: 'RESOLVED';
+  resolver: string;
+  type: eAllTypes;
+  comment?: string;
 }
 
 export type eColumnKeys =

@@ -85,8 +85,10 @@ export const updateTable = async (
   await Promise.all([...added, ...dropped, ...updates]);
 
   if (tableUp.length) up.push(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableUp};`);
-  if (tableComputedUp.length) up.push(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableComputedUp};`);
   if (tableDown.length) down.push(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableDown};`);
+
+  // Moving generated column to second query to make sure all the columns exist when modifiyng
+  if (tableComputedUp.length) up.push(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableComputedUp};`);
   if (tableComputedDown.length) down.push(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableComputedDown};`);
 
   changes.indices.dropped.forEach((index) => {

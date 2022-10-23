@@ -33,6 +33,7 @@ const employee: tEntity = {
       kind: 'COMPUTED',
       type: 'varchar',
       resolver: "TRIM(first_name || ' ' || last_name)",
+      comment: 'Generated full name of the employee\ncan not be changed directly',
     },
     is_suspended: {
       type: 'boolean',
@@ -45,6 +46,7 @@ const employee: tEntity = {
     time_since_join: {
       kind: 'RESOLVED',
       resolver: '(EXTRACT(epoch FROM now() - joined_at) / 3600)::int',
+      type: 'int',
     },
   },
 };

@@ -1,4 +1,4 @@
-import { eColumnKeys, iChange, iRegularColumnOptions, tColumn, tRegularColumn } from '../types';
+import { eColumnKeys, iChange, iRegularColumnOptions, iUUIDColumn, tColumn, tRegularColumn } from '../types';
 import { getDefault } from './defaults';
 
 /**
@@ -38,7 +38,7 @@ const getColumnOptions = async (column: tColumn): Promise<Partial<iRegularColumn
 
   if (column.type === 'uuid') {
     return {
-      default: column.generated ? 'uuid_generate_v4()' : undefined,
+      default: (column as iUUIDColumn).generated ? 'uuid_generate_v4()' : undefined,
       primary: column.primary,
       nullable: column.nullable,
     };

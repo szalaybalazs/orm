@@ -3,7 +3,6 @@ import { loadEntities } from '../entities/load';
 
 describe('Entities', () => {
   test('Load entities from directory', async () => {
-    const entities = await loadEntities('./example/entities');
-    console.log(JSON.stringify(entities, null, 2));
+    await loadEntities('./example/entities');
   });
 });
