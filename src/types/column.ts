@@ -35,7 +35,7 @@ export interface iNumberColumn extends iRegularColumnOptions {
   precision?: number;
 }
 
-type eDateDefaults = 'CURRENT_TIMESTAMP' | 'NOW()' | 'now' | 'today' | 'tomorrow' | 'yesterday';
+type eDateDefaults = 'CURRENT_TIMESTAMP' | 'NOW()' | 'now()' | 'now' | 'today' | 'tomorrow' | 'yesterday';
 
 export interface iDateColumn extends iRegularColumnOptions {
   type: eDateTypes;

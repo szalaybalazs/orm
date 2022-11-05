@@ -4,6 +4,8 @@ import { join } from 'path';
 import { tLoadedEntity } from '../types';
 import { generateExports, generateTypeForEntity } from './generate';
 
+// todo: generate types after each migration
+
 export const saveTypes = async (entities: tLoadedEntity[], directory: string) => {
   const types = entities.map((entity) => {
     return {
