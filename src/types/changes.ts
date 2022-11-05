@@ -17,12 +17,20 @@ export interface iIndexChange {
   created: iIndex[];
 }
 
+export interface iCommentChanges {
+  [key: string]: {
+    from: string;
+    to: string;
+  };
+}
+
 export interface iTableChanges {
   kind?: 'TABLE';
   changes?: iChangeEntry;
   dropped?: string[];
   added?: { [key: string]: tColumn };
   indices?: Partial<iIndexChange>;
+  comments?: iCommentChanges;
 }
 
 export interface iViewChanges {
@@ -48,8 +56,12 @@ export interface iTableUpdate {
   kind?: 'TABLE';
   changes: iTableChanges;
 }
+export interface iFunctionUpdate {
+  key: string;
+  kind: 'FUNCTION';
+}
 
-export type eUpdate = iViewUpdate | iTableUpdate;
+export type eUpdate = iViewUpdate | iTableUpdate | iFunctionUpdate;
 
 export interface iChanges {
   deleted: string[];

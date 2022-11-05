@@ -1,5 +1,6 @@
 import { iTableChanges, iTableEntity, tColumn, tEntity } from '../types';
 import { changeColumn, createColumn } from './column';
+import { editComment } from './comment';
 import { createIndex, dropIndex } from './indices';
 import { changePrimaries, getPrimaryKeys } from './primary';
 
@@ -8,7 +9,7 @@ import { changePrimaries, getPrimaryKeys } from './primary';
  * @param table table configuration
  * @returns SQL Query
  */
-export const createTable = async (table: iTableEntity): Promise<string> => {
+export const createTable = async (table: iTableEntity): Promise<string[]> => {
   // todo: use column name option
   // todo: use naming convention
   const columnsPromise = Object.keys(table.columns).map((key) => createColumn(key, table.columns[key]));
@@ -17,9 +18,16 @@ export const createTable = async (table: iTableEntity): Promise<string> => {
   const primaryKeys = getPrimaryKeys(table);
   const primary = primaryKeys.length && `PRIMARY KEY (${primaryKeys})`;
 
-  const sql = `CREATE TABLE IF NOT EXISTS "__SCHEMA__"."${table.name}" (${[columns, primary].filter(Boolean)});`;
+  const sql = `CREATE TABLE IF NOT EXISTS "__SCHEMA__"."${table.name}" (${[columns, primary]
+    .flat()
+    .filter((f) => !!f?.trim())});`;
 
-  return sql;
+  const comments = Object.entries(table.columns).map(([key, { comment }]) => {
+    if (!comment) return null;
+    return editComment(table.name, key, comment);
+  });
+
+  return [sql, ...comments].filter(Boolean);
 };
 
 /**
@@ -31,8 +39,8 @@ export const createTable = async (table: iTableEntity): Promise<string> => {
  */
 export const updateTable = async (
   changes: iTableChanges,
-  state: tEntity,
-  snapshot: tEntity,
+  state: iTableEntity,
+  snapshot: iTableEntity,
 ): Promise<[string[], string[]]> => {
   const up: string[] = [];
   const down: string[] = [];
@@ -41,8 +49,6 @@ export const updateTable = async (
   const tableDown: string[] = [];
   const tableComputedUp: string[] = [];
   const tableComputedDown: string[] = [];
-
-  if (state.type === 'VIEW') return [[], []];
 
   const added = Object.keys(changes.added).map(async (key) => {
     tableUp.push(`ADD COLUMN ${await createColumn(key, state.columns[key])}`);
@@ -54,9 +60,8 @@ export const updateTable = async (
     tableUp.push(`DROP COLUMN "${key}"`);
 
     // Add column when reverting
-    if (snapshot.type !== 'VIEW') {
-      tableDown.push(`ADD COLUMN ${await createColumn(key, snapshot.columns[key])}`);
-    }
+
+    tableDown.push(`ADD COLUMN ${await createColumn(key, snapshot.columns[key])}`);
   });
 
   const updates = Object.keys(changes.changes).map(async (key) => {
@@ -69,8 +74,9 @@ export const updateTable = async (
       tableComputedUp.push(`ADD COLUMN IF NOT EXISTS ${await createColumn(key, column)}`);
 
       tableComputedDown.push(`DROP COLUMN IF EXISTS "${key}"`);
-      if (prevColumn)
+      if (prevColumn) {
         tableComputedDown.push(`ADD COLUMN IF NOT EXISTS ${await createColumn(key, prevColumn as tColumn)}`);
+      }
     } else {
       const promises = changes.changes[key].map(async (change) => {
         const { up, down } = await changeColumn(key, column, change);
@@ -109,6 +115,11 @@ export const updateTable = async (
     up.push(createIndex(state.name, index));
 
     down.push(`DROP INDEX IF EXISTS "__SCHEMA__"."${index.name}" CASCADE`);
+  });
+
+  Object.entries(changes.comments).forEach(([key, { from, to }]) => {
+    up.push(editComment(state.name, key, to));
+    down.push(editComment(state.name, key, from));
   });
 
   // todo: handle unique values by created a separate index for each of them

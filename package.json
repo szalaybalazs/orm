@@ -9,12 +9,15 @@
     "migration:create": "ts-node src/index.ts create"
   },
   "devDependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/commander": "^2.12.2",
     "@types/figlet": "^1.5.5",
     "@types/fs-extra": "^9.0.13",
     "@types/inquirer": "^9.0.2",
     "@types/node": "^18.11.2",
     "@types/pg": "^8.6.5",
     "@types/pluralize": "^0.0.29",
+    "@types/sql-formatter": "^4.0.1",
     "figlet": "^1.5.2",
     "jest": "^29.2.1",
     "ts-jest": "^29.0.3",
@@ -27,6 +30,7 @@
     "fs-extra": "^10.1.0",
     "inquirer": "^9.1.4",
     "pg": "^8.8.0",
+    "pg-types": "^4.0.0",
     "pluralize": "^8.0.0",
     "prettier": "^2.7.1",
     "sql-formatter": "^11.0.2",

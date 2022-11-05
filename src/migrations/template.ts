@@ -1,28 +1,36 @@
 import { format } from 'prettier';
 import { format as formatSql } from 'sql-formatter';
 
-const template = `import { iMigration, iContext } from '../../src/types/migration';
+const getTemplate = ({ id, name, timestamp, up, down }) => {
+  return `import { iMigration, iContext } from '../../src/types/migration';
 
-class __ID__Migration implements iMigration {
-  id = '__ID__';
-  name = '__NAME__';
+  class ${id}Migration implements iMigration {
+    id = '${id}';
+    name = '${name}';
+    
+    timestamp = ${timestamp};
   
-  timestamp = __TIMESTAMP__;
-
-  up = (ctx: iContext) => {
-    return [__UP__];
+    up = (ctx: iContext) => {
+      return [${up}];
+    };
+  
+    down = (ctx: iContext) => {
+      return [${down}];
+    };
   };
-
-  down = (ctx: iContext) => {
-    return [__DOWN__];
-  };
+  
+  export default ${id}Migration;
+  `;
 };
 
-export default __ID__Migration;
-`;
-
 const formatQuery = (queries: string[]): string => {
-  const formatted = queries.map((sql) => formatSql(sql, { language: 'postgresql', expressionWidth: 120 }));
+  const formatted = queries.map((sql) =>
+    formatSql(sql, {
+      language: 'postgresql',
+      expressionWidth: 60,
+      keywordCase: 'upper',
+    }),
+  );
 
   const padding = formatted.map((l) => {
     return `\`\n${l.replace(/__SCHEMA__/g, '${ctx.schema}')}\n\``
@@ -37,21 +45,15 @@ const formatQuery = (queries: string[]): string => {
 export const getMigrationTemplate = (id: string, name: string, up: string[], down: string[]) => {
   const upSql = formatQuery(up);
   const downSql = formatQuery(down);
+  const timestamp = `new Date('${new Date().toUTCString()}')`;
 
-  return format(
-    template
-      .replace(/__ID__/g, id)
-      .replace(/__NAME__/g, name)
-      .replace(/__TIMESTAMP__/g, `new Date('${new Date().toUTCString()}')`)
-      .replace(/__UP__/g, upSql)
-      .replace(/__DOWN__/g, downSql),
-    {
-      singleQuote: true,
-      parser: 'babel',
-      printWidth: 120,
-      tabWidth: 2,
-    },
-  );
+  const template = getTemplate({ id, name, timestamp, up: upSql, down: downSql });
+  return format(String(template), {
+    singleQuote: true,
+    parser: 'babel',
+    printWidth: 120,
+    tabWidth: 2,
+  });
 };
 
 const createPadding = (length: number) => new Array(length || 1).fill(' ').join('');

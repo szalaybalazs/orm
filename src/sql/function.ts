@@ -11,23 +11,26 @@ export const createFunction = (entity: iFunctionEntity) => {
   const declarations = Object.entries(entity.variables).map(([name, type]) => `${name} ${type};`);
 
   const sql = `
-    CREATE OR REPLACE FUNCTION 
-      ${entity.name}(${args}) 
-      RETURNS ${entity.returns}
-      LANGUAGE plpgsql
-      ${append('IMMUTABLE', entity.immutable, '', '')}
-      ${append('STABLE', entity.stable, '', '')}
-      ${append('VOLATILE', entity.volatile, '', '')}
-    AS $$
-      ${declarations.length > 0 ? 'DECLARE' : ''} ${declarations.join('\n')}
-      BEGIN
-      ${append(entity.body, !!entity.body)}
-      ${append(entity.return, !!entity.return, 'RETURN')}
-      END;
-    $$;
+CREATE OR REPLACE FUNCTION ${entity.name}(${args}) 
+  RETURNS ${entity.returns}
+  LANGUAGE plpgsql
+  ${append('IMMUTABLE', entity.immutable, '', '')}
+  ${append('STABLE', entity.stable, '', '')}
+  ${append('VOLATILE', entity.volatile, '', '')}
+AS $$
+  ${declarations.length > 0 ? 'DECLARE' : ''} ${declarations.join('\n')}
+  BEGIN
+  ${append(entity.body, !!entity.body)}
+  ${append(entity.return, !!entity.return, 'RETURN')}
+  END;
+$$;
   `;
 
-  return sql.trim();
+  return sql
+    .trim()
+    .split('\n')
+    .filter((l) => l.trim().length > 0)
+    .join('\n');
 };
 
 export const dropFunction = (entity: iFunctionEntity) => {

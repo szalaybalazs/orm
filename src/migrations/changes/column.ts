@@ -16,7 +16,7 @@ export const getChangesForColumn = (oldColumn: tColumn, newColumn: tColumn): iCh
     const oldValue = oldColumn[key];
     const newValue = newColumn[key];
 
-    if (oldValue === newValue) return;
+    if (oldValue === newValue || key === 'comment') return;
 
     changes.push({ key, from: oldValue, to: newValue });
   });

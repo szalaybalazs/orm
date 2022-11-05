@@ -12,5 +12,7 @@ describe('Migrations', () => {
     const tables = getEntities(entities);
 
     const changes = getChangesBetweenMigrations(snapshot.tables, tables);
+
+    console.log(JSON.stringify(changes, null, 2));
   });
 });

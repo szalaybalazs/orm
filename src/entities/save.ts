@@ -39,6 +39,4 @@ export const saveEntities = async (entities: { [key: string]: tEntity }, entitie
   });
 
   await Promise.all(savePromises);
-
-  console.log(exists, base, paths);
 };

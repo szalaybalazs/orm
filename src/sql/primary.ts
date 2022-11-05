@@ -26,12 +26,13 @@ export const getPrimaryKeys = (table: iTableEntity): string[] => {
  * @param snapshot
  * @returns
  */
-export const changePrimaries = (changes: iTableChanges, state: tEntity, snapshot: tEntity): [string[], string[]] => {
+export const changePrimaries = (
+  changes: iTableChanges,
+  state: iTableEntity,
+  snapshot: iTableEntity,
+): [string[], string[]] => {
   const up: string[] = [];
   const down: string[] = [];
-
-  if (state.type === 'VIEW') return;
-  if (snapshot.type === 'VIEW') return;
 
   const allChanges = Object.values(changes.changes).flat();
   const isPrimaryColumnChanged = allChanges.find((change) => change.key === 'primary');
