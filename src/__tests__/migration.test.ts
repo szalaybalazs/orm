@@ -1,8 +1,6 @@
 import { describe, test } from '@jest/globals';
 
-import { getEntities, loadEntities } from '../entities/load';
 import { generateMigration } from '../migrations';
-import { generateQueries } from '../sql';
 import { iChanges, iVerboseConfig } from '../types';
 
 const changes: iChanges = {

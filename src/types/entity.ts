@@ -37,7 +37,26 @@ export interface iViewEntity {
   };
 }
 
-export type tEntity = iTableEntity | iViewEntity;
+export interface iFunctionEntity {
+  type: 'FUNCTION';
+  name: string;
+
+  language?: 'plpgsql' | 'sql';
+
+  args?: { [key: string]: eAllTypes } | eAllTypes[];
+  returns: eAllTypes | 'trigger';
+
+  immutable?: boolean;
+  stable?: boolean;
+  volatile?: boolean;
+  nullBehaviour?: 'CALLED_ON_NULL' | 'STRICT' | 'RETURNS_NULL';
+
+  variables?: { [key: string]: eAllTypes };
+  body?: string; // | ((name: string) => string);
+  return: string; // todo: reference variables
+}
+
+export type tEntity = iTableEntity | iViewEntity | iFunctionEntity;
 export type tLoadedEntity = tEntity & { key: string };
 
 export interface iTables extends Record<string, tEntity> {}

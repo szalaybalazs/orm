@@ -2,6 +2,7 @@ import { isPlural, singular } from 'pluralize';
 import { createPostgresConnection } from '../drivers/pg';
 import { iVerboseConfig, tEntity } from '../types';
 
+// todo: handle materialized views
 /**
  * Get current the schema of the database
  * @param options connection options
