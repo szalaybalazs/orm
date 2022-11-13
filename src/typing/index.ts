@@ -1,5 +1,4 @@
-import { rmSync } from 'fs';
-import { ensureDirSync, existsSync, mkdirSync, writeFile, readdirSync, rm } from 'fs-extra';
+import { ensureDirSync, existsSync, mkdirSync, readdirSync, rm, writeFile } from 'fs-extra';
 import { join } from 'path';
 import { tLoadedEntity } from '../types';
 import { generateExports, generateTypeForEntity } from './generate';
@@ -14,7 +13,7 @@ export const saveTypes = async (entities: tLoadedEntity[], directory: string) =>
     };
   });
 
-  const basePath = join(process.cwd(), directory, 'entities');
+  const basePath = join(directory, 'entities');
   if (!existsSync(basePath)) mkdirSync(basePath);
 
   ensureDirSync(basePath);

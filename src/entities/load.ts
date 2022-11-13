@@ -6,14 +6,13 @@ import { tLoadedEntity } from '../types';
 const validExtensions = ['.entity.ts', '.entity.js', '.entity.json'];
 
 export const loadEntities = async (directory: string): Promise<tLoadedEntity[]> => {
-  const path = join(process.cwd(), directory);
-  const content = await readdir(path);
+  const content = await readdir(directory);
 
   const entities = content.filter((file) => validExtensions.some((ext) => file.endsWith(ext)));
 
   const modules = await Promise.all(
     entities.map(async (entity) => {
-      const entityPath = join(path, entity);
+      const entityPath = join(directory, entity);
 
       // Loading json entity
       if (entity.endsWith('.json')) {

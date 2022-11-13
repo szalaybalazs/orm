@@ -17,7 +17,7 @@ export const createEntityProgram = (program: Command) => {
         const options = await parseConfig(params);
         const content = getEmptyEntityContent(name);
         debug(params.verbose, chalk.gray('Saving new entity...'));
-        await writeEntity(name, options.entities, content);
+        await writeEntity(name, options.entitiesDirectory, content);
       } catch (error) {
         // todo: handle config errors
         if (error.message === 'NO_CHANGES') console.log(chalk.reset('No changes found in schema...'));

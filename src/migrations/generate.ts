@@ -19,10 +19,14 @@ import { getMigrationTemplate } from './template';
  * @param options configuration
  */
 export const generateMigration = async (id: string, name: string, options: iVerboseConfig) => {
-  const { entities: entityDirectory, snapshots: snapshotDirectory, migrations: migrationDirectory, verbose } = options;
+  const { entitiesDirectory, snapshotsDirectory, migrations: migrationDirectory, verbose } = options;
 
   debug(verbose, chalk.gray('Loading entities and latest snapshot...'));
-  const [entities, snapshot] = await Promise.all([loadEntities(entityDirectory), loadLastSnapshot(snapshotDirectory)]);
+  debug(verbose, chalk.gray('Loading entities and latest snapshot...'));
+  const [entities, snapshot] = await Promise.all([
+    loadEntities(entitiesDirectory),
+    loadLastSnapshot(snapshotsDirectory),
+  ]);
 
   debug(verbose, chalk.gray('Generating tables...'));
   const tables = getEntities(entities);
@@ -45,5 +49,5 @@ export const generateMigration = async (id: string, name: string, options: iVerb
     return console.log(migration);
   }
   debug(verbose, chalk.gray('Saving migration and new snapshot...'));
-  await Promise.all([saveMigration(id, migration, migrationDirectory), saveSnapshot(snapshotDirectory, id, tables)]);
+  await Promise.all([saveMigration(id, migration, migrationDirectory), saveSnapshot(snapshotsDirectory, id, tables)]);
 };

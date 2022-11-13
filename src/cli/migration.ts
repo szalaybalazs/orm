@@ -2,14 +2,14 @@ import * as chalk from 'chalk';
 import { Command } from 'commander';
 import { parseConfig } from '../core/config';
 import { formatId } from '../core/id';
-import { debug } from '../core/log';
+import { debug, formatObject } from '../core/log';
 import { createEmptyMigration } from '../migrations';
 import { generateMigration } from '../migrations/generate';
 import { revertMigrations } from '../migrations/revert';
 import { runMutations } from '../migrations/run';
 import { addOptions } from './options';
 
-export const createMigraationProgram = (program: Command) => {
+export const createMigrationProgram = (program: Command) => {
   addOptions(program.command('migration:generate'))
     .argument('<name>', 'The name of the new migration')
     .option('-d, --dryrun', 'Dry run')
@@ -17,6 +17,8 @@ export const createMigraationProgram = (program: Command) => {
       try {
         debug(params.verbose, chalk.gray('Loading orm config...'));
         const options = await parseConfig(params);
+        debug(params.verbose, chalk.reset('Options loaded: '));
+        debug(params.verbose, chalk.gray(formatObject(options)));
         await generateMigration(formatId(name), name, options);
       } catch (error) {
         // todo: handle config errors

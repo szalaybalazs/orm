@@ -13,7 +13,7 @@ export default __KEY__;
 `;
 
 export const saveEntities = async (entities: { [key: string]: tEntity }, entitiesDir: string) => {
-  const base = join(process.cwd(), entitiesDir);
+  const base = entitiesDir;
   const paths = Object.keys(entities).map((key) => join(base, `${key}.entity.ts`));
   const existPromise = paths.map(pathExists);
 

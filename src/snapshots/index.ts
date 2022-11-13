@@ -10,15 +10,14 @@ import { iSnapshot, iTables } from '../types';
  */
 export const loadSnapshots = async (directory: string) => {
   try {
-    const path = join(process.cwd(), directory);
-    const content = await readdir(path);
+    const content = await readdir(directory);
 
     const files = content.filter((file) => file.endsWith('.snapshot'));
 
     // todo: handle malformed files
     const snapshots = await Promise.all(
       files.map(async (file) => {
-        const snapshotPath = join(path, file);
+        const snapshotPath = join(directory, file);
         const rawSnapshot = await readFile(snapshotPath, 'utf8').catch(() => null);
         if (!rawSnapshot) return;
         const snapshot = JSON.parse(rawSnapshot);
@@ -52,10 +51,9 @@ export const saveSnapshot = async (directory: string, id: string, state: iTables
   const snapshot: iSnapshot = { id, timestamp: new Date(), tables: getSnapshotTables(state) };
   const rawSnapshot = JSON.stringify(snapshot, null, 2);
 
-  const base = join(process.cwd(), directory);
-  const fileName = join(base, `${Math.round(Date.now() / 1000)}-${id}.snapshot`);
+  const fileName = join(directory, `${Math.round(Date.now() / 1000)}-${id}.snapshot`);
 
-  if (!pathExistsSync(base)) mkdirsSync(base);
+  if (!pathExistsSync(directory)) mkdirsSync(directory);
   if (existsSync(fileName)) throw new Error('Snapshot already exists with the same ID');
 
   await writeFile(fileName, rawSnapshot, { encoding: 'utf-8' });

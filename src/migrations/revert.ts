@@ -16,7 +16,7 @@ export const revertMigrations = async (options: iVerboseConfig) => {
 
     debug(options.verbose, chalk.gray('Loading local & remote migrations...'));
     const [localMigrations, executedMigrations]: [iMigration[], { id: string }[]] = await Promise.all([
-      loadMigrations(options.migrations),
+      loadMigrations(options.migrationsDirectory),
       getExecutedMigrations(migrationsTable, query, schema),
     ]);
 
@@ -73,7 +73,7 @@ export const revertMigrationsById = async (
   query: QueryFunction,
   options: iVerboseConfig,
 ) => {
-  const migrations = await loadMigrations(options.migrations);
+  const migrations = await loadMigrations(options.migrationsDirectory);
 
   debug(options.verbose, chalk.gray('Reverting migration changes...'));
   for (const executedMigration of reverts) {

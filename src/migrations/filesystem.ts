@@ -24,15 +24,14 @@ export const saveMigration = async (id: string, content: string, migrationDirect
  */
 export const loadMigrations = async (directory: string) => {
   try {
-    const path = join(process.cwd(), directory);
-    const content = await readdir(path);
+    const content = await readdir(directory);
 
     const files = content.filter((file) => file.endsWith('.migration.ts')).sort();
 
     // todo: handle malformed files
     const migrations = await Promise.all(
       files.map(async (file) => {
-        const migrationPath = join(path, file);
+        const migrationPath = join(directory, file);
         const module = await import(migrationPath).catch(() => null);
 
         if (!module) return;

@@ -51,7 +51,7 @@ export const getAvailableMigrations = async (
   { schema, migrationsTable }: iQueryOptions,
 ): Promise<iMigration[]> => {
   const loadPromise = await Promise.all([
-    loadMigrations(options.migrations),
+    loadMigrations(options.migrationsDirectory),
     getLastMigrationId(migrationsTable, query, schema),
   ]);
 

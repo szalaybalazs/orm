@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { createBannerProgram } from './banner';
 import { createEntityProgram } from './entity';
-import { createMigraationProgram } from './migration';
+import { createMigrationProgram } from './migration';
 
 const createProgram = (): Command => {
   const program = new Command();
@@ -9,7 +9,7 @@ const createProgram = (): Command => {
 
   createBannerProgram(program);
   createEntityProgram(program);
-  createMigraationProgram(program);
+  createMigrationProgram(program);
 
   return program;
 };
