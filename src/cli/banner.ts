@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import * as chalk from 'chalk';
 import { execSync } from 'child_process';
 import { Command } from 'commander';

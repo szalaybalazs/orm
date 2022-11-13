@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'fs-extra';
+import { ensureDir, existsSync, readFileSync } from 'fs-extra';
 import { isAbsolute, join } from 'path';
 import { program } from '../cli';
 import { iOrmConfig, iVerboseConfig } from '../types';
@@ -78,5 +78,18 @@ export const parseConfig = async (params: any): Promise<iVerboseConfig> => {
     return { driver: 'postgres' };
   });
 
-  return { ...config, ...params };
+  const configuration = { ...config, ...params };
+  const entitiesDirectory = getDirectory(configuration.entities || '.orm/entities');
+  const migrationsDirectory = getDirectory(configuration.migrations || '.orm/migrations');
+  const snapshotsDirectory = getDirectory(configuration.snapshots || '.orm/snapshots');
+
+  // Creating directories if they dont exist
+  await Promise.all([ensureDir(entitiesDirectory), ensureDir(migrationsDirectory), ensureDir(snapshotsDirectory)]);
+
+  return { ...configuration, entitiesDirectory, migrationsDirectory, snapshotsDirectory };
+};
+
+const getDirectory = (dir: string) => {
+  if (isAbsolute(dir)) return dir;
+  return join(process.cwd(), dir || '.');
 };
