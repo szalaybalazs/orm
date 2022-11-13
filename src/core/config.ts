@@ -1,5 +1,6 @@
-import { ensureDir, existsSync, readFileSync } from 'fs-extra';
+import { ensureDir, existsSync, readFileSync, writeFileSync } from 'fs-extra';
 import { isAbsolute, join } from 'path';
+import { format } from 'prettier';
 import { program } from '../cli';
 import { iOrmConfig, iVerboseConfig } from '../types';
 import { chalk } from './chalk';
@@ -109,4 +110,25 @@ export const parseConfig = async (params: any): Promise<iVerboseConfig> => {
 const getDirectory = (dir: string) => {
   if (isAbsolute(dir)) return dir;
   return join(process.cwd(), dir || '.');
+};
+
+const typeImport = process.env.NODE_ENV === 'development' ? './src/types' : 'undiorm/src/types';
+const template = `import { iOrmConfig } from '${typeImport}';
+
+const config = async (): Promise<iOrmConfig> => {
+  return __TEMPLATE__
+};
+
+export default config;
+`;
+
+/**
+ * Save orm config to file
+ * @param config
+ */
+export const saveConfig = async (config: iOrmConfig) => {
+  try {
+    const content = format(template.replace('__TEMPLATE__', JSON.stringify(config)), { parser: 'babel-ts' });
+    writeFileSync(join(process.cwd(), '.ormconfig.ts'), content, 'utf-8');
+  } catch (error) {}
 };

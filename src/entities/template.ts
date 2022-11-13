@@ -1,6 +1,7 @@
 import { isPlural, plural } from 'pluralize';
 
-const template = `import { tEntity } from '../../src/types/entity';
+const typeImport = process.env.NODE_ENV === 'development' ? '../../src/types/entity' : 'undiorm/src/types';
+const template = `import { tEntity } from '${typeImport}';
 
 const __NAME__: tEntity = {
   name: '__NAME_PLURAL__',

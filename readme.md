@@ -75,11 +75,14 @@ I am documenting the whole process of creating the package on [twitter](https://
 List of all the currently supported commands.
 
 ```bash
+# Initialise a new, empty configuration
+init
+
 # Generate new migration
-migration:generate <migration  name>
+migration:generate <migration name>
 
 # Create empty migration
-migration:create <migration  name>
+migration:create <migration name>
 
 # Run all available migrations
 migration:run
@@ -89,6 +92,9 @@ migration:revert
 
 # Create a new, empty entity
 entity:create
+
+# Generated the types for the currently synced entities
+types:generate
 ```
 
 ### Examples
