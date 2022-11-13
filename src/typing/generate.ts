@@ -21,6 +21,7 @@ __COMMENT__export type __NAME__ = {
  * @returns name and type-string
  */
 export const generateTypeForEntity = (key: string, entity: tEntity): { name: string; type: string } => {
+  if (entity.type === 'FUNCTION') return;
   const name = `${capitalize(entity.name || key)}Entity`;
 
   const columns = Object.keys(entity.columns);

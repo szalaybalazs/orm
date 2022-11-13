@@ -1,7 +1,9 @@
 import * as chalk from 'chalk';
 import { debug } from '../core/log';
 import { createPostgresConnection, QueryFunction } from '../drivers/pg';
+import { loadEntities } from '../entities/load';
 import { iMigration, iVerboseConfig } from '../types';
+import { saveTypes } from '../typing';
 import { initMigrationExecution } from './init';
 import { getAvailableMigrations } from './migrations';
 
@@ -29,6 +31,11 @@ export const runMutations = async (options: iVerboseConfig) => {
     if (migrations.length < 1) throw new Error('NO_NEW_MIGRATIONS');
 
     await executeMigrations({ migrations, query, schema, options, migrationsTable });
+
+    if (options.typesDirectory) {
+      const entities = await loadEntities(options.entitiesDirectory);
+      await saveTypes(entities, options.typesDirectory);
+    }
 
     debug(options.verbose, chalk.gray('Migrations commited...'));
   } catch (error) {

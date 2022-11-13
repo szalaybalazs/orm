@@ -20,7 +20,7 @@ export interface iVerboseConfig extends iOrmConfig {
   entitiesDirectory: string;
   migrationsDirectory: string;
   snapshotsDirectory: string;
-  typesDirectory: string;
+  typesDirectory?: string;
 }
 
 export interface iQueryOptions {

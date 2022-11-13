@@ -28,7 +28,7 @@ export const saveTypes = async (entities: tLoadedEntity[], directory: string) =>
     return rm(join(basePath, file));
   });
   const savePromise = types.map(async ({ key, type }) => {
-    await writeFile(join(basePath, `${key}.ts`), type, 'utf-8');
+    if (type) await writeFile(join(basePath, `${key}.ts`), type, 'utf-8');
   });
   const indexPromise = writeFile(join(basePath, 'index.ts'), generateExports(types), 'utf-8');
   await Promise.all([...removePromise, ...savePromise, indexPromise]);

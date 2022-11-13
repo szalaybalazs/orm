@@ -61,8 +61,6 @@ export const createMigrationProgram = (program: Command) => {
     .option('-m, --migration <migration  id>', 'ID of the migration the database will be reverted to.')
     .action(async (params) => {
       const options = await parseConfig(params);
-      debug(params.verbose, chalk.reset('Options loaded: '));
-      debug(params.verbose, chalk.gray(formatObject(options)));
 
       try {
         await revertMigrations(options);

@@ -3,7 +3,7 @@ import { isAbsolute, join } from 'path';
 import { program } from '../cli';
 import { iOrmConfig, iVerboseConfig } from '../types';
 import { chalk } from './chalk';
-import { debug } from './log';
+import { debug, formatObject } from './log';
 
 // Supported config files
 const configFiles = ['ormconfig.js', 'ormconfig.ts', 'ormconfig.json'];
@@ -82,7 +82,7 @@ export const parseConfig = async (params: any): Promise<iVerboseConfig> => {
   const entitiesDirectory = getDirectory(configuration.entities || '.orm/entities');
   const migrationsDirectory = getDirectory(configuration.migrations || '.orm/migrations');
   const snapshotsDirectory = getDirectory(configuration.snapshots || '.orm/snapshots');
-  const typesDirectory = getDirectory(configuration.types || 'types');
+  const typesDirectory = getDirectory(configuration.types || '.');
 
   // Creating directories if they dont exist
   await Promise.all([
@@ -92,7 +92,18 @@ export const parseConfig = async (params: any): Promise<iVerboseConfig> => {
     ensureDir(typesDirectory),
   ]);
 
-  return { ...configuration, entitiesDirectory, migrationsDirectory, snapshotsDirectory, typesDirectory };
+  const res = {
+    ...configuration,
+    entitiesDirectory,
+    migrationsDirectory,
+    snapshotsDirectory,
+    typesDirectory: configuration.types && typesDirectory,
+  };
+
+  debug(params.verbose, chalk.reset('Options loaded: '));
+  debug(params.verbose, chalk.gray(formatObject(res)));
+
+  return res;
 };
 
 const getDirectory = (dir: string) => {
