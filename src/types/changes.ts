@@ -1,5 +1,6 @@
 import { tColumn } from './column';
 import { iIndex } from './entity';
+import { iExtensionChanges } from './extension';
 
 export interface iChange {
   key: string;
@@ -67,4 +68,5 @@ export interface iChanges {
   deleted: string[];
   created: string[];
   updated: eUpdate[];
+  extensions?: iExtensionChanges;
 }

@@ -1,8 +1,6 @@
 import { format } from 'prettier';
 import { format as formatSql } from 'sql-formatter';
 
-console.log(process.env);
-
 const typeImport = process.env.NODE_ENV === 'development' ? '../../src/types/migration' : 'undiorm/src/types';
 
 const getTemplate = ({ id, name, timestamp, up, down }) => {

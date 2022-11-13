@@ -12,8 +12,8 @@ const points = {
 
 const getPoints = (entity: tEntity) => points[entity.type || 'TABLE'];
 
-// todo: creation order: function -> table -> trigger & views
-// todo: drop order: views -> trigger -> table & function
+// todo: creation order: extensions -> function -> table -> trigger & views
+// todo: drop order: views -> trigger -> table & function -> extensions
 
 /**
  * Generate schema changing SQL queries
@@ -42,9 +42,9 @@ export const generateQueries = async (
     else up.push(dropTable(key));
 
     // Create table based on previous snapshot
-    if (entity.type === 'VIEW') down.push(createView(entity));
-    else if (entity.type === 'FUNCTION') down.push(createFunction(entity));
-    else down.push(...(await createTable(entity)));
+    if (entity.type === 'VIEW') down.unshift(createView(entity));
+    else if (entity.type === 'FUNCTION') down.unshift(createFunction(entity));
+    else down.unshift(...(await createTable(entity)));
   });
 
   // Handle creates
@@ -60,19 +60,19 @@ export const generateQueries = async (
     else up.push(...(await createTable(entity)));
 
     // Destroying table when reverted
-    if (entity.type === 'VIEW') down.push(dropView(entity));
-    else if (entity.type === 'FUNCTION') down.push(dropFunction(entity));
-    else down.push(dropTable(key));
+    if (entity.type === 'VIEW') down.unshift(dropView(entity));
+    else if (entity.type === 'FUNCTION') down.unshift(dropFunction(entity));
+    else down.unshift(dropTable(key));
   });
 
   // Handle updates
-  const udpatedPromise = loopOver(changes.updated, async (change) => {
+  const updatedPromise = loopOver(changes.updated, async (change) => {
     if (change.kind === 'VIEW') {
       if (change.changes.replace.up) up.push(dropView(snapshot[change.key] as iViewEntity));
-      if (change.changes.replace.down) down.push(dropView(state[change.key] as iViewEntity));
+      if (change.changes.replace.down) down.unshift(dropView(state[change.key] as iViewEntity));
 
       up.push(createView(state[change.key] as iViewEntity));
-      down.push(createView(snapshot[change.key] as iViewEntity));
+      down.unshift(createView(snapshot[change.key] as iViewEntity));
     } else if (change.kind === 'FUNCTION') {
     } else {
       const [transactionsUp, transactionsDown] = await updateTable(
@@ -85,11 +85,23 @@ export const generateQueries = async (
       if (transactionsUp) up.push(...transactionsUp);
 
       // Revert changes
-      if (transactionsDown) down.push(...transactionsDown);
+      if (transactionsDown) down.unshift(...transactionsDown);
     }
   });
 
-  await Promise.all([droppedPromise, createdPromise, udpatedPromise]);
+  await Promise.all([droppedPromise, createdPromise, updatedPromise]);
 
-  return { up, down: [...down].reverse() };
+  // Handle Extensions
+  if (changes.extensions) {
+    changes.extensions.added.forEach((extension) => {
+      up.unshift(`CREATE EXTENSION IF NOT EXISTS "${extension}"`);
+      down.push(`DROP EXTENSION IF EXISTS "${extension}"`);
+    });
+    changes.extensions.dropped.forEach((extension) => {
+      up.unshift(`DROP EXTENSION IF EXISTS "${extension}"`);
+      down.push(`CREATE EXTENSION IF NOT EXISTS "${extension}"`);
+    });
+  }
+
+  return { up, down };
 };

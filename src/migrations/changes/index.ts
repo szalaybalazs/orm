@@ -1,4 +1,5 @@
 import { eUpdate, iChanges, iTableEntity, iTables, iViewEntity } from '../../types';
+import { getExtensionChanges } from './extensions';
 import { getChangesForTables } from './table';
 import { getChangesForViews } from './view';
 
@@ -44,6 +45,7 @@ export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables): 
     deleted: deletedTables,
     created: createdTables,
     updated: changes.filter(Boolean),
+    extensions: getExtensionChanges(snapshot, state),
   };
 };
 
