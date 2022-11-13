@@ -1,5 +1,7 @@
-import { existsSync, mkdirSync, pathExistsSync, readdir, writeFile } from 'fs-extra';
+import { ensureDirSync, existsSync, mkdirSync, pathExistsSync, readdir, writeFile } from 'fs-extra';
 import { join } from 'path';
+import { chalk } from '../core/chalk';
+import { debug } from '../core/log';
 import { iMigration } from '../types';
 
 /**
@@ -9,12 +11,18 @@ import { iMigration } from '../types';
  * @param migrationDirectory directory to be saved to
  */
 export const saveMigration = async (id: string, content: string, migrationDirectory: string) => {
-  const base = join(process.cwd(), migrationDirectory);
+  const migrations = await loadMigrations(migrationDirectory);
+
+  const base = migrationDirectory;
   const fileName = join(base, `${Math.round(Date.now() / 1000)}-${id}.migration.ts`);
-  if (!pathExistsSync(base)) mkdirSync(base);
-  if (existsSync(fileName)) throw new Error('Snapshot already exists with the same ID');
+
+  ensureDirSync(base);
+
+  if (existsSync(fileName) || migrations.find((m) => m.id === id)) throw new Error('EXISTS');
 
   await writeFile(fileName, content, { encoding: 'utf-8' });
+
+  return fileName;
 };
 
 /**
@@ -24,10 +32,10 @@ export const saveMigration = async (id: string, content: string, migrationDirect
  */
 export const loadMigrations = async (directory: string) => {
   try {
+    debug(chalk.dim(`> Loading migrations from ${directory}`));
     const content = await readdir(directory);
 
     const files = content.filter((file) => file.endsWith('.migration.ts')).sort();
-    console.log(files);
     // todo: handle malformed files
     const migrations = await Promise.all(
       files.map(async (file) => {
@@ -44,6 +52,7 @@ export const loadMigrations = async (directory: string) => {
 
     return validMigrations.map((M) => new (M as any)());
   } catch (error) {
+    debug(chalk.red('[ERROR]'), chalk.dim(error));
     return [];
   }
 };

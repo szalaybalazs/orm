@@ -4,37 +4,31 @@
 // ==========
 
 /**
- * Type for the EmployeesEntity entity
+ * Type for the UsersEntity entity
  */
-export type EmployeesEntity = {
+export type UsersEntity = {
   /**
-   * ID of the employee
+   * ID of the user
    */
   id: string;
 
   /**
-   * ID of the employees manager
+   * Email of the user
    */
-  manager_id?: string;
+  email: string;
 
   /**
-   * ID of the employees department
-   */
-  department_id?: string;
-
-  /**
-   * Firstname of the employee
+   * Firstname of the user
    */
   first_name: string;
 
   /**
-   * Lastname of the employee
+   * Lastname of the user
    */
   last_name: string;
 
   /**
-   * Generated full name of the employee
-   * can not be changed directly
+   * Generated full name of the user can not be changed directly
    */
   full_name: string;
 

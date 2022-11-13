@@ -2,10 +2,14 @@ import { join } from 'path';
 import { readdir } from 'fs-extra';
 import { iTables, tEntity } from '../types';
 import { tLoadedEntity } from '../types';
+import { chalk } from '../core/chalk';
+import { debug } from '../core/log';
 
 const validExtensions = ['.entity.ts', '.entity.js', '.entity.json'];
 
 export const loadEntities = async (directory: string): Promise<tLoadedEntity[]> => {
+  debug(chalk.dim(`> Loading entites from: ${directory}`));
+
   const content = await readdir(directory);
 
   const entities = content.filter((file) => validExtensions.some((ext) => file.endsWith(ext)));
@@ -23,7 +27,10 @@ export const loadEntities = async (directory: string): Promise<tLoadedEntity[]> 
       if (entity.endsWith('.js') || entity.endsWith('.ts')) {
         const module = await import(entityPath).catch(() => null);
 
-        if (!module) return null;
+        if (!module) {
+          debug(chalk.dim(`> No default export was found for entity: '${entity}', returning null...`));
+          return null;
+        }
 
         module.default.key = entity.replace(/\.entity\..+/, '');
 
@@ -42,5 +49,6 @@ export const loadEntities = async (directory: string): Promise<tLoadedEntity[]> 
  * @returns { [key: string]: entity } map
  */
 export const getEntities = (entities: tEntity[]): iTables => {
+  debug(chalk.dim('> Formatting entities...'));
   return entities.reduce((acc, table) => ({ ...acc, [table.name]: table }), {});
 };

@@ -21,32 +21,28 @@ import { getMigrationTemplate } from './template';
 export const generateMigration = async (id: string, name: string, options: iVerboseConfig) => {
   const { entitiesDirectory, snapshotsDirectory, migrations: migrationDirectory, verbose } = options;
 
-  debug(verbose, chalk.gray('Loading entities and latest snapshot...'));
+  debug(chalk.dim('Loading entities and latest snapshot...'));
   const [entities, snapshot] = await Promise.all([
     loadEntities(entitiesDirectory),
     loadLastSnapshot(snapshotsDirectory),
   ]);
 
-  debug(verbose, chalk.gray('Generating tables...'));
+  debug(chalk.dim('Generating tables...'));
   const tables = getEntities(entities);
 
-  debug(verbose, chalk.gray('Generating changes...'));
+  debug(chalk.dim('Generating changes...'));
   const changes = getChangesBetweenMigrations(snapshot?.tables || {}, tables);
 
-  debug(verbose, chalk.gray('Generating queries...'));
+  debug(chalk.dim('Generating queries...'));
   const queries = await generateQueries(changes, tables, snapshot?.tables ?? {});
 
-  debug(verbose, chalk.gray('Checking for changes...'));
+  debug(chalk.dim('Checking for changes...'));
   if (queries.up.length === 0) throw new Error('NO_CHANGES');
 
-  // todo: check for changes in extensions to create only the necesarry ones
-
-  debug(verbose, chalk.gray('Generating migration...'));
+  debug(chalk.dim('Generating migration...'));
   const migration = getMigrationTemplate(id, name, queries.up, queries.down);
 
-  if (options.dryrun) {
-    return console.log(migration);
-  }
-  debug(verbose, chalk.gray('Saving migration and new snapshot...'));
+  if (options.dryrun) return migration;
+  debug(chalk.dim('Saving migration and new snapshot...'));
   await Promise.all([saveMigration(id, migration, migrationDirectory), saveSnapshot(snapshotsDirectory, id, tables)]);
 };

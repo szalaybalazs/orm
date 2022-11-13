@@ -15,14 +15,28 @@ export const createMigrationProgram = (program: Command) => {
     .option('-d, --dryrun', 'Dry run')
     .action(async (name: string, params) => {
       try {
+        console.log(chalk.reset('Generating migration from changes...'));
         const options = await parseConfig(params);
-        debug(params.verbose, chalk.reset('Options loaded: '));
-        debug(params.verbose, chalk.gray(formatObject(options)));
-        await generateMigration(formatId(name), name, options);
+        const migration = await generateMigration(formatId(name), name, options);
+
+        console.log(chalk.bold('Migration generated 🎉'));
+
+        // Migration only gets returned for dry runs
+        if (migration) {
+          console.log('');
+          console.log(migration);
+        } else {
+          console.log(
+            chalk.reset('Run'),
+            chalk.cyan('migration:run'),
+            chalk.reset('to apply all the changes to the database'),
+          );
+        }
       } catch (error) {
         // todo: handle config errors
-        if (error.message === 'NO_CHANGES') console.log(chalk.reset('No changes found in schema...'));
-        else console.log(error);
+        if (error.message === 'NO_CHANGES') {
+          console.log(chalk.cyan('No changes found in schema, skipping...'));
+        } else console.log(error);
       }
     });
 
@@ -32,13 +46,14 @@ export const createMigrationProgram = (program: Command) => {
     .action(async (name, params) => {
       try {
         const options = await parseConfig(params);
-        debug(params.verbose, chalk.reset('Options loaded: '));
-        debug(params.verbose, chalk.gray(formatObject(options)));
-        await createEmptyMigration(formatId(name), name, options);
+        const path = await createEmptyMigration(formatId(name), name, options);
+
+        console.log(chalk.bold('Migration created 🥳'));
+        console.log(chalk.reset('Saved at'), chalk.cyan(path));
       } catch (error) {
-        // todo: handle config errors
-        if (error.message === 'NO_CHANGES') console.log(chalk.reset('No changes found in schema...'));
-        else console.log(error);
+        if (error.message === 'EXISTS') {
+          console.log(chalk.red('[ERROR]'), chalk.reset('A migration already exists with the same name.'));
+        } else console.log(chalk.red('[ERROR]'), chalk.reset(error));
       }
     });
 
@@ -46,13 +61,14 @@ export const createMigrationProgram = (program: Command) => {
     .description('Run all available migrations')
     .option('--verbose')
     .action(async (params) => {
-      const options = await parseConfig(params);
-      debug(params.verbose, chalk.reset('Options loaded: '));
-      debug(params.verbose, chalk.gray(formatObject(options)));
       try {
+        const options = await parseConfig(params);
         await runMutations(options);
+        console.log(chalk.bold('All new migrations have been successfully applied 🎉'));
       } catch (error) {
-        console.log(error);
+        if (error.message === 'NO_NEW_MIGRATIONS') {
+          console.log(chalk.reset('No new migration found, skipping...'));
+        } else console.log(chalk.red('[ERROR]'), chalk.reset(error));
       }
     });
 
@@ -60,6 +76,7 @@ export const createMigrationProgram = (program: Command) => {
     .description('Revert database to a specific migration')
     .option('-m, --migration <migration  id>', 'ID of the migration the database will be reverted to.')
     .action(async (params) => {
+      // todo: add verbose logging & cleanup
       const options = await parseConfig(params);
 
       try {

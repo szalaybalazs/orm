@@ -3,7 +3,6 @@
 // ANY CHANGES WILL BE REVERTED AT THE NEXT MIGRATION
 // =========
 
-export type { DepartmentsEntity } from "./department";
-export type { EmployeesEntity } from "./employee";
-export type { ReportinglineEntity } from "./reporting";
-export type { StatisticsEntity } from "./statistics";
+export type { NamesEntity } from "./name";
+export type { TestsEntity } from "./test";
+export type { UsersEntity } from "./user";

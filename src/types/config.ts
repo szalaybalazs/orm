@@ -11,6 +11,7 @@ export interface iOrmConfig extends iPostgresConfig {
   types?: string;
   namingConvention?: 'SNAKE' | 'CAMEL';
   migrationsTable?: string;
+  verbose?: boolean;
 }
 
 export interface iVerboseConfig extends iOrmConfig {

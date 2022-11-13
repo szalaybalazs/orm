@@ -1,5 +1,7 @@
 import * as chalk from 'chalk';
 import { Command } from 'commander';
+import { pathExistsSync } from 'fs-extra';
+import { join } from 'path';
 import { parseConfig } from '../core/config';
 import { formatId } from '../core/id';
 import { debug } from '../core/log';
@@ -16,12 +18,19 @@ export const createEntityProgram = (program: Command) => {
         const name = formatId(input);
         const options = await parseConfig(params);
         const content = getEmptyEntityContent(name);
-        debug(params.verbose, chalk.gray('Saving new entity...'));
-        await writeEntity(name, options.entitiesDirectory, content);
+
+        debug(chalk.dim(`Writing new entity: ${name}...`));
+
+        const entityPath = await writeEntity(name, options.entitiesDirectory, content);
+
+        debug(chalk.dim(`Entity saved in dir: ${options.entitiesDirectory}`));
+
+        console.log(chalk.bold('Entity successfully created! 🥳'));
+        console.log(chalk.dim('To start editing open'), chalk.cyan(entityPath));
       } catch (error) {
-        // todo: handle config errors
-        if (error.message === 'NO_CHANGES') console.log(chalk.reset('No changes found in schema...'));
-        else console.log(error);
+        if (error.message === 'EXISTS') {
+          console.log(chalk.red('[ERROR]'), chalk.reset('Entity already exists, skipping...'));
+        } else console.log(error);
       }
     });
 };

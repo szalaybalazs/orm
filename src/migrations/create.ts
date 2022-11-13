@@ -10,5 +10,5 @@ import { getMigrationTemplate } from './template';
  */
 export const createEmptyMigration = async (id: string, name: string, options: iVerboseConfig) => {
   const migration = getMigrationTemplate(id, name, [], []);
-  await saveMigration(id, migration, options.migrations);
+  return saveMigration(id, migration, options.migrationsDirectory);
 };

@@ -1,3 +1,5 @@
+import { chalk } from '../../core/chalk';
+import { debug } from '../../core/log';
 import { eUpdate, iChanges, iTableEntity, iTables, iViewEntity } from '../../types';
 import { getExtensionChanges } from './extensions';
 import { getChangesForTables } from './table';
@@ -12,6 +14,7 @@ import { getChangesForViews } from './view';
  * @returns
  */
 export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables): iChanges => {
+  debug(chalk.dim('> Calculating changes in entity lists'));
   const currentTables = Object.keys(state).map((key) => state[key]?.name || key);
   const previousTables = Object.keys(snapshot).map((key) => snapshot[key]?.name || key);
 
@@ -20,6 +23,7 @@ export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables): 
 
   const updatedTables = previousTables.filter((table) => currentTables.includes(table));
 
+  debug(chalk.dim('> Calculating changes for updated tables and views'));
   const changes = updatedTables.map((key): eUpdate => {
     if (snapshot[key]?.type === 'VIEW') {
       const oldView = getView(snapshot, key);

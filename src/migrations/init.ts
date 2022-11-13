@@ -28,9 +28,9 @@ export const initMigrationExecution = async (
   query: QueryFunction,
   options: iVerboseConfig,
 ) => {
-  debug(options.verbose, chalk.gray(`Making sure schema exists...`));
+  debug(chalk.dim(`> Making sure schema exists...`));
   await query(`CREATE SCHEMA IF NOT EXISTS "${schema}"`);
 
-  debug(options.verbose, chalk.gray(`Creating migrations table...`));
+  debug(chalk.dim(`> Creating migrations table...`));
   await createMutationsTable(migrationsTable, query, schema);
 };

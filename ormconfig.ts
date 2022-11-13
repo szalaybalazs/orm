@@ -14,6 +14,8 @@ const config = async (): Promise<iOrmConfig> => {
     types: './example/types',
 
     namingConvention: 'CAMEL',
+
+    verbose: true,
   };
 };
 

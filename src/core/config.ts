@@ -66,10 +66,10 @@ const loadConfig = async (path: string): Promise<iVerboseConfig> => {
  * @returns orm config
  */
 export const parseConfig = async (params: any): Promise<iVerboseConfig> => {
-  debug(params.verbose, chalk.gray('Loading orm config...'));
+  if (params.verbose) console.log(chalk.dim('Loading orm config...'));
   const config: iOrmConfig = await loadFile(params.config).catch((err) => {
     if (err === 'CONFIG_MISSING') {
-      debug(params.verbose, chalk.gray('No config file found, using default value...'));
+      if (params.verbose) console.log(chalk.dim('No config file found, using default value...'));
       return {
         driver: 'postgres',
       };
@@ -101,8 +101,12 @@ export const parseConfig = async (params: any): Promise<iVerboseConfig> => {
     typesDirectory: configuration.types && typesDirectory,
   };
 
-  debug(params.verbose, chalk.reset('Options loaded: '));
-  debug(params.verbose, chalk.gray(formatObject(res)));
+  global.config = res;
+  if (res.verbose) process.env.DEBUG = 'orm';
+
+  debug();
+  debug(chalk.dim('Options loaded: '));
+  debug(chalk.dim(formatObject(res)));
 
   return res;
 };

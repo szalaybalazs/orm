@@ -12,9 +12,9 @@ export const revertMigrations = async (options: iVerboseConfig) => {
 
   const { query, close } = createPostgresConnection(options);
   try {
-    debug(options.verbose, chalk.gray('Creating database connection...'));
+    debug(options.verbose, chalk.dim('Creating database connection...'));
 
-    debug(options.verbose, chalk.gray('Loading local & remote migrations...'));
+    debug(options.verbose, chalk.dim('Loading local & remote migrations...'));
     const [localMigrations, executedMigrations]: [iMigration[], { id: string }[]] = await Promise.all([
       loadMigrations(options.migrationsDirectory),
       getExecutedMigrations(migrationsTable, query, schema),
@@ -45,7 +45,7 @@ export const revertMigrations = async (options: iVerboseConfig) => {
 
     if (!migration) return;
 
-    debug(options.verbose, chalk.gray('Reverting to selected migration...'));
+    debug(options.verbose, chalk.dim('Reverting to selected migration...'));
 
     const index = executedMigrations.findIndex((m) => m.id === migration.id);
     const revertedMigrations = executedMigrations.slice(0, index);
@@ -58,7 +58,7 @@ export const revertMigrations = async (options: iVerboseConfig) => {
       options,
     );
 
-    debug(options.verbose, chalk.gray('Revert finished...'));
+    debug(options.verbose, chalk.dim('Revert finished...'));
   } catch (error) {
     throw error;
   } finally {
@@ -75,7 +75,7 @@ export const revertMigrationsById = async (
 ) => {
   const migrations = await loadMigrations(options.migrationsDirectory);
 
-  debug(options.verbose, chalk.gray('Reverting migration changes...'));
+  debug(options.verbose, chalk.dim('Reverting migration changes...'));
   for (const executedMigration of reverts) {
     const migration = migrations.find((m) => executedMigration === m.id);
     const queries = await migration.down({ schema, query });
@@ -85,6 +85,6 @@ export const revertMigrationsById = async (
     }
   }
 
-  debug(options.verbose, chalk.gray('Removing migrations from migration table...'));
+  debug(options.verbose, chalk.dim('Removing migrations from migration table...'));
   await query(`DELETE FROM "${table}" WHERE id IN (${reverts.map((id) => `'${id}'`)})`);
 };

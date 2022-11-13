@@ -4,12 +4,8 @@
 // ==========
 
 /**
- * Type for the StatisticsEntity entity
+ * Type for the TestsEntity entity
  */
-export type StatisticsEntity = {
-  name: string;
-
-  employees: number;
-
-  lead: string;
+export type TestsEntity = {
+  id: string;
 };

@@ -16,28 +16,27 @@ import { getAvailableMigrations } from './migrations';
 export const runMutations = async (options: iVerboseConfig) => {
   const migrationsTable = options.migrationsTable || '__migrations__';
   const schema = 'public';
-  debug(options.verbose, chalk.gray(`Running migrations using table: ${migrationsTable}...`));
+  debug(chalk.dim(`Running migrations using table: ${migrationsTable}...`));
 
   // Creating SQL handler
-  debug(options.verbose, chalk.gray(`Establishing connection to database...`));
+  debug(chalk.dim(`Establishing connection to database...`));
   const { query, close } = createPostgresConnection(options);
 
   try {
     await initMigrationExecution(migrationsTable, schema, query, options);
 
-    debug(options.verbose, chalk.gray(`Loading migrations...`));
-
+    debug(chalk.dim(`Loading migrations...`));
     const migrations = await getAvailableMigrations(query, options, { schema, migrationsTable });
     if (migrations.length < 1) throw new Error('NO_NEW_MIGRATIONS');
 
-    await executeMigrations({ migrations, query, schema, options, migrationsTable });
+    await executeMigrations({ migrations, query, schema, migrationsTable });
 
     if (options.typesDirectory) {
       const entities = await loadEntities(options.entitiesDirectory);
       await saveTypes(entities, options.typesDirectory);
     }
 
-    debug(options.verbose, chalk.gray('Migrations commited...'));
+    debug(chalk.dim('Migrations commited...'));
   } catch (error) {
     throw error;
   } finally {
@@ -50,29 +49,32 @@ export const executeMigrations = async ({
   migrations,
   schema,
   query,
-  options,
   migrationsTable,
 }: {
   migrations: iMigration[];
   schema: string;
   migrationsTable: string;
   query: QueryFunction;
-  options: iVerboseConfig;
 }) => {
   for (const migration of migrations) {
     // todo: handle revert queries
+
+    debug(chalk.dim('> Generating propagated queries...'));
     const allQueries = await migration.up({ schema, query });
     const queries = Array.isArray(allQueries) ? allQueries : [allQueries];
 
-    // todo: revert migrations on fail
-    debug(options.verbose, chalk.gray(`Executing migration: ${migration.id}...`));
-    for (const sql of queries) await query(sql);
+    try {
+      debug(chalk.dim(`> Executing migration: ${migration.id}...`));
+      for (const sql of queries) await query(sql);
+
+      debug(chalk.dim('> Updating migrations table...'));
+      await query(`INSERT INTO "${schema}"."${migrationsTable}" (id) VALUES ($1)`, [migration.id]);
+    } catch (error) {
+      debug(chalk.dim('> Migration failed, reverting...'));
+
+      // todo: revert migrations on fail
+
+      throw error;
+    }
   }
-
-  debug(options.verbose, chalk.gray('Updating migrations table...'));
-
-  const sql = `INSERT INTO "${schema}"."${migrationsTable}" (id) VALUES ${migrations.map(
-    (migration) => `('${migration.id}')`,
-  )}`;
-  await query(sql);
 };

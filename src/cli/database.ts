@@ -25,7 +25,7 @@ export const createDatabaseProgram = (program: Command) => {
           },
         ]);
         if (!answers.reinitialise) {
-          console.log(chalk.gray('Quitting...'));
+          console.log(chalk.dim('Quitting...'));
           console.log('');
           return;
         }
@@ -47,7 +47,7 @@ export const createDatabaseProgram = (program: Command) => {
       console.log('');
       console.log(chalk.bold('Successfully initialised orm project. 🎉'));
       console.log('');
-      console.log(chalk.gray('Next steps:'));
+      console.log(chalk.dim('Next steps:'));
       console.log(
         chalk.reset('1) Create your first entity by running:'),
         chalk.cyan('entity:create <name of the entity>'),

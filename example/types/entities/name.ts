@@ -4,10 +4,8 @@
 // ==========
 
 /**
- * Type for the ReportinglineEntity entity
+ * Type for the NamesEntity entity
  */
-export type ReportinglineEntity = {
+export type NamesEntity = {
   id: string;
-
-  subordinates: string;
 };
