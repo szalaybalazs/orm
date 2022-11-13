@@ -1,5 +1,6 @@
 import { loopOver } from '../core/loop';
 import { iChanges, iTableEntity, iTables, iViewEntity, tEntity } from '../types';
+import { createExtension, dropExtension } from './extension';
 import { createFunction, dropFunction } from './function';
 import { createTable, dropTable, updateTable } from './table';
 import { createView, dropView } from './view';
@@ -94,12 +95,12 @@ export const generateQueries = async (
   // Handle Extensions
   if (changes.extensions) {
     changes.extensions.added.forEach((extension) => {
-      up.unshift(`CREATE EXTENSION IF NOT EXISTS "${extension}"`);
-      down.push(`DROP EXTENSION IF EXISTS "${extension}"`);
+      up.unshift(createExtension(extension));
+      down.push(dropExtension(extension));
     });
     changes.extensions.dropped.forEach((extension) => {
-      up.unshift(`DROP EXTENSION IF EXISTS "${extension}"`);
-      down.push(`CREATE EXTENSION IF NOT EXISTS "${extension}"`);
+      up.unshift(dropExtension(extension));
+      down.push(createExtension(extension));
     });
   }
 
