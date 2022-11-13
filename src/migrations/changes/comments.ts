@@ -7,8 +7,8 @@ export const getCommentChanges = (state: iTableEntity, snapshot: iTableEntity): 
   const columns = Array.from(new Set([...Object.keys(state.columns), ...Object.keys(snapshot.columns)]));
 
   columns.forEach((key) => {
-    const newComment = state.columns[key].comment;
-    const oldComment = snapshot.columns[key].comment;
+    const newComment = state.columns?.[key]?.comment;
+    const oldComment = snapshot.columns?.[key]?.comment;
 
     if (newComment === oldComment) return;
 

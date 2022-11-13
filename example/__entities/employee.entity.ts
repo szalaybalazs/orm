@@ -9,6 +9,10 @@ const employee: tEntity = {
       primary: true,
       generated: true,
     },
+    email: {
+      type: 'varchar',
+      comment: 'Email of the user',
+    },
     manager_id: {
       type: 'uuid',
       comment: 'ID of the employees manager',
@@ -49,6 +53,16 @@ const employee: tEntity = {
       type: 'int',
     },
   },
+  indices: [
+    {
+      columns: ['id'],
+      unique: true,
+    },
+    {
+      columns: ['email'],
+      unique: true,
+    },
+  ],
 };
 
 export default employee;
