@@ -10,5 +10,10 @@ export const formatObject = (input: { [key: string]: any }) => {
     return `${key.padStart(maxLength + 2, ' ')}: ${input[key]}`;
   });
 
+  const cols = process.stdout.columns;
+  const border = new Array(cols).fill('=').join('');
+  lines.unshift('\n', border);
+  lines.push(border, '\n');
+
   return lines.join('\n');
 };

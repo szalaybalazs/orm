@@ -22,7 +22,6 @@ export const generateMigration = async (id: string, name: string, options: iVerb
   const { entitiesDirectory, snapshotsDirectory, migrations: migrationDirectory, verbose } = options;
 
   debug(verbose, chalk.gray('Loading entities and latest snapshot...'));
-  debug(verbose, chalk.gray('Loading entities and latest snapshot...'));
   const [entities, snapshot] = await Promise.all([
     loadEntities(entitiesDirectory),
     loadLastSnapshot(snapshotsDirectory),

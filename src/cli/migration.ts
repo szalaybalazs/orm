@@ -15,7 +15,6 @@ export const createMigrationProgram = (program: Command) => {
     .option('-d, --dryrun', 'Dry run')
     .action(async (name: string, params) => {
       try {
-        debug(params.verbose, chalk.gray('Loading orm config...'));
         const options = await parseConfig(params);
         debug(params.verbose, chalk.reset('Options loaded: '));
         debug(params.verbose, chalk.gray(formatObject(options)));
@@ -32,8 +31,9 @@ export const createMigrationProgram = (program: Command) => {
     .argument('<name>', 'The name of the new migration')
     .action(async (name, params) => {
       try {
-        debug(params.verbose, chalk.gray('Loading orm config...'));
         const options = await parseConfig(params);
+        debug(params.verbose, chalk.reset('Options loaded: '));
+        debug(params.verbose, chalk.gray(formatObject(options)));
         await createEmptyMigration(formatId(name), name, options);
       } catch (error) {
         // todo: handle config errors
@@ -46,8 +46,9 @@ export const createMigrationProgram = (program: Command) => {
     .description('Run all available migrations')
     .option('--verbose')
     .action(async (params) => {
-      debug(params.verbose, chalk.gray('Loading orm config...'));
       const options = await parseConfig(params);
+      debug(params.verbose, chalk.reset('Options loaded: '));
+      debug(params.verbose, chalk.gray(formatObject(options)));
       try {
         await runMutations(options);
       } catch (error) {
@@ -59,8 +60,9 @@ export const createMigrationProgram = (program: Command) => {
     .description('Revert database to a specific migration')
     .option('-m, --migration <migration  id>', 'ID of the migration the database will be reverted to.')
     .action(async (params) => {
-      debug(params.verbose, chalk.gray('Loading orm config...'));
       const options = await parseConfig(params);
+      debug(params.verbose, chalk.reset('Options loaded: '));
+      debug(params.verbose, chalk.gray(formatObject(options)));
 
       try {
         await revertMigrations(options);

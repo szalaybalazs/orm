@@ -10,7 +10,7 @@ const config = async (): Promise<iOrmConfig> => {
 
     entities: './example/entities',
     migrations: './example/migrations',
-    snapshots: './example/snapshots',
+    // snapshots: './example/snapshots',
     types: './example/types',
 
     namingConvention: 'CAMEL',
