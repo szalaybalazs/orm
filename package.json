@@ -1,17 +1,17 @@
 {
   "name": "undiorm",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "Lightweight PG Orm",
   "main": "./src/index.ts",
   "license": "MIT",
   "scripts": {
     "test": "jest",
-    "start": "ts-node src/index.ts",
-    "generate": "ts-node src/index.ts generate",
-    "show": "ts-node src/index.ts show",
-    "revert": "ts-node src/index.ts revert",
-    "execute": "ts-node src/index.ts run",
-    "migration:create": "ts-node src/index.ts create"
+    "start": "NODE_ENV=development ts-node src/index.ts",
+    "generate": "yarn start generate",
+    "show": "yarn start show",
+    "revert": "yarn start revert",
+    "execute": "yarn start run",
+    "migration:create": "yarn start create"
   },
   "devDependencies": {
     "@types/chalk": "^2.2.0",

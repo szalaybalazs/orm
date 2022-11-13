@@ -85,7 +85,12 @@ export const parseConfig = async (params: any): Promise<iVerboseConfig> => {
   const typesDirectory = getDirectory(configuration.types || 'types');
 
   // Creating directories if they dont exist
-  await Promise.all([ensureDir(entitiesDirectory), ensureDir(migrationsDirectory), ensureDir(snapshotsDirectory)]);
+  await Promise.all([
+    ensureDir(entitiesDirectory),
+    ensureDir(migrationsDirectory),
+    ensureDir(snapshotsDirectory),
+    ensureDir(typesDirectory),
+  ]);
 
   return { ...configuration, entitiesDirectory, migrationsDirectory, snapshotsDirectory, typesDirectory };
 };

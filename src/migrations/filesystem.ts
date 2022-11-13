@@ -27,7 +27,7 @@ export const loadMigrations = async (directory: string) => {
     const content = await readdir(directory);
 
     const files = content.filter((file) => file.endsWith('.migration.ts')).sort();
-
+    console.log(files);
     // todo: handle malformed files
     const migrations = await Promise.all(
       files.map(async (file) => {
