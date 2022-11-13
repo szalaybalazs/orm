@@ -11,7 +11,7 @@ export const generateEntityTypes = (program: Command) => {
       try {
         const options = await parseConfig(params);
         const entities = await loadEntities(options.entitiesDirectory);
-        await saveTypes(entities, options.entitiesDirectory);
+        await saveTypes(entities, options.typesDirectory);
       } catch (error) {
         console.log(error);
       }
