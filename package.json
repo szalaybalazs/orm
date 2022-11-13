@@ -1,6 +1,6 @@
 {
   "name": "undiorm",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Lightweight PG Orm",
   "main": "./src/index.ts",
   "license": "MIT",

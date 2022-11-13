@@ -24,6 +24,7 @@ export const createTable = async (table: iTableEntity): Promise<string[]> => {
 
   const comments = Object.entries(table.columns).map(([key, { comment }]) => {
     if (!comment) return null;
+    // todo: only remove comment if column exists
     return editComment(table.name, key, comment);
   });
 
@@ -118,8 +119,8 @@ export const updateTable = async (
   });
 
   Object.entries(changes.comments).forEach(([key, { from, to }]) => {
-    up.push(editComment(state.name, key, to));
-    down.push(editComment(state.name, key, from));
+    if (state.columns?.[key]) up.push(editComment(state.name, key, to));
+    if (snapshot.columns?.[key]) down.push(editComment(state.name, key, from));
   });
 
   // todo: handle unique values by created a separate index for each of them
