@@ -1,0 +1,167 @@
+{
+  "id": "userNameIndex",
+  "timestamp": "2022-11-14T13:00:54.133Z",
+  "tables": {
+    "add_sql": {
+      "name": "add_sql",
+      "type": "FUNCTION",
+      "returns": "int",
+      "immutable": true,
+      "nullBehaviour": "RETURNS_NULL",
+      "args": {
+        "a": "int",
+        "b": "int"
+      },
+      "variables": {
+        "sum": "int"
+      },
+      "body": "SELECT a + b INTO sum",
+      "return": "sum",
+      "key": "add"
+    },
+    "departments": {
+      "name": "departments",
+      "columns": {
+        "id": {
+          "type": "uuid",
+          "comment": "ID of the department",
+          "primary": true,
+          "generated": true
+        },
+        "name": {
+          "type": "varchar",
+          "default": "Unnamed department",
+          "nullable": false
+        },
+        "description": {
+          "type": "varchar",
+          "nullable": true
+        },
+        "lead_id": {
+          "type": "uuid",
+          "comment": "ID of the departments lead",
+          "generated": false,
+          "nullable": true
+        },
+        "created_at": {
+          "type": "timestamptz",
+          "default": "now"
+        }
+      },
+      "key": "department"
+    },
+    "employees": {
+      "name": "employees",
+      "columns": {
+        "id": {
+          "type": "uuid",
+          "comment": "ID of the employee",
+          "primary": true,
+          "generated": true
+        },
+        "email": {
+          "type": "varchar",
+          "comment": "Email of the user"
+        },
+        "manager_id": {
+          "type": "uuid",
+          "comment": "ID of the employees manager",
+          "nullable": true,
+          "generated": false
+        },
+        "department_id": {
+          "type": "uuid",
+          "comment": "ID of the employees department",
+          "nullable": true,
+          "generated": false
+        },
+        "first_name": {
+          "type": "varchar",
+          "comment": "Firstname of the employee"
+        },
+        "last_name": {
+          "type": "varchar",
+          "comment": "Lastname of the employee"
+        },
+        "full_name": {
+          "kind": "COMPUTED",
+          "type": "varchar",
+          "resolver": "TRIM(first_name || ' ' || last_name)",
+          "comment": "Generated full name of the employee\ncan not be changed directly"
+        },
+        "is_suspended": {
+          "type": "boolean",
+          "default": false
+        },
+        "joined_at": {
+          "type": "timestamp with time zone",
+          "default": "now"
+        },
+        "time_since_join": {
+          "kind": "RESOLVED",
+          "resolver": "(EXTRACT(epoch FROM now() - joined_at) / 3600)::int",
+          "type": "int"
+        }
+      },
+      "indices": [
+        {
+          "columns": [
+            "id"
+          ],
+          "unique": true
+        },
+        {
+          "columns": [
+            "email"
+          ],
+          "includes": [
+            "id"
+          ],
+          "unique": true
+        },
+        {
+          "columns": [
+            "first_name",
+            "last_name"
+          ],
+          "includes": [
+            "id"
+          ]
+        }
+      ],
+      "key": "employee"
+    },
+    "reporting-line": {
+      "name": "reporting-line",
+      "type": "VIEW",
+      "resolver": "\n      SELECT\n        id,\n        full_name AS subordinates\n      FROM\n        employees\n      WHERE\n        manager_id IS NULL\n      UNION ALL\n        SELECT\n          e.id,\n          (\n            rl.subordinates || ' > ' || e.full_name\n          ) AS subordinates\n        FROM\n          employees e\n        INNER JOIN \"reporting-line\" rl ON e.manager_id = rl.id\n    ",
+      "columns": {
+        "id": {
+          "type": "uuid"
+        },
+        "subordinates": {
+          "type": "varchar"
+        }
+      },
+      "key": "reporting"
+    },
+    "statistics": {
+      "name": "statistics",
+      "type": "VIEW",
+      "materialized": true,
+      "resolver": "\n    SELECT\n      name,\n      employees,\n      full_name AS lead\n    FROM (\n      SELECT\n        department_id AS id,\n        COUNT(1) AS employees\n      FROM\n        employees\n      GROUP BY\n        department_id) AS calc\n      RIGHT JOIN departments USING (id)\n      LEFT JOIN employees AS e ON e.id = lead_id\n  ",
+      "columns": {
+        "name": {
+          "type": "varchar"
+        },
+        "employees": {
+          "type": "int"
+        },
+        "lead": {
+          "type": "varchar"
+        }
+      },
+      "key": "statistics"
+    }
+  }
+}

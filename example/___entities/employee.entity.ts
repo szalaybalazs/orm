@@ -60,7 +60,12 @@ const employee: tEntity = {
     },
     {
       columns: ['email'],
+      includes: ['id'],
       unique: true,
+    },
+    {
+      columns: ['first_name', 'last_name'],
+      includes: ['id'],
     },
   ],
 };

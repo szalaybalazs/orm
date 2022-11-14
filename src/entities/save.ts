@@ -3,7 +3,7 @@ import { join } from 'path';
 import { format } from 'prettier';
 import { formatId } from '../core/id';
 import { tEntity } from '../types';
-
+import { format as formatSql } from 'sql-formatter';
 const template = `
 import { tEntity } from '../../src/types/entity';
 
@@ -27,13 +27,17 @@ export const saveEntities = async (entities: { [key: string]: tEntity }, entitie
   }
 
   const savePromises = Object.keys(entities).map((key) => {
-    // @ts-ignore
-    const entity = entities[key];
+    const entity: any = entities[key];
     if (!entity) return;
 
-    const content = template
-      .replace(/__KEY__/g, formatId(key))
-      .replace(/__ENTITY__/g, JSON.stringify({ ...entity, key: undefined }));
+    const resolver = `"resolver": \`\n${formatSql(String(entity.resolver).replace(/\\n/g, '\n'), {
+      language: 'postgresql',
+      expressionWidth: 60,
+      keywordCase: 'upper',
+    })}\n\``;
+
+    const entityContent = JSON.stringify({ ...entity, key: undefined }).replace(/"resolver":(\s+)?(".+")/, resolver);
+    const content = template.replace(/__KEY__/g, formatId(key)).replace(/__ENTITY__/g, entityContent);
 
     return writeFile(join(base, `${key}.entity.ts`), format(content, { parser: 'babel-ts' }), 'utf8');
   });

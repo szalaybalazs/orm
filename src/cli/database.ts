@@ -3,9 +3,12 @@ import { Command } from 'commander';
 import { readdirSync } from 'fs-extra';
 import { prompt } from 'inquirer';
 import { join } from 'path';
-import { saveConfig } from '../core/config';
+import { parseConfig, saveConfig } from '../core/config';
+import { pullSchema } from '../database/pull';
+import { saveEntities } from '../entities/save';
 import { initQuestions } from '../misc/initQuestions';
 import { iOrmConfig } from '../types';
+import { addOptions } from './options';
 
 export const createDatabaseProgram = (program: Command) => {
   program
@@ -58,5 +61,21 @@ export const createDatabaseProgram = (program: Command) => {
       console.log('');
       console.log(chalk.reset('Or pull the current schema of the database by running:'), chalk.cyan('database:pull'));
       console.log('');
+    });
+};
+export const createDatabasePullProgram = (program: Command) => {
+  addOptions(program.command('database:pull').summary('Pull database schema from connection'))
+    .option('-d, --dryrun', 'Dry run')
+    .action(async (params) => {
+      console.log(chalk.reset('Generating migration from changes...'));
+      const options = await parseConfig(params);
+
+      const entities = await pullSchema(options);
+
+      if (options.dryrun) console.log(JSON.stringify(entities, null, 2));
+      else await saveEntities(entities, options.entitiesDirectory);
+
+      console.log('');
+      console.log(chalk.bold('Successfully pulled database schema. 🎉'));
     });
 };

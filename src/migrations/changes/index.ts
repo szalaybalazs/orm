@@ -23,7 +23,7 @@ export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables): 
 
   const updatedTables = previousTables.filter((table) => currentTables.includes(table));
 
-  debug(chalk.dim('> Calculating changes for updated tables and views'));
+  debug(chalk.dim('> Calculating changes for updated tables, functions and views'));
   const changes = updatedTables.map((key): eUpdate => {
     if (snapshot[key]?.type === 'VIEW') {
       const oldView = getView(snapshot, key);
@@ -32,6 +32,8 @@ export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables): 
 
       if (Object.keys(changes).every((c) => ['kind', 'replace'].includes(c))) return undefined;
       return { key, kind: 'VIEW', changes };
+    } else if (snapshot[key]?.type === 'FUNCTION') {
+      // todo: update functions
     } else {
       const oldTable = getTable(snapshot, key);
       const newTable = getTable(state, key);
