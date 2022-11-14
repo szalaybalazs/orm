@@ -17,7 +17,7 @@ export const initQuestions: QuestionCollection = [
     type: 'input',
     name: 'snapshots',
     message: 'What about the snapshots?',
-    default: './.orm/migrations/',
+    default: './.orm/snapshots/',
   },
   {
     type: 'confirm',
