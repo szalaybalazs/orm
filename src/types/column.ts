@@ -4,7 +4,9 @@ import {
   eBinaryType,
   eBooleanType,
   eDateTypes,
+  eEnumType,
   eIntervalType,
+  eJSONTypes,
   eNumberType,
   eStringType,
   eUUIDType,
@@ -69,6 +71,21 @@ export interface iUUIDColumn extends iBaseColumnOptions {
   nullable?: boolean;
 }
 
+export interface iEnumColumn extends iBaseColumnOptions {
+  enumName?: string;
+  kind?: 'REGULAR';
+  type: eEnumType;
+  default?: string;
+  enum: string[];
+  nullable?: boolean;
+}
+export interface iJSONColumn extends iBaseColumnOptions {
+  kind?: 'REGULAR';
+  type: eJSONTypes;
+  default?: string | any;
+  nullable?: boolean;
+}
+
 export type tRegularColumn =
   | iNumberColumn
   | iStringColumn
@@ -76,7 +93,9 @@ export type tRegularColumn =
   | iDateColumn
   | iBinaryColumn
   | iIntervalColumn
-  | iBooleanColumn;
+  | iBooleanColumn
+  | iEnumColumn
+  | iJSONColumn;
 
 export interface iComputedColumn {
   kind: 'COMPUTED';

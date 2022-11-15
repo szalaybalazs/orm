@@ -32,7 +32,7 @@ export const generateTypeForEntity = (key: string, entity: tEntity): { name: str
     const comment = formatComment(commentContent);
     const nullable = !!(typeof column !== 'string' && (column as iRegularColumnOptions).nullable);
 
-    return `${comment}${key}${nullable ? '?' : ''}: ${getType(type)}`;
+    return `${comment}${key}${nullable ? '?' : ''}: ${getType(type, (column as any).enum)}`;
   });
 
   const entityComment = entity.comment || `Type for the ${name} entity`;

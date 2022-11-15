@@ -1,7 +1,10 @@
+import { chalk } from '../../core/chalk';
+import { debug } from '../../core/log';
 import { getViewResolver } from '../../helpers/view';
 import { eAllTypes, eExtension, iTables } from '../../types';
 
 export const getExtensionChanges = (snapshot: iTables, state: iTables) => {
+  debug(chalk.dim('> Calculating changes in extensions'));
   const oldExtensions = getExtensions(snapshot);
   const newExtensions = getExtensions(state);
 

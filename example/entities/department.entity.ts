@@ -1,15 +1,34 @@
-import { tEntity } from "../../src/types/entity";
+import { tEntity } from '../../src/types/entity';
 
 const department: tEntity = {
-  name: "departments",
+  name: 'departments',
   columns: {
-    id: { type: "uuid", primary: true, generated: true },
-    name: { type: "character varying", default: "Unnamed department" },
-    description: { type: "character varying", nullable: true },
-    lead_id: { type: "uuid", nullable: true },
-    created_at: { type: "timestamp with time zone", default: "now()" },
+    id: {
+      type: 'uuid',
+      comment: 'ID of the department',
+      primary: true,
+      generated: true,
+    },
+    name: {
+      type: 'varchar',
+      default: 'Unnamed department',
+      nullable: false,
+    },
+    description: {
+      type: 'varchar',
+      nullable: true,
+    },
+    lead_id: {
+      type: 'uuid',
+      comment: 'ID of the departments lead',
+      generated: false,
+      nullable: true,
+    },
+    created_at: {
+      type: 'timestamptz',
+      default: 'now',
+    },
   },
-  indices: [],
 };
 
 export default department;

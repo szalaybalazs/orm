@@ -3,6 +3,7 @@ import { debug } from '../../core/log';
 import { eUpdate, iChanges, iTableEntity, iTables, iViewEntity } from '../../types';
 import { getExtensionChanges } from './extensions';
 import { getChangesForTables } from './table';
+import { getTypeChanges } from './types';
 import { getChangesForViews } from './view';
 
 // todo: handle views
@@ -52,6 +53,7 @@ export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables): 
     created: createdTables,
     updated: changes.filter(Boolean),
     extensions: getExtensionChanges(snapshot, state),
+    types: getTypeChanges(snapshot, state),
   };
 };
 

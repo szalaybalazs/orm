@@ -4,8 +4,10 @@ import { format } from 'prettier';
 import { formatId } from '../core/id';
 import { tEntity } from '../types';
 import { format as formatSql } from 'sql-formatter';
+
+const typeImport = process.env.NODE_ENV === 'development' ? './src/types' : 'undiorm/src/types';
 const template = `
-import { tEntity } from '../../src/types/entity';
+import { tEntity } from '${typeImport}';
 
 const __KEY__: tEntity = __ENTITY__
 

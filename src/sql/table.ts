@@ -1,4 +1,4 @@
-import { iTableChanges, iTableEntity, tColumn, tEntity } from '../types';
+import { iTableChanges, iTableEntity, tColumn } from '../types';
 import { changeColumn, createColumn } from './column';
 import { editComment } from './comment';
 import { createIndex, dropIndex } from './indices';
@@ -12,7 +12,7 @@ import { changePrimaries, getPrimaryKeys } from './primary';
 export const createTable = async (table: iTableEntity): Promise<string[]> => {
   // todo: use column name option
   // todo: use naming convention
-  const columnsPromise = Object.keys(table.columns).map((key) => createColumn(key, table.columns[key]));
+  const columnsPromise = Object.keys(table.columns).map((key) => createColumn(table.name, key, table.columns[key]));
   const columns = await Promise.all(columnsPromise);
 
   const primaryKeys = getPrimaryKeys(table);
@@ -52,7 +52,7 @@ export const updateTable = async (
   const tableComputedDown: string[] = [];
 
   const added = Object.keys(changes.added).map(async (key) => {
-    tableUp.push(`ADD COLUMN ${await createColumn(key, state.columns[key])}`);
+    tableUp.push(`ADD COLUMN ${await createColumn(state.name, key, state.columns[key])}`);
     tableDown.push(`DROP COLUMN "${key}"`);
   });
 
@@ -62,7 +62,7 @@ export const updateTable = async (
 
     // Add column when reverting
 
-    tableDown.push(`ADD COLUMN ${await createColumn(key, snapshot.columns[key])}`);
+    tableDown.push(`ADD COLUMN ${await createColumn(state.name, key, snapshot.columns[key])}`);
   });
 
   const updates = Object.keys(changes.changes).map(async (key) => {
@@ -72,11 +72,13 @@ export const updateTable = async (
     if (column.kind === 'RESOLVED') return;
     if (column.kind === 'COMPUTED') {
       if (prevColumn) tableComputedUp.push(`DROP COLUMN IF EXISTS "${key}"`);
-      tableComputedUp.push(`ADD COLUMN IF NOT EXISTS ${await createColumn(key, column)}`);
+      tableComputedUp.push(`ADD COLUMN IF NOT EXISTS ${await createColumn(state.name, key, column)}`);
 
       tableComputedDown.push(`DROP COLUMN IF EXISTS "${key}"`);
       if (prevColumn) {
-        tableComputedDown.push(`ADD COLUMN IF NOT EXISTS ${await createColumn(key, prevColumn as tColumn)}`);
+        tableComputedDown.push(
+          `ADD COLUMN IF NOT EXISTS ${await createColumn(state.name, key, prevColumn as tColumn)}`,
+        );
       }
     } else {
       const promises = changes.changes[key].map(async (change) => {

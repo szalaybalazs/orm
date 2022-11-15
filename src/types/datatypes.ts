@@ -1,4 +1,10 @@
-// hstore, , , , enum, point, line, lseg, box, path, polygon, circle, cidr, inet, macaddr, tsvector, tsquery, uuid, xml, json, jsonb, int4range, int8range, numrange, tsrange, tstzrange, daterange, geometry, geography, cube, ltree
+// hstore, , , ,  point, line, lseg, box, path, polygon, circle, cidr, inet, macaddr, tsvector, tsquery, uuid, xml, json, jsonb, int4range, int8range, numrange, tsrange, tstzrange, daterange, geometry, geography, cube, ltree
+
+export const EnumTypes = ['enum'] as const;
+export type eEnumType = 'enum';
+
+export const JSONTypes = ['json', 'jsonb'] as const;
+export type eJSONTypes = 'json' | 'jsonb';
 
 export const NumberTypes = [
   'int',
@@ -70,6 +76,15 @@ export type eBinaryType = 'bytea' | 'bit' | 'varbit' | 'bit varying';
 export const BooleanTypes = ['bool', 'boolean'];
 export type eBooleanType = 'bool' | 'boolean';
 
-export type eAllTypes = eNumberType | eStringType | eUUIDType | eDateTypes | eBooleanType | eBinaryType | eIntervalType;
+export type eAllTypes =
+  | eNumberType
+  | eStringType
+  | eUUIDType
+  | eDateTypes
+  | eBooleanType
+  | eBinaryType
+  | eIntervalType
+  | eEnumType
+  | eJSONTypes;
 
 export type DefaultFunction<T> = (() => Promise<T>) | (() => T);

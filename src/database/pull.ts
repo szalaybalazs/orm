@@ -3,6 +3,7 @@ import { createPostgresConnection } from '../drivers/pg';
 import { iIndex, iVerboseConfig, tEntity } from '../types';
 
 // todo: handle materialized views
+// todo: fix view resolver query
 /**
  * Get current the schema of the database
  * @param options connection options
@@ -13,7 +14,7 @@ export const pullSchema = async (options: iVerboseConfig): Promise<{ [key: strin
   const migrationsTable = options.migrationsTable || '__migrations__';
   const { query, close } = createPostgresConnection(options);
   try {
-    const [allColumns, allTables, primaryKeys, indexDefinitions] = await Promise.all([
+    const [allColumns, allTables, primaryKeys, indexDefinitions, enumValues] = await Promise.all([
       query(`
         SELECT * FROM information_schema.columns
         WHERE table_schema = '${schema}'
@@ -39,8 +40,20 @@ export const pullSchema = async (options: iVerboseConfig): Promise<{ [key: strin
         WHERE schemaname NOT IN ('pg_catalog')
         ORDER BY tablename, indexname;
       `),
+      query(`
+        SELECT *
+        FROM pg_type
+        RIGHT JOIN pg_enum
+        ON pg_type.oid = enumtypid
+        WHERE typcategory = 'E';
+      `),
     ]);
 
+    const enums = enumValues.reduce((acc, { typname, enumlabel }) => {
+      if (!(typname in acc)) acc[typname] = [];
+      acc[typname].push(enumlabel);
+      return acc;
+    }, {});
     const tables = Array.from(new Set(allColumns.map((c) => c.table_name))).filter((t) => t !== migrationsTable);
 
     const entities = tables.map((table) => {
@@ -52,8 +65,13 @@ export const pullSchema = async (options: iVerboseConfig): Promise<{ [key: strin
 
       const columns = cols.reduce((acc, col) => {
         const column: any = {
-          type: col.data_type,
+          type: col.udt_type,
         };
+
+        if (column.type in enums) {
+          column.type = 'enum';
+          column.enum = enums[column.type];
+        }
 
         const isPrimary = !!primaryKeys.find((f) => f.column_name === col.column_name && f.table_name === table);
         if (isPrimary) column.primary = true;

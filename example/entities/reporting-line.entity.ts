@@ -6,30 +6,8 @@ const reportingline: tEntity = {
     id: { type: "uuid", nullable: true },
     subordinates: { type: "character varying", nullable: true },
   },
-  resolver: `
-WITH RECURSIVE
-  "reporting-line" (id, subordinates) AS (
-    SELECT
-      employees.id,
-      employees.full_name AS subordinates
-    FROM
-      employees
-    WHERE
-      employees.manager_id IS NULL
-    UNION ALL
-    SELECT
-      e.id,
-      (rl.subordinates::TEXT || ' > '::TEXT) || e.full_name::TEXT AS subordinates
-    FROM
-      employees e
-      JOIN "reporting-line" rl ON e.manager_id = rl.id
-  )
-SELECT
-  "reporting-line".id,
-  "reporting-line".subordinates
-FROM
-  "reporting-line";
-`,
+  resolver:
+    ' WITH RECURSIVE "reporting-line"(id, subordinates) AS (\n         SELECT employees.id,\n            employees.full_name AS subordinates\n           FROM employees\n          WHERE employees.manager_id IS NULL\n        UNION ALL\n         SELECT e.id,\n            (rl.subordinates::text || \' > \'::text) || e.full_name::text AS subordinates\n           FROM employees e\n             JOIN "reporting-line" rl ON e.manager_id = rl.id\n        )\n SELECT "reporting-line".id,\n    "reporting-line".subordinates\n   FROM "reporting-line";',
 };
 
 export default reportingline;

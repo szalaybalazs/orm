@@ -3,6 +3,7 @@ import { iChanges, iTableEntity, iTables, iViewEntity, tEntity } from '../types'
 import { createExtension, dropExtension } from './extension';
 import { createFunction, dropFunction } from './function';
 import { createTable, dropTable, updateTable } from './table';
+import { createType, dropType } from './types';
 import { createView, dropView } from './view';
 
 const points = {
@@ -101,6 +102,23 @@ export const generateQueries = async (
     changes.extensions.dropped.forEach((extension) => {
       up.unshift(dropExtension(extension));
       down.push(createExtension(extension));
+    });
+  }
+
+  if (changes.types) {
+    changes.types.deleted.forEach((type) => {
+      up.unshift(dropType(type));
+      down.push(dropType(type));
+    });
+
+    changes.types.created.forEach((type) => {
+      up.unshift(createType(type.name, type.values));
+      down.push(createType(type.name, type.values));
+    });
+
+    changes.types.updated.forEach((type) => {
+      up.unshift(dropType(type.name), createType(type.name, type.to.values ?? []));
+      down.push(dropType(type.name), createType(type.name, type.from.values ?? []));
     });
   }
 

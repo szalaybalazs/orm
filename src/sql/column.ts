@@ -1,15 +1,16 @@
-import { eColumnKeys, iChange, iRegularColumnOptions, iUUIDColumn, tColumn, tRegularColumn } from '../types';
+import { eAllTypes, eColumnKeys, iChange, iRegularColumnOptions, iUUIDColumn, tColumn, tRegularColumn } from '../types';
 import { getDefault } from './defaults';
 
 /**
  * Create column query
+ * @param table name of table
  * @param key key of column
  * @param column column config
  * @returns SQL Query
  */
-export const createColumn = async (key: string, column: tColumn): Promise<string> => {
+export const createColumn = async (table: string, key: string, column: tColumn): Promise<string> => {
   if (column.kind === 'COMPUTED') {
-    return `"${key}" ${column.type} GENERATED ALWAYS AS (${column.resolver}) STORED`.trim();
+    return `"${key}" ${getTypeForColumn(table, key, column)} GENERATED ALWAYS AS (${column.resolver}) STORED`.trim();
   } else if (column.kind === 'RESOLVED') return '';
   else {
     const options = await getColumnOptions(column);
@@ -21,7 +22,7 @@ export const createColumn = async (key: string, column: tColumn): Promise<string
 
     // todo: support arrays
 
-    return `"${key}" ${column.type} ${constraints.join(' ')}`.trim();
+    return `"${key}" ${getTypeForColumn(table, key, column)} ${constraints.join(' ')}`.trim();
   }
 };
 
@@ -113,4 +114,10 @@ const getChange = async (column: tRegularColumn, key: eColumnKeys, to: any): Pro
   if (key === 'nullable') return `${to ? 'SET' : 'DROP'} NOT NULL`;
   // todo: handle precision
   if (key === 'precision') return ``;
+};
+
+const getTypeForColumn = (table: string, name: string, column: tColumn): eAllTypes | string => {
+  if (column.type === 'enum') return (column as any).enumName || `${table}_${name}_enum`;
+
+  return column.type;
 };

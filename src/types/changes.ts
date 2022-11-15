@@ -1,6 +1,7 @@
 import { tColumn } from './column';
 import { iIndex } from './entity';
 import { iExtensionChanges } from './extension';
+import { iCustomType } from './types';
 
 export interface iChange {
   key: string;
@@ -64,9 +65,22 @@ export interface iFunctionUpdate {
 
 export type eUpdate = iViewUpdate | iTableUpdate | iFunctionUpdate;
 
+export interface iTypeChange {
+  name: string;
+  from: Partial<iCustomType>;
+  to: Partial<iCustomType>;
+}
+
+export interface iTypeChanges {
+  created: iCustomType[];
+  deleted: string[];
+  updated: iTypeChange[];
+}
+
 export interface iChanges {
   deleted: string[];
   created: string[];
   updated: eUpdate[];
   extensions?: iExtensionChanges;
+  types?: iTypeChanges;
 }
