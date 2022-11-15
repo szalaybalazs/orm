@@ -65,7 +65,7 @@ export const pullSchema = async (options: iVerboseConfig): Promise<{ [key: strin
 
       const columns = cols.reduce((acc, col) => {
         const column: any = {
-          type: col.udt_type,
+          type: col.udt_name,
         };
 
         if (column.type in enums) {

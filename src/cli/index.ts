@@ -5,9 +5,11 @@ import { createEntityProgram } from './entity';
 import { createMigrationProgram } from './migration';
 import { generateEntityTypes } from './types';
 
+const config = require('../../package.json');
+
 const createProgram = (): Command => {
   const program = new Command();
-  program.version('0.0.1', '-v, --version', 'Output the current version');
+  program.version(config.version, '-v, --version', 'Output the current version');
 
   createDatabaseProgram(program);
   createDatabasePullProgram(program);
