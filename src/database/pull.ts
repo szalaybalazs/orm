@@ -65,12 +65,12 @@ export const pullSchema = async (options: iVerboseConfig): Promise<{ [key: strin
 
       const columns = cols.reduce((acc, col) => {
         const column: any = {
-          type: col.udt_name,
+          type: col.udt_name || col.data_type,
         };
 
         if (column.type in enums) {
-          column.type = 'enum';
           column.enum = enums[column.type];
+          column.type = 'enum';
         }
 
         const isPrimary = !!primaryKeys.find((f) => f.column_name === col.column_name && f.table_name === table);

@@ -67,7 +67,7 @@ export const createDatabasePullProgram = (program: Command) => {
   addOptions(program.command('database:pull').summary('Pull database schema from connection'))
     .option('-d, --dryrun', 'Dry run')
     .action(async (params) => {
-      console.log(chalk.reset('Generating migration from changes...'));
+      console.log(chalk.reset('Pulling database schema from connection...'));
       const options = await parseConfig(params);
 
       const entities = await pullSchema(options);
