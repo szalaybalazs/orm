@@ -4,12 +4,14 @@ export interface iPostgresConfig extends Omit<ClientConfig, 'types'> {
   driver: 'postgres';
 }
 
+export type eNamingConvention = 'SNAKE' | 'CAMEL' | 'PASCAL';
+
 export interface iOrmConfig extends iPostgresConfig {
   entities?: string; // | string[];
   migrations?: string; // | string[];
   snapshots?: string; // | string[];
   types?: string;
-  namingConvention?: 'SNAKE' | 'CAMEL';
+  namingConvention?: eNamingConvention;
   migrationsTable?: string;
   verbose?: boolean;
 }

@@ -1,6 +1,8 @@
 import { isPlural, singular } from 'pluralize';
+import { convertKey } from '../core/naming';
 import { createPostgresConnection } from '../drivers/pg';
 import { iIndex, iVerboseConfig, tEntity } from '../types';
+import { NumberTypes } from '../types/datatypes';
 
 // todo: handle materialized views
 // todo: fix view resolver query
@@ -82,13 +84,14 @@ export const pullSchema = async (options: iVerboseConfig): Promise<{ [key: strin
             let _default: string = col.column_default.split('::')[0];
             if (_default.startsWith("'")) _default = _default.replace(/'/g, '');
 
-            if (column.type === 'boolean') column.default = Boolean(_default);
+            if (['boolean', 'bool'].includes(column.type)) column.default = Boolean(_default);
+            else if (NumberTypes.includes(column.type)) column.default = Number(_default);
             else column.default = _default;
           }
         }
         if (col.is_nullable === 'YES') column.nullable = true;
 
-        acc[col.column_name] = column;
+        acc[convertKey(col.column_name, options.namingConvention)] = column;
         return acc;
       }, {});
 
