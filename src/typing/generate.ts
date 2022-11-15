@@ -1,7 +1,9 @@
 import { type } from 'os';
 import { format } from 'prettier';
 import { capitalize } from '../core/capitalize';
+import { convertKey } from '../core/naming';
 import { iRegularColumnOptions, tEntity } from '../types';
+import { eNamingConvention } from '../types/config';
 import { formatComment } from './comment';
 import { getType } from './parse';
 
@@ -20,7 +22,11 @@ __COMMENT__export type __NAME__ = {
  * @param entity entity config
  * @returns name and type-string
  */
-export const generateTypeForEntity = (key: string, entity: tEntity): { name: string; type: string } => {
+export const generateTypeForEntity = (
+  key: string,
+  entity: tEntity,
+  namingConvention?: eNamingConvention,
+): { name: string; type: string } => {
   if (entity.type === 'FUNCTION') return;
   const name = `${capitalize(entity.name || key)}Entity`;
 
@@ -32,7 +38,10 @@ export const generateTypeForEntity = (key: string, entity: tEntity): { name: str
     const comment = formatComment(commentContent);
     const nullable = !!(typeof column !== 'string' && (column as iRegularColumnOptions).nullable);
 
-    return `${comment}${key}${nullable ? '?' : ''}: ${getType(type, (column as any).enum)}`;
+    return `${comment}${convertKey(key, namingConvention)}${nullable ? '?' : ''}: ${getType(
+      type,
+      (column as any).enum,
+    )}`;
   });
 
   const entityComment = entity.comment || `Type for the ${name} entity`;

@@ -3,16 +3,17 @@ import { join } from 'path';
 import { chalk } from '../core/chalk';
 import { debug } from '../core/log';
 import { tLoadedEntity } from '../types';
+import { eNamingConvention } from '../types/config';
 import { generateExports, generateTypeForEntity } from './generate';
 
 // todo: generate types after each migration
 
-export const saveTypes = async (entities: tLoadedEntity[], directory: string) => {
+export const saveTypes = async (entities: tLoadedEntity[], directory: string, namingConvention?: eNamingConvention) => {
   debug(chalk.dim('Generating types...'));
   const types = entities.map((entity) => {
     return {
       key: entity.key,
-      ...generateTypeForEntity(entity.key, entity),
+      ...generateTypeForEntity(entity.key, entity, namingConvention),
     };
   });
 
