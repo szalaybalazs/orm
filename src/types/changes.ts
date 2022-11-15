@@ -73,7 +73,7 @@ export interface iTypeChange {
 
 export interface iTypeChanges {
   created: iCustomType[];
-  deleted: string[];
+  deleted: iCustomType[];
   updated: iTypeChange[];
 }
 

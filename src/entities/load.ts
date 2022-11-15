@@ -4,6 +4,8 @@ import { iTables, tEntity } from '../types';
 import { tLoadedEntity } from '../types';
 import { chalk } from '../core/chalk';
 import { debug } from '../core/log';
+import { eNamingConvention } from '../types/config';
+import { convertKey } from '../core/naming';
 
 const validExtensions = ['.entity.ts', '.entity.js', '.entity.json'];
 
@@ -45,10 +47,23 @@ export const loadEntities = async (directory: string): Promise<tLoadedEntity[]> 
 
 /**
  * Generate entity map from array
+ *
+ * Converts column keys to snake case
  * @param entities input array
  * @returns { [key: string]: entity } map
  */
 export const getEntities = (entities: tEntity[]): iTables => {
   debug(chalk.dim('> Formatting entities...'));
-  return entities.reduce((acc, table) => ({ ...acc, [table.name]: table }), {});
+  const entityList = entities.map((entity) => {
+    if (entity.type === 'FUNCTION') return entity;
+    return {
+      ...entity,
+      columns: Object.keys(entity.columns).reduce(
+        (acc, key) => ({ ...acc, [convertKey(key, 'SNAKE')]: entity.columns[key] }),
+        {},
+      ),
+    };
+  });
+
+  return entityList.reduce((acc, table) => ({ ...acc, [table.name]: table }), {});
 };

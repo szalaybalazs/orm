@@ -20,7 +20,7 @@ export const createTable = async (table: iTableEntity): Promise<string[]> => {
 
   const sql = `CREATE TABLE IF NOT EXISTS "__SCHEMA__"."${table.name}" (${[columns, primary]
     .flat()
-    .filter((f) => !!f?.trim())});`;
+    .filter((f) => !!f?.trim?.())});`;
 
   const comments = Object.entries(table.columns).map(([key, { comment }]) => {
     if (!comment) return null;

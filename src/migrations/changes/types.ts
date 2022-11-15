@@ -10,7 +10,7 @@ export const getTypeChanges = (snapshot: iTables, state: iTables): iTypeChanges 
   const newTypes = getTypesFromState(state);
 
   const created = newTypes.filter((t) => !oldTypes.find((type) => type.name === t.name));
-  const deleted = oldTypes.map((t) => t.name).filter((t) => !newTypes.find((type) => type.name === t));
+  const deleted = oldTypes.filter((t) => !newTypes.find((type) => type.name === t.name));
 
   const updated = getChangedTypes(oldTypes, newTypes);
 

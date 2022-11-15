@@ -117,7 +117,7 @@ const getChange = async (column: tRegularColumn, key: eColumnKeys, to: any): Pro
 };
 
 const getTypeForColumn = (table: string, name: string, column: tColumn): eAllTypes | string => {
-  if (column.type === 'enum') return (column as any).enumName || `${table}_${name}_enum`;
+  if (column.type === 'enum') return (column as any).enumName || `${table}_${name}_enum`.replace(/-/g, '_');
 
   return column.type;
 };
