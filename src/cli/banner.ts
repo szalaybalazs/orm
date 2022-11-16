@@ -11,7 +11,7 @@ import { prefix } from '../core/prefix';
  */
 export const createBannerProgram = (program: Command) => {
   program
-    .command('show')
+    .command('banner')
     .summary('Show banner')
     .description('Show PostgresORM ASCII Banner')
     .option('-t, --title <title>', 'Title to be displayed')

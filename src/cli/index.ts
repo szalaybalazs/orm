@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { createBannerProgram } from './banner';
+import { createChangesProgram } from './changes';
 import { createDatabaseProgram, createDatabasePullProgram } from './database';
 import { createEntityProgram } from './entity';
 import { createMigrationProgram } from './migration';
@@ -14,6 +15,7 @@ const createProgram = (): Command => {
   createDatabaseProgram(program);
   createDatabasePullProgram(program);
   createBannerProgram(program);
+  createChangesProgram(program);
   createEntityProgram(program);
   createMigrationProgram(program);
   generateEntityTypes(program);

@@ -42,6 +42,7 @@ const employee: tEntity = {
     is_suspended: {
       type: 'boolean',
       default: false,
+      nullable: true,
     },
     joined_at: {
       type: 'timestamp with time zone',

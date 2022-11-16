@@ -55,7 +55,7 @@ export interface iViewUpdate {
 }
 export interface iTableUpdate {
   key: string;
-  kind?: 'TABLE';
+  kind: 'TABLE';
   changes: iTableChanges;
 }
 export interface iFunctionUpdate {

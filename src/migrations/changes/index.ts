@@ -41,10 +41,9 @@ export const getChangesBetweenMigrations = (snapshot: iTables, state: iTables): 
 
       const changes = getChangesForTables(key, oldTable, newTable);
 
-      const allChanges = Object.values(changes).map((f) => Object.values(f));
-
+      const allChanges = Object.values({ ...changes }).map((f) => Object.values(f));
       if (allChanges.flat(100).length === 0) return undefined;
-      return { key, changes };
+      return { key, changes, kind: 'TABLE' };
     }
   });
 

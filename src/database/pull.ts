@@ -130,7 +130,7 @@ export const parseIndexDefinition = (definition: string) => {
   const words = definition.replace(/\s\s+/g, ' ').split(' ').filter(Boolean);
 
   const isUnique = words[1].toLowerCase() === 'unique';
-  const name = words[isUnique ? 3 : 2];
+  const name = words[isUnique ? 3 : 2].replace(/"/g, '');
 
   const usingIndex = words.findIndex((w) => w.toLowerCase() === 'using');
   const method = usingIndex > -1 ? words[usingIndex + 1] : undefined;
