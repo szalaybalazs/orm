@@ -2,15 +2,16 @@ import { existsSync, mkdirsSync, pathExistsSync, readdir, readFile, writeFile } 
 import { join } from 'path';
 import { chalk } from '../core/chalk';
 import { debug } from '../core/log';
+import { snakelize } from '../core/naming';
 import { getViewResolver } from '../helpers/view';
-import { iSnapshot, iTables } from '../types';
+import { iSnapshot, iTables, tEntity } from '../types';
 
 /**
  * Load all the snapshots from the defined directory
  * @param directory directory containing all the snapshot
  * @returns
  */
-export const loadSnapshots = async (directory: string) => {
+export const loadSnapshots = async (directory: string): Promise<iSnapshot[]> => {
   try {
     debug(chalk.dim(`> Loading snapshots from: ${directory}`));
     const content = await readdir(directory);
@@ -24,7 +25,18 @@ export const loadSnapshots = async (directory: string) => {
         const rawSnapshot = await readFile(snapshotPath, 'utf8').catch(() => null);
         if (!rawSnapshot) return;
         const snapshot = JSON.parse(rawSnapshot);
-        return { ...snapshot, timestamp: new Date(snapshot.timestamp) };
+        return {
+          ...snapshot,
+          timestamp: new Date(snapshot.timestamp),
+          tables: Object.entries(snapshot.tables).reduce((acc, [key, table]: [string, tEntity]) => {
+            if (table.type !== 'FUNCTION') {
+              table.columns = Object.entries(table.columns).reduce((acc, [key, column]) => {
+                return { ...acc, [snakelize(key)]: column };
+              }, {});
+            }
+            return { ...acc, [key]: table };
+          }, {}),
+        };
       }),
     );
 

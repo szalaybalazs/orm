@@ -1,7 +1,5 @@
-import { type } from 'os';
 import { format } from 'prettier';
-import { capitalize } from '../core/capitalize';
-import { convertKey } from '../core/naming';
+import { camelize, convertKey, pascalize } from '../core/naming';
 import { iRegularColumnOptions, tEntity } from '../types';
 import { eNamingConvention } from '../types/config';
 import { formatComment } from './comment';
@@ -28,7 +26,7 @@ export const generateTypeForEntity = (
   namingConvention?: eNamingConvention,
 ): { name: string; type: string } => {
   if (entity.type === 'FUNCTION') return;
-  const name = `${capitalize(entity.name || key)}Entity`;
+  const name = `${pascalize((entity.name || key).replace(/-/g, '_'))}Entity`;
 
   const columns = Object.keys(entity.columns);
   const types = columns.map((key) => {
@@ -38,7 +36,7 @@ export const generateTypeForEntity = (
     const comment = formatComment(commentContent);
     const nullable = !!(typeof column !== 'string' && (column as iRegularColumnOptions).nullable);
 
-    return `${comment}${convertKey(key, namingConvention)}${nullable ? '?' : ''}: ${getType(
+    return `${comment}'${convertKey(key, namingConvention)}'${nullable ? '?' : ''}: ${getType(
       type,
       (column as any).enum,
     )}`;

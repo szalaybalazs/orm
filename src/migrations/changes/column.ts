@@ -16,7 +16,8 @@ export const getChangesForColumn = (oldColumn: tColumn, newColumn: tColumn): iCh
     const oldValue = oldColumn[key];
     const newValue = newColumn[key];
 
-    if (oldValue === newValue || key === 'comment') return;
+    // enums changes are checked for as 'types'
+    if (oldValue === newValue || key === 'comment' || key === 'enum') return;
 
     changes.push({ key, from: oldValue, to: newValue });
   });

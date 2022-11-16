@@ -7,7 +7,8 @@ import { parseConfig, saveConfig } from '../core/config';
 import { pullSchema } from '../database/pull';
 import { saveEntities } from '../entities/save';
 import { initQuestions } from '../misc/initQuestions';
-import { iOrmConfig } from '../types';
+import { saveSnapshot } from '../snapshots';
+import { iOrmConfig, tEntity } from '../types';
 import { addOptions } from './options';
 
 export const createDatabaseProgram = (program: Command) => {
@@ -73,9 +74,18 @@ export const createDatabasePullProgram = (program: Command) => {
       const entities = await pullSchema(options);
 
       if (options.dryrun) console.log(JSON.stringify(entities, null, 2));
-      else await saveEntities(entities, options.entitiesDirectory);
+      else {
+        await saveEntities(entities, options.entitiesDirectory);
+        await saveSnapshot(options.snapshotsDirectory, 'init', generateSnapshots(entities));
+      }
 
       console.log('');
       console.log(chalk.bold('Successfully pulled database schema. 🎉'));
+
+      // todo: generate initial migration and snapshot, so changes can be adopted incrementally
     });
+};
+
+const generateSnapshots = (entities: { [key: string]: tEntity }) => {
+  return Object.values(entities).reduce((acc, entity) => ({ ...acc, [entity.name]: entity }), {});
 };

@@ -1,4 +1,5 @@
 import { chalk } from '../../core/chalk';
+import { compareArrays } from '../../core/compare';
 import { debug } from '../../core/log';
 import { iTables, tColumn } from '../../types';
 import { iTypeChange, iTypeChanges } from '../../types/changes';
@@ -28,8 +29,9 @@ const getChangedTypes = (oldTypes: iCustomType[], newTypes: iCustomType[]): iTyp
 
   originalTypes.forEach((type) => {
     const newType = newTypes.find((t) => t.name === type.name);
+    const hasChanged = !compareArrays(newType.values, type.values);
 
-    if (newType.values.toString() !== type.values.toString()) {
+    if (hasChanged) {
       updates.push({
         name: type.name,
         from: { values: type.values },

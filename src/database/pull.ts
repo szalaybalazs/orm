@@ -78,6 +78,10 @@ export const pullSchema = async (options: iVerboseConfig): Promise<{ [key: strin
         const isPrimary = !!primaryKeys.find((f) => f.column_name === col.column_name && f.table_name === table);
         if (isPrimary) column.primary = true;
 
+        if (column.type.startsWith('_')) {
+          column.type = column.type.replace(/^_/, '');
+          column.array = true;
+        }
         if (col.column_default) {
           if (column.type === 'uuid') column.generated = true;
           else {
@@ -86,7 +90,7 @@ export const pullSchema = async (options: iVerboseConfig): Promise<{ [key: strin
 
             if (['boolean', 'bool'].includes(column.type)) column.default = Boolean(_default);
             else if (NumberTypes.includes(column.type)) column.default = Number(_default);
-            else column.default = _default;
+            else if (_default.toLowerCase() !== 'null') column.default = _default;
           }
         }
         if (col.is_nullable === 'YES') column.nullable = true;

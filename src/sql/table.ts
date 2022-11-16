@@ -12,6 +12,7 @@ import { changePrimaries, getPrimaryKeys } from './primary';
 export const createTable = async (table: iTableEntity): Promise<string[]> => {
   // todo: use column name option
   // todo: use naming convention
+
   const columnsPromise = Object.keys(table.columns).map((key) => createColumn(table.name, key, table.columns[key]));
   const columns = await Promise.all(columnsPromise);
 
@@ -61,7 +62,6 @@ export const updateTable = async (
     tableUp.push(`DROP COLUMN "${key}"`);
 
     // Add column when reverting
-
     tableDown.push(`ADD COLUMN ${await createColumn(state.name, key, snapshot.columns[key])}`);
   });
 

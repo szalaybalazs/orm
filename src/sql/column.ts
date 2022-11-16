@@ -10,7 +10,9 @@ import { getDefault } from './defaults';
  */
 export const createColumn = async (table: string, key: string, column: tColumn): Promise<string> => {
   if (column.kind === 'COMPUTED') {
-    return `"${key}" ${getTypeForColumn(table, key, column)} GENERATED ALWAYS AS (${column.resolver}) STORED`.trim();
+    return `"${key}" ${getTypeForColumn(table, key, column)}${(column as any).array ? '[]' : ''} GENERATED ALWAYS AS (${
+      column.resolver
+    }) STORED`.trim();
   } else if (column.kind === 'RESOLVED') return '';
   else {
     const options = await getColumnOptions(column);
@@ -108,7 +110,7 @@ const getChangeQueryByKey = async (
  */
 const getChange = async (column: tRegularColumn, key: eColumnKeys, to: any): Promise<string | null> => {
   if (key === 'default' || key === 'generated') {
-    if (!to) return `DROP DEFAULT`;
+    if ([undefined, null, void 0].includes(to)) return `DROP DEFAULT`;
     return `SET DEFAULT ${await getDefault({ ...column, default: to } as any)}`;
   }
   if (key === 'nullable') return `${to ? 'SET' : 'DROP'} NOT NULL`;
