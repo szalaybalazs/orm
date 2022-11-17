@@ -108,7 +108,7 @@ const getChangeQueryByKey = async (
  * @param to new value
  * @returns SQL Query
  */
-const getChange = async (column: tRegularColumn, key: eColumnKeys, to: any): Promise<string | null> => {
+export const getChange = async (column: tRegularColumn, key: eColumnKeys, to: any): Promise<string | null> => {
   if (key === 'default' || key === 'generated') {
     if ([undefined, null, void 0].includes(to)) return `DROP DEFAULT`;
     return `SET DEFAULT ${await getDefault({ ...column, default: to } as any)}`;

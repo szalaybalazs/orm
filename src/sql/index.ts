@@ -3,7 +3,7 @@ import { iChanges, iTableEntity, iTables, iViewEntity, tEntity } from '../types'
 import { createExtension, dropExtension } from './extension';
 import { createFunction, dropFunction } from './function';
 import { createTable, dropTable, updateTable } from './table';
-import { createType, dropType } from './types';
+import { addValue, createType, dropType, removeValue } from './types';
 import { createView, dropView } from './view';
 
 const points = {
@@ -116,10 +116,19 @@ export const generateQueries = async (
       down.push(dropType(type.name));
     });
 
-    changes.types.updated.forEach((type) => {
-      up.unshift(dropType(type.name), createType(type.name, type.to.values ?? []));
-      down.push(dropType(type.name), createType(type.name, type.from.values ?? []));
+    const typeChanges = changes.types.updated.map(async (type) => {
+      if (type.removed.length) up.unshift(...(await removeValue(type.new, type.old.dependencies, state)));
+      type.removed.forEach((value) => {
+        down.push(addValue(type.name, value));
+      });
+
+      type.added.forEach((value) => {
+        up.unshift(addValue(type.name, value));
+      });
+      if (type.added) down.push(...(await removeValue(type.old, type.new.dependencies, snapshot)));
     });
+
+    await Promise.all(typeChanges);
   }
 
   return { up, down };

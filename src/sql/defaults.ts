@@ -31,7 +31,7 @@ export const getDefault = async (column: tColumn): Promise<string | null> => {
  * @param value input value
  * @returns custom value or null
  */
-const customResolver = (value: string): string | null => {
+export const customResolver = (value: string): string | null => {
   if (value === 'CURRENT_TIMESTAMP') return 'CURRENT_TIMESTAMP';
   if (['now', 'NOW()'].includes(value)) return 'NOW()';
   if (['today'].includes(value)) return `CURRENT_DATE`;

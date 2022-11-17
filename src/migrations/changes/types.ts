@@ -32,10 +32,16 @@ const getChangedTypes = (oldTypes: iCustomType[], newTypes: iCustomType[]): iTyp
     const hasChanged = !compareArrays(newType.values, type.values);
 
     if (hasChanged) {
+      const added = newType.values.filter((f) => !type.values.includes(f));
+      const removed = type.values.filter((f) => !newType.values.includes(f));
+
       updates.push({
         name: type.name,
-        from: { values: type.values },
-        to: { values: newType.values },
+        dependencies: newType.dependencies,
+        new: newType,
+        old: type,
+        added,
+        removed,
       });
     }
   });
@@ -45,10 +51,10 @@ const getChangedTypes = (oldTypes: iCustomType[], newTypes: iCustomType[]): iTyp
 
 const getTypesFromState = (state: iTables) => {
   const types: iCustomType[] = [];
-  Object.entries(state).forEach(([key, entity]) => {
+  Object.entries(state).forEach(([table, entity]) => {
     if (entity.type === 'FUNCTION') return;
 
-    const entityName = entity.name || key;
+    const entityName = entity.name || table;
     const columns = Object.entries(entity.columns ?? {});
 
     columns.forEach(([key, column]: [string, tColumn]) => {
@@ -59,6 +65,12 @@ const getTypesFromState = (state: iTables) => {
           name: column.name || `${entityName}_${key}_enum`,
           type: 'ENUM',
           values: column.enum.sort(),
+          dependencies: [
+            {
+              table,
+              columns: [key],
+            },
+          ],
         };
 
         types.push(type);
