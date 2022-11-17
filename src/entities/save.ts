@@ -2,8 +2,8 @@ import { emptyDir, pathExists, writeFile } from 'fs-extra';
 import { join } from 'path';
 import { format } from 'prettier';
 import { formatId } from '../core/id';
+import { formatSql } from '../core/sql';
 import { tEntity } from '../types';
-import { format as formatSql } from 'sql-formatter';
 
 const typeImport = process.env.NODE_ENV === 'development' ? './src/types' : 'undiorm/src/types';
 const template = `
@@ -32,11 +32,7 @@ export const saveEntities = async (entities: { [key: string]: tEntity }, entitie
     const entity: any = entities[key];
     if (!entity) return;
 
-    const resolver = `"resolver": \`\n${formatSql(String(entity.resolver).replace(/\\n/g, '\n'), {
-      language: 'postgresql',
-      expressionWidth: 60,
-      keywordCase: 'upper',
-    })}\n\``;
+    const resolver = `"resolver": \`\n${formatSql(String(entity.resolver).replace(/\\n/g, '\n'))}\n\``;
 
     const entityContent = JSON.stringify({ ...entity, key: undefined }).replace(/"resolver":(\s+)?(".+")/, resolver);
     const content = template.replace(/__KEY__/g, formatId(key)).replace(/__ENTITY__/g, entityContent);

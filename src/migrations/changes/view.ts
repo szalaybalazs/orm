@@ -1,4 +1,4 @@
-import { format } from 'sql-formatter';
+import { formatSql } from '../../core/sql';
 import { getViewResolver } from '../../helpers/view';
 import { iViewChanges, iViewEntity } from '../../types';
 
@@ -18,8 +18,8 @@ export const getChangesForViews = (oldView: iViewEntity, newView: iViewEntity): 
     replace: { up: false, down: false },
   };
 
-  const oldQuery = format(getViewResolver(oldView.name, oldView.resolver || '').query);
-  const newQuery = format(getViewResolver(newView.name, newView.resolver || '').query);
+  const oldQuery = formatSql(getViewResolver(oldView.name, oldView.resolver || '').query);
+  const newQuery = formatSql(getViewResolver(newView.name, newView.resolver || '').query);
 
   if (oldQuery !== newQuery) {
     changes.resolver = {

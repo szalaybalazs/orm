@@ -3,7 +3,7 @@ export const getViewResolver = (
   resolver: string | ((name: string) => string) = '',
 ): { query: string; isRecursive: boolean } => {
   const sql = typeof resolver === 'string' ? resolver : resolver(name);
-  const query = sql.replace(/__NAME__/g, `"${name}"`);
+  const query = sql.replace(/__NAME__/g, `"${name}"`).replace(/\\n/g, '\n');
 
   return {
     query,

@@ -8,7 +8,7 @@ export const pascalize = (s: string) => {
 };
 
 export const snakelize = (s: string) => {
-  const val = s.replace(/[A-Z]./g, (x) => `_${x.toLowerCase()}`);
+  const val = s.replace(/[A-Z](.)?/g, (x) => `_${x.toLowerCase()}`);
   return val.replace(/^_/, '');
 };
 

@@ -40,7 +40,7 @@ const getChangedTypes = (oldTypes: iCustomType[], newTypes: iCustomType[]): iTyp
     }
   });
 
-  return [];
+  return updates;
 };
 
 const getTypesFromState = (state: iTables) => {
