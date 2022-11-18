@@ -71,7 +71,7 @@ export const removeValue = async (
       if (column.kind === 'COMPUTED' || column.kind === 'RESOLVED') return { column: c };
       if (column.type === 'uuid') return { column: c };
 
-      return { column: c, default: await getDefault(column) };
+      return { column: c, default: await getDefault(table, column) };
     });
 
     const columnsWithDefaults = await Promise.all(columnsWithDefaultsPromise);

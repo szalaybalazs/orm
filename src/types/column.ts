@@ -12,12 +12,19 @@ import {
   eUUIDType,
 } from './datatypes';
 
+export interface iForeignReference {
+  table: string;
+  column: string;
+  onDelete?: 'NULL' | 'DEFAULT' | 'RESTRICT' | 'SKIP' | 'CASCADE';
+}
 export interface iBaseColumnOptions {
   name?: string;
 
   primary?: boolean;
 
   comment?: string;
+
+  reference?: iForeignReference;
 }
 
 export interface iRegularColumnOptions extends iBaseColumnOptions {

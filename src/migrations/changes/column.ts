@@ -1,3 +1,4 @@
+import { compareObjects } from '../../core/compare';
 import { iChange, tColumn } from '../../types';
 
 /**
@@ -18,6 +19,7 @@ export const getChangesForColumn = (oldColumn: tColumn, newColumn: tColumn): iCh
 
     // enums changes are checked for as 'types'
     if (oldValue === newValue || key === 'comment' || key === 'enum') return;
+    if (oldValue && newValue && compareObjects(oldValue, newValue)) return;
 
     changes.push({ key, from: oldValue, to: newValue });
   });

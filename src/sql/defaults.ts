@@ -1,11 +1,12 @@
 import { tColumn } from '../types';
+import { getTypeForColumn } from './column';
 
 /**
  * Generate the default value of the column, based on config
  * @param column sql compatible default
  * @returns
  */
-export const getDefault = async (column: tColumn): Promise<string | null> => {
+export const getDefault = async (table: string, column: tColumn): Promise<string | null> => {
   if (column.kind === 'COMPUTED') return null;
   if (column.kind === 'RESOLVED') return null;
 
@@ -13,15 +14,19 @@ export const getDefault = async (column: tColumn): Promise<string | null> => {
 
   const value = typeof column.default === 'function' ? await column.default() : column.default;
   const type = typeof value;
+  const pgType = getTypeForColumn(table, column.name, column);
+  console.log(pgType);
 
   const custom = customResolver(String(value));
   if (custom) return custom;
 
   if (value instanceof Date) return `'${value.toISOString()}'`;
 
-  if (type === 'string') return `'${String(value).replace(/'/g, '')}'`;
-  if (type === 'number') return `${Number(value)}`;
-  if (type === 'boolean') return `${String(Boolean(value)).toUpperCase()}`;
+  if (type === 'string') return `'${String(value).replace(/'/g, '')}'::${pgType}`;
+  if (type === 'number') return `${Number(value)}::${pgType}`;
+  if (type === 'boolean') {
+    return `${String(Boolean(value)).toUpperCase()}::${pgType}`;
+  }
 
   return null;
 };

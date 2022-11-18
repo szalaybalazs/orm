@@ -67,7 +67,7 @@ export const createChangesProgram = (program: Command) => {
             console.log(chalk.dim(`~   Update column "${col}":`));
             (changes as any).forEach((change) => {
               console.log(
-                chalk.dim(`       Set "${change.key}": ${change.from || 'UNSET'} -> ${change.to || 'UNSET'}`),
+                chalk.dim(`       Set "${change.key}": ${formatChange(change.from)} -> ${formatChange(change.to)}`),
               );
             });
             // changes.forEach(change => {
@@ -104,4 +104,11 @@ export const createChangesProgram = (program: Command) => {
         console.log(chalk.blue(`~ Custom type updated: "${type.name}"`));
       });
     });
+};
+
+const formatChange = (change: any) => {
+  if (!change) return 'UNSET';
+  if (typeof change === 'object') return JSON.stringify(change);
+  if (typeof change === 'string') return `"${change}"`;
+  return `${change}`;
 };

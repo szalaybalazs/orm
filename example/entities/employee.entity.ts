@@ -24,6 +24,11 @@ const employee: tEntity = {
       comment: 'ID of the employees department',
       nullable: true,
       generated: false,
+      reference: {
+        table: 'departments',
+        column: 'id',
+        onDelete: 'NULL',
+      },
     },
     first_name: {
       type: 'varchar',

@@ -1,7 +1,7 @@
 import { tEntity } from '../../src/types/entity';
 
 const department: tEntity = {
-  name: 'departments2',
+  name: 'departments',
   columns: {
     id: {
       type: 'uuid',
