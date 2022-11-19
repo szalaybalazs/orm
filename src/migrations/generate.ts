@@ -1,4 +1,5 @@
 import * as chalk from 'chalk';
+import { prompt } from 'inquirer';
 import { debug } from '../core/log';
 import { getEntities, loadEntities } from '../entities/load';
 import { loadLastSnapshot, saveSnapshot } from '../snapshots';
@@ -38,6 +39,18 @@ export const generateMigration = async (id: string, name: string, options: iVerb
 
   debug(chalk.dim('Checking for changes...'));
   if (queries.up.length === 0) throw new Error('NO_CHANGES');
+
+  if (queries.up.some((sql) => sql.toLowerCase().includes(' drop '))) {
+    const answers = await prompt([
+      {
+        type: 'confirm',
+        name: 'drop',
+        message: 'Migration may result in the loss of data, are you sure you want to continue?',
+        default: false,
+      },
+    ]);
+    if (!answers.drop) return console.log(chalk.cyan('Skipping...'));
+  }
 
   debug(chalk.dim('Generating migration...'));
   const migration = getMigrationTemplate(id, name, queries.up, queries.down);

@@ -2506,6 +2506,11 @@ sql-formatter@*, sql-formatter@^11.0.2:
     argparse "^2.0.1"
     nearley "^2.20.1"
 
+sql-highlight@^4.2.1:
+  version "4.2.1"
+  resolved "https://registry.yarnpkg.com/sql-highlight/-/sql-highlight-4.2.1.tgz#633f21682781f7cc403726c32b202df374c1a0b5"
+  integrity sha512-t6HyleY64lk3qAncCLxPx0XJ1oYcroN96C4tH2ttrT3DLsOQznthobU+T4iI7896qBrbACqtvK/Z8pSyLtcoDQ==
+
 stack-utils@^2.0.3:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/stack-utils/-/stack-utils-2.0.5.tgz#d25265fca995154659dbbfba3b49254778d2fdd5"

@@ -2,7 +2,6 @@ import * as chalk from 'chalk';
 import { Command } from 'commander';
 import { parseConfig } from '../core/config';
 import { formatId } from '../core/id';
-import { debug, formatObject } from '../core/log';
 import { createEmptyMigration } from '../migrations';
 import { generateMigration } from '../migrations/generate';
 import { revertMigrations } from '../migrations/revert';

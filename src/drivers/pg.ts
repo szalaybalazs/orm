@@ -1,4 +1,6 @@
 import { Pool } from 'pg';
+import { highlight } from 'sql-highlight';
+import { debug } from '../core/log';
 import { iPostgresConfig } from '../types';
 
 export type QueryFunction = (sql: string, variables?: any[]) => Promise<any[]>;
@@ -25,6 +27,7 @@ export const createPostgresConnection = (
      */
     const query = async (sql: string, variables: [] = []) => {
       try {
+        debug(highlight(sql));
         const { rows } = await pool.query(sql, variables);
         return rows;
       } catch (error) {
