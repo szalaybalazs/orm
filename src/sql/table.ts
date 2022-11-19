@@ -84,11 +84,22 @@ export const updateTable = async (
       const promises = changes.changes[key].map(async (change) => {
         column.name = column.name || key;
         // todo: handle column kind change
-        const { up, down } = await changeColumn(state.name, key, column, prevColumn as any, change);
+        // todo: handle column type change
 
-        tableUp.push(...up);
-        tableDown.push(...down);
+        const {
+          tableUp: _tableUp,
+          tableDown: _tableDown,
+          up: _up,
+          down: _down,
+        } = await changeColumn(state.name, key, column, prevColumn as any, change);
+
+        tableUp.push(..._tableUp);
+        tableDown.push(..._tableDown);
+
+        up.push(..._up);
+        down.push(..._down);
       });
+
       return await Promise.all(promises);
     }
   });

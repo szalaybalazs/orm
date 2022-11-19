@@ -1,6 +1,18 @@
 import { eAllTypes, eColumnKeys, iChange, iRegularColumnOptions, iUUIDColumn, tColumn, tRegularColumn } from '../types';
 import { getDefault } from './defaults';
 
+import {
+  EnumTypes,
+  JSONTypes,
+  NumberTypes,
+  StringTypes,
+  DateTypes,
+  UUIDTypes,
+  IntervalTypes,
+  BinaryTypes,
+  BooleanTypes,
+} from '../types/datatypes';
+
 /**
  * Create column query
  * @param table name of table
@@ -77,33 +89,29 @@ export const changeColumn = async (
   column: tRegularColumn,
   prevColumn: tRegularColumn,
   change: iChange,
-): Promise<{ up: string[]; down: string[] }> => {
-  let up: string[] = [];
-  let down: string[] = [];
-  // if (change.key === 'primary') return;
-  // tableUp.push();
-  // tableDown.push(`ALTER COLUMN "${key}" ${getChangeKey(change.key, change.from)}`);
+): Promise<{ tableUp: string[]; tableDown: string[]; up: string[]; down: string[] }> => {
+  const tableUp: string[] = [];
+  const tableDown: string[] = [];
 
-  up.push(await getChangeQueryByKey(table, key, column, change.key, change.to));
-  down.push(await getChangeQueryByKey(table, key, column, change.key, change.from));
+  const up: string[] = [];
+  const down: string[] = [];
 
-  // if (['type', 'array'].includes(change.key)) {
-  //   const columnOptions = await getColumnOptions(table, column);
-  //   const prevColumnOptions = await getColumnOptions(table, prevColumn);
+  if (change.key !== 'type' || getTypeCompatibility(prevColumn, column)) {
+    tableUp.push(await getChangeQueryByKey(table, key, column, change.key, change.to));
+    tableDown.push(await getChangeQueryByKey(table, key, column, change.key, change.from));
+  } else {
+    // type changes have to be done in separate steps
 
-  //   if (prevColumnOptions.default) up.unshift(await getChangeQueryByKey(column.name, table, column, 'default', null));
-  //   if (columnOptions.default) {
-  //     up.push(await getChangeQueryByKey(table, column.name, column, 'default', columnOptions.default));
-  //   }
+    const alter = `ALTER TABLE "__SCHEMA__"."${table}"`;
+    up.push(`${alter} DROP COLUMN IF EXISTS "${key}"`);
+    up.push(`${alter} ADD COLUMN ${await createColumn(table, key, column)}`);
 
-  //   if (columnOptions.default) down.unshift(await getChangeQueryByKey(table, column.name, column, 'default', null));
-  //   if (prevColumnOptions.default) {
-  //     down.push(await getChangeQueryByKey(table, column.name, column, 'default', columnOptions.default));
-  //   }
-  // }
+    down.push(`${alter} DROP COLUMN IF EXISTS "${key}"`);
+    down.push(`${alter} ADD COLUMN ${await createColumn(table, key, prevColumn)}`);
+  }
 
   // todo: solve type update logic
-  return { up, down };
+  return { tableUp, tableDown, up, down };
 };
 
 /**
@@ -168,4 +176,24 @@ export const getTypeForColumn = (table: string, name: string, column: tColumn): 
   if (column.type === 'enum') return (column as any).enumName || `${table}_${name}_enum`.replace(/-/g, '_');
 
   return `${column.type}${(column as any).array ? '[]' : ''}`;
+};
+
+const includesBoth = (arr: any, a: string, b: string) => {
+  return arr.includes(a) && arr.includes(b);
+};
+export const getTypeCompatibility = (from: tRegularColumn, to: tRegularColumn) => {
+  // Array and non-array types are never compatible :(
+  if ((from as any).array !== (to as any).array) return false;
+
+  if (includesBoth(EnumTypes, from.type, to.type)) return true;
+  if (includesBoth(JSONTypes, from.type, to.type)) return true;
+  if (includesBoth(NumberTypes, from.type, to.type)) return true;
+  if (includesBoth(StringTypes, from.type, to.type)) return true;
+  if (includesBoth(DateTypes, from.type, to.type)) return true;
+  if (includesBoth(UUIDTypes, from.type, to.type)) return true;
+  if (includesBoth(IntervalTypes, from.type, to.type)) return true;
+  if (includesBoth(BinaryTypes, from.type, to.type)) return true;
+  if (includesBoth(BooleanTypes, from.type, to.type)) return true;
+
+  return false;
 };
