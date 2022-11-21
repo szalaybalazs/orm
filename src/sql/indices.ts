@@ -1,5 +1,5 @@
 import { iIndex } from '../types';
-
+// todo: prevent duplicates
 /**
  * Create index based on configuration on table
  * @param table name of the target table

@@ -1,3 +1,5 @@
+// todo: suppport single table inheritance
+
 import { tColumn } from './column';
 import { eAllTypes } from './datatypes';
 

@@ -1,4 +1,13 @@
-import { eAllTypes, eColumnKeys, iChange, iRegularColumnOptions, iUUIDColumn, tColumn, tRegularColumn } from '../types';
+import {
+  eAllTypes,
+  eColumnKeys,
+  iChange,
+  iRegularColumnOptions,
+  iTableEntity,
+  iUUIDColumn,
+  tColumn,
+  tRegularColumn,
+} from '../types';
 import { getDefault } from './defaults';
 
 import {
@@ -23,19 +32,15 @@ import { chalk } from '../core/chalk';
  */
 export const createColumn = async (table: string, key: string, column: tColumn): Promise<string> => {
   if (column.kind === 'COMPUTED') {
-    return `"${key}" ${getTypeForColumn(table, key, column)}${(column as any).array ? '[]' : ''} GENERATED ALWAYS AS (${
-      column.resolver
-    }) STORED`.trim();
+    const type = getTypeForColumn(table, key, column);
+    return `"${key}" ${type} GENERATED ALWAYS AS (${column.resolver}) STORED`.trim();
   } else if (column.kind === 'RESOLVED') return '';
   else {
     const options = await getColumnOptions(table, column);
-    // todo: update column based on types
 
     const constraints: string[] = [];
     if (!options.nullable) constraints.push(getConstraint('REQUIRED'));
     if (options.default) constraints.push(getConstraint('DEFAULT', options.default));
-
-    // todo: support arrays
 
     return `"${key}" ${getTypeForColumn(table, key, column)} ${constraints.join(' ')}`.trim();
   }
@@ -190,6 +195,7 @@ export const getTypeForColumn = (table: string, name: string, column: tColumn): 
 const includesBoth = (arr: any, a: string, b: string) => {
   return arr.includes(a) && arr.includes(b);
 };
+
 export const getTypeCompatibility = (from: tRegularColumn, to: tRegularColumn) => {
   // Array and non-array types are never compatible :(
   if ((from as any).array !== (to as any).array) return false;
@@ -205,4 +211,16 @@ export const getTypeCompatibility = (from: tRegularColumn, to: tRegularColumn) =
   if (includesBoth(BooleanTypes, from.type, to.type)) return true;
 
   return false;
+};
+
+/**
+ * Get column extened by its name from the state
+ * @param state current table state
+ * @param key key of column
+ * @returns column defition
+ */
+export const getColumn = (state: iTableEntity, key: string): tColumn & { name: string } => {
+  const column = state.columns[key];
+
+  return { ...column, name: (column as any).name || key };
 };

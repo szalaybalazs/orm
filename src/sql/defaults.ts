@@ -15,7 +15,6 @@ export const getDefault = async (table: string, column: tColumn): Promise<string
   const value = typeof column.default === 'function' ? await column.default() : column.default;
   const type = typeof value;
   const pgType = getTypeForColumn(table, column.name, column);
-  console.log(pgType);
 
   const custom = customResolver(String(value));
   if (custom) return custom;

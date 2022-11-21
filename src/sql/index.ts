@@ -14,8 +14,8 @@ const points = {
 
 const getPoints = (entity: tEntity) => points[entity.type || 'TABLE'];
 
-// todo: creation order: extensions -> function -> table -> trigger & views
-// todo: drop order: views -> trigger -> table & function -> extensions
+// todo: creation order: extensions -> function -> table -> indices -> foreign keys -> trigger & views
+// todo: drop order: views -> trigger -> indices -> foreign keys -> table & function -> extensions
 
 /**
  * Generate schema changing SQL queries
@@ -36,6 +36,7 @@ export const generateQueries = async (
   const droppedEntities = changes.deleted.sort((a, b) => {
     return getPoints(snapshot[b]) - getPoints(snapshot[a]);
   });
+
   const droppedPromise = loopOver(droppedEntities, async (key) => {
     const entity = snapshot[key];
     // Drop table from current schema

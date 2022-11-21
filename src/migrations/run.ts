@@ -7,6 +7,7 @@ import { saveTypes } from '../typing';
 import { initMigrationExecution } from './init';
 import { getAvailableMigrations } from './migrations';
 
+// todo: add error if there are more migration in the database than locally available
 // todo: support multiple schemas
 
 /**
@@ -72,6 +73,15 @@ export const executeMigrations = async ({
     } catch (error) {
       debug(chalk.dim('> Migration failed, reverting...'));
 
+      const allQueries = await migration.down({ schema, query });
+      const queries = Array.isArray(allQueries) ? allQueries : [allQueries];
+      for (const sql of queries) {
+        try {
+          await query(sql);
+        } catch (error) {
+          debug(chalk.dim(`Failed to revert query: ${sql}`));
+        }
+      }
       // todo: revert migrations on fail
 
       throw error;

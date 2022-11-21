@@ -1,3 +1,5 @@
+import { chalk } from '../core/chalk';
+import { debug } from '../core/log';
 import { QueryFunction } from '../drivers/pg';
 import { iMigration, iQueryOptions, iVerboseConfig } from '../types';
 import { loadMigrations } from './filesystem';
@@ -9,16 +11,16 @@ import { loadMigrations } from './filesystem';
  * @param schema name of the schema (default: PUBLIC)
  * @returns id of the last migration or null
  */
-export const getLastMigrationId = async (
+export const getExecutedMigrationIds = async (
   name: string,
   query: QueryFunction,
   schema: string = 'PUBLIC',
-): Promise<string | null> => {
-  const sql = `SELECT id, index, commited_at FROM "${schema}"."${name}" ORDER BY commited_at DESC, index DESC LIMIT 1`;
+): Promise<string[]> => {
+  const sql = `SELECT id, index, commited_at FROM "${schema}"."${name}" ORDER BY commited_at DESC, index DESC`;
 
   const migrations = await query(sql);
 
-  return migrations?.[0]?.id ?? null;
+  return migrations?.map((m) => m.id) ?? [];
 };
 
 /**
@@ -52,12 +54,21 @@ export const getAvailableMigrations = async (
 ): Promise<iMigration[]> => {
   const loadPromise = await Promise.all([
     loadMigrations(options.migrationsDirectory),
-    getLastMigrationId(migrationsTable, query, schema),
+    getExecutedMigrationIds(migrationsTable, query, schema),
   ]);
 
-  const [allMigrations, lastMigration]: [iMigration[], string | null] = loadPromise;
+  const [allMigrations, lastMigrations]: [iMigration[], string[]] = loadPromise;
 
-  const lastMigrationIndex = allMigrations.findIndex((m) => m.id === lastMigration);
+  const lastMigrationIndex = allMigrations.findIndex((m) => m.id === lastMigrations[0]);
+
+  debug(chalk.dim('Loaded executed migrations: '), lastMigrations);
+
+  if (lastMigrationIndex < 0) {
+    // last migration is not on local computer
+    // return all migrations which has not been commited yet
+
+    return allMigrations.filter((m) => !lastMigrations.includes(m.id));
+  }
 
   const migrations = allMigrations.slice(lastMigrationIndex + 1, allMigrations.length);
 

@@ -81,8 +81,6 @@ export const createDatabasePullProgram = (program: Command) => {
 
       console.log('');
       console.log(chalk.bold('Successfully pulled database schema. 🎉'));
-
-      // todo: generate initial migration and snapshot, so changes can be adopted incrementally
     });
 };
 
