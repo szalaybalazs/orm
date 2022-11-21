@@ -12,10 +12,16 @@ import {
   eUUIDType,
 } from './datatypes';
 
+export type eForeignDelete = 'NULL' | 'DEFAULT' | 'RESTRICT' | 'SKIP' | 'CASCADE';
 export interface iForeignReference {
   table: string;
   column: string;
-  onDelete?: 'NULL' | 'DEFAULT' | 'RESTRICT' | 'SKIP' | 'CASCADE';
+  onDelete?: eForeignDelete;
+}
+
+export interface iForeignDefinition extends iForeignReference {
+  source: string;
+  name: string;
 }
 export interface iBaseColumnOptions {
   name?: string;

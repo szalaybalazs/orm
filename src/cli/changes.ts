@@ -74,11 +74,17 @@ export const createChangesProgram = (program: Command) => {
             //   change.
             // })
           });
+          changes.indices.dropped.forEach((index) => {
+            console.log(chalk.red(`-   Index dropped: "${index.name}"`));
+          });
           changes.indices.created.forEach((index) => {
             console.log(chalk.green(`+   Index created: "${index.name}"`));
           });
-          changes.indices.dropped.forEach((index) => {
-            console.log(chalk.red(`-   Index dropped: "${index.name}"`));
+          changes.foreign.dropped.forEach((foreign) => {
+            console.log(chalk.red(`-   Foreign key dropped: "${foreign.name}"`));
+          });
+          changes.foreign.added.forEach((foreign) => {
+            console.log(chalk.green(`+   Foreign key created: "${foreign.name}"`));
           });
           changes.indices.updated.forEach((index) => {
             console.log(chalk.blue(`~   Index updated: "${index.from.name}"`));

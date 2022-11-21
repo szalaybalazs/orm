@@ -22,6 +22,7 @@ import {
   BooleanTypes,
 } from '../types/datatypes';
 import { chalk } from '../core/chalk';
+import { broadcast } from '../core/log';
 
 /**
  * Create column query
@@ -107,13 +108,13 @@ export const changeColumn = async (
     tableDown.push(await getChangeQueryByKey(table, key, column, change.key, change.from));
   } else {
     // todo: add user confirmation because of data loss
-    console.log();
-    console.log(
+    broadcast();
+    broadcast(
       chalk.yellow('WARNING:'),
       chalk.reset(`Changing column type from ${prevColumn.type} to ${column.type} will cause data loss`),
     );
-    console.log(chalk.dim('Type changes for non-compatible types are not supported yet.'));
-    console.log();
+    broadcast(chalk.dim('Type changes for non-compatible types are not supported yet.'));
+    broadcast();
 
     // type changes have to be done in separate steps
     const alter = `ALTER TABLE "__SCHEMA__"."${table}"`;

@@ -1,6 +1,6 @@
 import * as chalk from 'chalk';
 import { prompt } from 'inquirer';
-import { debug } from '../core/log';
+import { broadcast, debug } from '../core/log';
 import { getEntities, loadEntities } from '../entities/load';
 import { loadLastSnapshot, saveSnapshot } from '../snapshots';
 import { generateQueries } from '../sql';
@@ -49,7 +49,7 @@ export const generateMigration = async (id: string, name: string, options: iVerb
         default: false,
       },
     ]);
-    if (!answers.drop) return console.log(chalk.cyan('Skipping...'));
+    if (!answers.drop) return broadcast(chalk.cyan('Skipping...'));
   }
 
   debug(chalk.dim('Generating migration...'));

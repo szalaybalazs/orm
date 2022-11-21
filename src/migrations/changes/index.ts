@@ -6,6 +6,10 @@ import { getChangesForTables } from './table';
 import { getTypeChanges } from './types';
 import { getChangesForViews } from './view';
 
+export interface iTableChangeInput {
+  state: iTableEntity;
+  snapshot: iTableEntity;
+}
 // todo: handle views
 
 /**

@@ -4,7 +4,7 @@ import { pathExistsSync } from 'fs-extra';
 import { join } from 'path';
 import { parseConfig } from '../core/config';
 import { formatId } from '../core/id';
-import { debug } from '../core/log';
+import { broadcast, debug } from '../core/log';
 import { getEmptyEntityContent } from '../entities/template';
 import { writeEntity } from '../entities/write';
 import { addOptions } from './options';
@@ -25,12 +25,12 @@ export const createEntityProgram = (program: Command) => {
 
         debug(chalk.dim(`Entity saved in dir: ${options.entitiesDirectory}`));
 
-        console.log(chalk.bold('Entity successfully created! 🥳'));
-        console.log(chalk.dim('To start editing open'), chalk.cyan(entityPath));
+        broadcast(chalk.bold('Entity successfully created! 🥳'));
+        broadcast(chalk.dim('To start editing open'), chalk.cyan(entityPath));
       } catch (error) {
         if (error.message === 'EXISTS') {
-          console.log(chalk.red('[ERROR]'), chalk.reset('Entity already exists, skipping...'));
-        } else console.log(error);
+          broadcast(chalk.red('[ERROR]'), chalk.reset('Entity already exists, skipping...'));
+        } else broadcast(error);
       }
     });
 };

@@ -2,6 +2,7 @@ import { emptyDir, pathExists, writeFile } from 'fs-extra';
 import { join } from 'path';
 import { format } from 'prettier';
 import { formatId } from '../core/id';
+import { broadcast } from '../core/log';
 import { formatSql } from '../core/sql';
 import { tEntity } from '../types';
 
@@ -24,7 +25,7 @@ export const saveEntities = async (entities: { [key: string]: tEntity }, entitie
 
   if (anyExists) {
     // todo: ask for confirmation
-    console.log('Entities already existing, recreating directory...');
+    broadcast('Entities already existing, recreating directory...');
     await emptyDir(base);
   }
 

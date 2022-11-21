@@ -1,6 +1,6 @@
 import * as chalk from 'chalk';
 import cliSelect from 'cli-select';
-import { debug } from '../core/log';
+import { broadcast, debug } from '../core/log';
 import { createPostgresConnection, QueryFunction } from '../drivers/pg';
 import { iMigration, iVerboseConfig } from '../types';
 import { loadMigrations } from './filesystem';
@@ -25,7 +25,7 @@ export const revertMigrations = async (options: iVerboseConfig) => {
       {},
     );
 
-    console.log(
+    broadcast(
       chalk.cyan.yellow('❯'),
       chalk.reset('Select the migration to revert to:'),
       chalk.dim('(The selected migtion will be the last migration to keep)'),

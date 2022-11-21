@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { chalk } from '../core/chalk';
 import { parseConfig } from '../core/config';
+import { broadcast } from '../core/log';
 import { loadEntities } from '../entities/load';
 import { saveTypes } from '../typing';
 import { addOptions } from './options';
@@ -14,10 +15,10 @@ export const generateEntityTypes = (program: Command) => {
         const entities = await loadEntities(options.entitiesDirectory);
         const directory = await saveTypes(entities, options.typesDirectory, options.namingConvention);
 
-        console.log(chalk.bold('Types successfully generated 🎊'));
-        console.log(chalk.reset('They have been saved at'), chalk.cyan(directory));
+        broadcast(chalk.bold('Types successfully generated 🎊'));
+        broadcast(chalk.reset('They have been saved at'), chalk.cyan(directory));
       } catch (error) {
-        console.log(error);
+        broadcast(error);
       }
     });
 };

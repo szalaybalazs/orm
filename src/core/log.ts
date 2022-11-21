@@ -2,10 +2,10 @@ import * as Box from 'cli-box';
 let _debug = undefined;
 
 export const debug = async (...input: any[]) => {
-  // if (!_debug) _debug = (await import('debug'))('orm');
-  // _debug(...(input.length ? input : ['']));
-
   if (process.env.DEBUG === 'orm') console.log(...input);
+};
+export const broadcast = async (...input: any[]) => {
+  console.log(...input);
 };
 
 export const formatObject = (input: { [key: string]: any }) => {

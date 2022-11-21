@@ -18,7 +18,7 @@ export const getChangesForColumn = (oldColumn: tColumn, newColumn: tColumn): iCh
     const newValue = newColumn[key];
 
     // enums changes are checked for as 'types'
-    if (oldValue === newValue || key === 'comment' || key === 'enum') return;
+    if (oldValue === newValue || key === 'comment' || key === 'enum' || key === 'reference') return;
     if (oldValue && newValue && compareObjects(oldValue, newValue)) return;
 
     changes.push({ key, from: oldValue, to: newValue });

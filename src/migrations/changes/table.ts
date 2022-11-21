@@ -1,6 +1,7 @@
 import { iChange, iChangeEntry, iTableChanges, iTableEntity } from '../../types';
 import { getChangesForColumn } from './column';
 import { getCommentChanges } from './comments';
+import { getForeignKeyChanges } from './foreign';
 import { getIndexChanges } from './indices';
 
 /**
@@ -29,9 +30,10 @@ export const getChangesForTables = (key: string, oldEntity: iTableEntity, newEnt
   });
 
   const indices = getIndexChanges(key, oldEntity.indices ?? [], newEntity?.indices ?? []);
+  const foreign = getForeignKeyChanges({ snapshot: oldEntity, state: newEntity });
   const comments = getCommentChanges(newEntity, oldEntity);
 
-  return { changes, dropped, added, indices, comments };
+  return { changes, dropped, added, indices, comments, foreign };
 };
 
 const getType = (key: string, entity: iTableEntity): number => {

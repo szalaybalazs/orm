@@ -35,8 +35,12 @@ export const getIndexChanges = (table: string, oldIndices: iIndex[], newIndices:
   };
 };
 
-const getIndexName = (table: string, index: iIndex) => {
+export const getIndexName = (table: string, index: iIndex) => {
   if (index?.name) return index.name;
   const columns = [...index.columns?.map((c) => (typeof c === 'string' ? c : c.column)), ...(index.includes ?? [])];
+
+  const methodName = index.method && index.method !== 'btree' ? index.method : undefined;
+  if (methodName) columns.unshift(methodName);
+
   return `${table}_${columns.join('_')}_idx`;
 };

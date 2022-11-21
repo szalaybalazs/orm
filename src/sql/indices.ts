@@ -1,4 +1,7 @@
-import { iIndex } from '../types';
+import { chalk } from '../core/chalk';
+import { broadcast } from '../core/log';
+import { getIndexChanges, getIndexName } from '../migrations/changes/indices';
+import { iIndex, iTableEntity } from '../types';
 // todo: prevent duplicates
 /**
  * Create index based on configuration on table
@@ -30,4 +33,24 @@ export const createIndex = (table: string, index: iIndex): string => {
  */
 export const dropIndex = (name: string) => {
   return `DROP INDEX IF EXISTS "__SCHEMA__"."${name}" CASCADE`;
+};
+
+export const createIndicesForTable = (table: iTableEntity) => {
+  const indices = table.indices?.map((index) => ({ ...index, name: getIndexName(table.name, index) }));
+  if (!indices || !indices.length) return [];
+
+  const names = Array.from(new Set(indices.map((i) => i.name)));
+  if (names && indices && names?.length !== indices?.length) {
+    broadcast('');
+    broadcast(
+      chalk.yellow('[WARNING]: '),
+      chalk.reset('Two or more index uses the same name. Only one will be created!'),
+    );
+    broadcast('');
+  }
+
+  return names.map((name) => {
+    const index = indices.find((i) => i.name === name);
+    return createIndex(table.name, index);
+  });
 };

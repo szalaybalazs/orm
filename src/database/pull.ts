@@ -5,6 +5,7 @@ import { iIndex, iVerboseConfig, tEntity } from '../types';
 import { NumberTypes } from '../types/datatypes';
 
 // todo: handle materialized views
+// todo: handle foreign keys
 // todo: fix view resolver query
 /**
  * Get current the schema of the database

@@ -1,7 +1,9 @@
 import { iTableChanges, iTableEntity, tColumn } from '../types';
+import { iForeignDefinition } from '../types/column';
 import { changeColumn, createColumn, getColumn } from './column';
 import { editComment } from './comment';
-import { createIndex, dropIndex } from './indices';
+import { createForeignKey, dropForeignKey } from './foreign';
+import { createIndex, createIndicesForTable, dropIndex } from './indices';
 import { changePrimaries, getPrimaryKeys } from './primary';
 
 /**
@@ -26,7 +28,9 @@ export const createTable = async (table: iTableEntity): Promise<string[]> => {
     return editComment(table.name, key, comment);
   });
 
-  return [sql, ...comments].filter(Boolean);
+  const indices = createIndicesForTable(table);
+
+  return [sql, ...indices, ...comments].filter(Boolean);
 };
 
 /**
@@ -99,6 +103,16 @@ export const updateTable = async (
   });
 
   await Promise.all([...added, ...dropped, ...updates]);
+
+  changes.foreign?.added.forEach((foreign: iForeignDefinition) => {
+    tableUp.push(`ADD ${createForeignKey(foreign)}`);
+    tableDown.unshift(dropForeignKey(foreign));
+  });
+
+  changes.foreign?.dropped.forEach((foreign: iForeignDefinition) => {
+    tableUp.unshift(dropForeignKey(foreign));
+    tableDown.push(`ADD ${createForeignKey(foreign)}`);
+  });
 
   if (tableUp.length) up.push(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableUp};`);
   if (tableDown.length) down.push(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableDown};`);

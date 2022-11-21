@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 import { highlight } from 'sql-highlight';
-import { debug } from '../core/log';
+import { chalk } from '../core/chalk';
+import { broadcast, debug } from '../core/log';
 import { iPostgresConfig } from '../types';
 
 export type QueryFunction = (sql: string, variables?: any[]) => Promise<any[]>;
@@ -31,7 +32,7 @@ export const createPostgresConnection = (
         const { rows } = await pool.query(sql, variables);
         return rows;
       } catch (error) {
-        console.log('Failed to execute query:', sql);
+        broadcast(chalk.red('[ERROR]'), chalk.reset('Failed to execute query:'), sql);
         throw error;
       }
     };
@@ -44,7 +45,7 @@ export const createPostgresConnection = (
     };
     return { query, close };
   } catch (error) {
-    console.log('Failed to connect', error);
+    broadcast(chalk.red('[ERROR]'), chalk.reset('Failed to connect'), error);
     throw error;
   }
 };

@@ -4,7 +4,7 @@ import { format } from 'prettier';
 import { program } from '../cli';
 import { iOrmConfig, iVerboseConfig } from '../types';
 import { chalk } from './chalk';
-import { debug, formatObject } from './log';
+import { broadcast, debug, formatObject } from './log';
 
 // Supported config files
 const configFiles = ['ormconfig.js', 'ormconfig.ts', 'ormconfig.json'];
@@ -66,10 +66,10 @@ const loadConfig = async (path: string): Promise<iVerboseConfig> => {
  * @returns orm config
  */
 export const parseConfig = async (params: any): Promise<iVerboseConfig> => {
-  if (params.verbose) console.log(chalk.dim('Loading orm config...'));
+  if (params.verbose) broadcast(chalk.dim('Loading orm config...'));
   const config: iOrmConfig = await loadFile(params.config).catch((err) => {
     if (err === 'CONFIG_MISSING') {
-      if (params.verbose) console.log(chalk.dim('No config file found, using default value...'));
+      if (params.verbose) broadcast(chalk.dim('No config file found, using default value...'));
       return {
         driver: 'postgres',
       };

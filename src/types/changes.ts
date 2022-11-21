@@ -1,4 +1,4 @@
-import { tColumn } from './column';
+import { iForeignDefinition, tColumn } from './column';
 import { iIndex } from './entity';
 import { iExtensionChanges } from './extension';
 import { iCustomType, iDependency } from './types';
@@ -26,6 +26,11 @@ export interface iCommentChanges {
   };
 }
 
+export interface iForeignChanges {
+  added: iForeignDefinition[];
+  dropped: iForeignDefinition[];
+}
+
 export interface iTableChanges {
   kind?: 'TABLE';
   changes?: iChangeEntry;
@@ -33,6 +38,7 @@ export interface iTableChanges {
   added?: { [key: string]: tColumn };
   indices?: Partial<iIndexChange>;
   comments?: iCommentChanges;
+  foreign?: iForeignChanges;
 }
 
 export interface iViewChanges {
