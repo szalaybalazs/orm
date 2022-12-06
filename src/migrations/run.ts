@@ -58,8 +58,6 @@ export const executeMigrations = async ({
   query: QueryFunction;
 }) => {
   for (const migration of migrations) {
-    // todo: handle revert queries
-
     debug(chalk.dim('> Generating propagated queries...'));
     const allQueries = await migration.up({ schema, query });
     const queries = Array.isArray(allQueries) ? allQueries : [allQueries];

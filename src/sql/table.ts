@@ -30,7 +30,7 @@ export const createTable = async (table: iTableEntity): Promise<string[]> => {
 
   const indices = createIndicesForTable(table);
 
-  return [sql, ...indices, ...comments].filter(Boolean);
+  return [sql, ...indices, ...comments].flat().filter(Boolean);
 };
 
 /**
@@ -122,23 +122,23 @@ export const updateTable = async (
   if (tableComputedDown.length) down.push(`ALTER TABLE "__SCHEMA__"."${state.name}" ${tableComputedDown};`);
 
   changes.indices.dropped.forEach((index) => {
-    up.push(dropIndex(index.name));
+    up.push(...dropIndex(state.name, index.name, index.unique));
 
-    down.push(createIndex(state.name, index));
+    down.push(...createIndex(state.name, index));
   });
 
   changes.indices.updated.forEach((index) => {
-    up.push(dropIndex(index.from.name));
-    up.push(createIndex(state.name, index.to));
+    up.push(...dropIndex(state.name, index.from.name, index.from.unique));
+    up.push(...createIndex(state.name, index.to));
 
-    down.push(dropIndex(index.to.name));
-    down.push(createIndex(state.name, index.from));
+    down.push(...dropIndex(state.name, index.to.name, index.to.unique));
+    down.push(...createIndex(state.name, index.from));
   });
 
   changes.indices.created.forEach((index) => {
-    up.push(createIndex(state.name, index));
+    up.push(...createIndex(state.name, index));
 
-    down.push(`DROP INDEX IF EXISTS "__SCHEMA__"."${index.name}" CASCADE`);
+    down.push(...dropIndex(state.name, index.name, index.unique));
   });
 
   Object.entries(changes.comments).forEach(([key, { from, to }]) => {

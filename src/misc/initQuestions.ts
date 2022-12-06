@@ -4,14 +4,14 @@ export const initQuestions: QuestionCollection = [
   {
     type: 'input',
     name: 'entities',
-    default: './.orm/entities',
+    default: './database/entities',
     message: 'Where do you want to keep your entities?',
   },
   {
     type: 'input',
     name: 'migrations',
     message: 'And your migrations?',
-    default: './.orm/migrations/',
+    default: './database/migrations/',
   },
   {
     type: 'input',
@@ -29,7 +29,7 @@ export const initQuestions: QuestionCollection = [
     type: 'input',
     name: 'types',
     message: 'Where should they be saved?',
-    default: './.orm/types/',
+    default: './database/types/',
     when: (args) => args.generate_types,
   },
   {

@@ -28,11 +28,14 @@ export const createPostgresConnection = (
      */
     const query = async (sql: string, variables: [] = []) => {
       try {
+        debug(chalk.dim('> Running query:'));
         debug(highlight(sql));
         const { rows } = await pool.query(sql, variables);
         return rows;
       } catch (error) {
-        broadcast(chalk.red('[ERROR]'), chalk.reset('Failed to execute query:'), sql);
+        debug(chalk.dim(`  > Failed to execute: ${error.message}`));
+        // debug(chalk.red('[ERROR]'), chalk.reset('Failed to execute query:'), highlight(sql));
+        // debug(chalk.yellow('> reason:'), chalk.reset(error.message));
         throw error;
       }
     };

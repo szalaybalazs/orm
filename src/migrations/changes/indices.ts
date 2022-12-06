@@ -13,8 +13,10 @@ export const getIndexChanges = (table: string, oldIndices: iIndex[], newIndices:
   const oldNames = Array.from(new Set(oldNamedIndicies.map((index) => index.name)));
   const newNames = Array.from(new Set(newNamedIndices.map((index) => index.name)));
 
+  const newNamedIndicesFiltered = newNames.map((n) => newNamedIndices.find((index) => index.name === n));
+
   const dropped = oldNamedIndicies.filter((index) => !newNames.includes(index.name));
-  const created = newNamedIndices.filter((index) => !oldNames.includes(index.name));
+  const created = newNamedIndicesFiltered.filter((index) => !oldNames.includes(index.name));
 
   const same = newNamedIndices.filter((index) => oldNames.includes(index.name));
   const updatedIndices = same.map((newIndex) => {
