@@ -1,6 +1,5 @@
 import { convertKey } from '../core/naming';
 import { tEntity } from '../types';
-import { eNamingConvention } from '../types/config';
 
 /**
  * Get the name of the columns

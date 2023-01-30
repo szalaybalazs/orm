@@ -34,7 +34,7 @@ export const runMutations = async (options: iVerboseConfig) => {
 
     if (options.typesDirectory) {
       const entities = await loadEntities(options.entitiesDirectory);
-      await saveTypes(entities, options.typesDirectory);
+      await saveTypes(entities, options);
     }
 
     debug(chalk.dim('Migrations commited...'));

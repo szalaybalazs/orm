@@ -13,7 +13,7 @@ export const generateEntityTypes = (program: Command) => {
       try {
         const options = await parseConfig(params);
         const entities = await loadEntities(options.entitiesDirectory);
-        const directory = await saveTypes(entities, options.typesDirectory, options.namingConvention);
+        const directory = await saveTypes(entities, options);
 
         broadcast(chalk.bold('Types successfully generated 🎊'));
         broadcast(chalk.reset('They have been saved at'), chalk.cyan(directory));

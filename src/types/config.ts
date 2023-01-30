@@ -11,6 +11,7 @@ export interface iOrmConfig extends iPostgresConfig {
   migrations?: string; // | string[];
   snapshots?: string; // | string[];
   types?: string;
+  includeKeysInTypes?: boolean;
   namingConvention?: eNamingConvention;
   migrationsTable?: string;
   verbose?: boolean;

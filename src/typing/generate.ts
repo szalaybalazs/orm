@@ -1,7 +1,8 @@
 import { format } from 'prettier';
-import { camelize, convertKey, pascalize } from '../core/naming';
+import { convertKey, pascalize } from '../core/naming';
 import { iRegularColumnOptions, tEntity } from '../types';
 import { eNamingConvention } from '../types/config';
+import { getEntitiyKeys } from '../utils';
 import { formatComment } from './comment';
 import { getType } from './parse';
 
@@ -12,7 +13,17 @@ const template = `// ==========
 
 __COMMENT__export type __NAME__ = {
   __CONTENT__
-}`;
+}
+
+__KEYS__
+`;
+
+const keysTemplate = `export const __NAME__ = [__KEYS__]`;
+
+export const getKeys = (entity: tEntity, name: string) => {
+  const keys = getEntitiyKeys(entity);
+  return keysTemplate.replace(/__NAME__/g, name).replace(/__KEYS__/g, keys.map((key) => `'${key}'`).join(', '));
+};
 
 /**
  * Generate type script for a single entity
@@ -24,9 +35,11 @@ export const generateTypeForEntity = (
   key: string,
   entity: tEntity,
   namingConvention?: eNamingConvention,
-): { name: string; type: string } => {
+  includeKeys?: boolean,
+): { name: string; keysName?: string; type: string } => {
   if (entity.type === 'FUNCTION') return;
   const name = `${pascalize((entity.name || key).replace(/-/g, '_'))}Entity`;
+  const keysName = `${pascalize((entity.name || key).replace(/-/g, '_'))}Keys`;
 
   const columns = Object.keys(entity.columns);
   const types = columns.map((key) => {
@@ -47,9 +60,10 @@ export const generateTypeForEntity = (
   const content = template
     .replace(/__NAME__/g, name)
     .replace(/__CONTENT__/g, types.join(';\n\n'))
-    .replace(/__COMMENT__/g, formatComment(entityComment));
+    .replace(/__COMMENT__/g, formatComment(entityComment))
+    .replace(/__KEYS__/g, includeKeys ? getKeys(entity, keysName) : '');
 
-  return { name, type: format(content, { parser: 'babel-ts' }) };
+  return { name, keysName: includeKeys ? keysName : undefined, type: format(content, { parser: 'babel-ts' }) };
 };
 
 const indexTemplate = `// =========
@@ -65,8 +79,13 @@ __EXPORTS__
  * @param types type list
  * @returns file content
  */
-export const generateExports = (types: { key: string; name: string }[]) => {
-  const exports = types.map(({ name, key }) => `export type { ${name} } from './${key}';`);
+export const generateExports = (types: { key: string; keysName?: string; name: string }[]) => {
+  const exports = types.map(({ name, key, keysName }) => [
+    `export type { ${name} } from './${key}';`,
+    keysName && `export { ${keysName} } from './${key}'`,
+  ]);
 
-  return format(indexTemplate.replace(/__EXPORTS__/g, exports.join('\n')), { parser: 'babel-ts' });
+  const content = indexTemplate.replace(/__EXPORTS__/g, exports.flat().filter(Boolean).join('\n'));
+
+  return format(content, { parser: 'babel-ts' });
 };
