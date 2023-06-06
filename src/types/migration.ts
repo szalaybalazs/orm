@@ -1,6 +1,7 @@
 export interface iContext {
   schema: string;
   query: <T = any>(sql: string, variables: any[]) => Promise<T[]>;
+  extra: { [key: string]: string | number | boolean };
 }
 
 /**

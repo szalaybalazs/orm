@@ -34,13 +34,18 @@ export const loadMigrations = async (directory: string) => {
   try {
     debug(chalk.dim(`> Loading migrations from ${directory}`));
     const content = await readdir(directory);
-
+    
     const files = content.filter((file) => file.endsWith('.migration.ts')).sort();
+    debug(chalk.dim(`> Migrations loaded from ${directory}:`), files);
     // todo: handle malformed files
     const migrations = await Promise.all(
       files.map(async (file) => {
         const migrationPath = join(directory, file);
-        const module = await import(migrationPath).catch(() => null);
+        const module = await import(migrationPath).catch((error: any) => {
+          debug(chalk.red('[ERROR]'), chalk.dim(`Failed to load migration ${migrationPath}`), error.message);
+          return null;
+        });
+        debug(migrationPath, module);
 
         if (!module) return;
 

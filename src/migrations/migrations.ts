@@ -61,6 +61,7 @@ export const getAvailableMigrations = async (
 
   const lastMigrationIndex = allMigrations.findIndex((m) => m.id === lastMigrations[0]);
 
+  debug(chalk.dim('Loaded all migrations: '), allMigrations);
   debug(chalk.dim('Loaded executed migrations: '), lastMigrations);
 
   if (lastMigrationIndex < 0) {

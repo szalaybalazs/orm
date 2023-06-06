@@ -30,7 +30,7 @@ export const runMutations = async (options: iVerboseConfig) => {
     const migrations = await getAvailableMigrations(query, options, { schema, migrationsTable });
     if (migrations.length < 1) throw new Error('NO_NEW_MIGRATIONS');
 
-    await executeMigrations({ migrations, query, schema, migrationsTable });
+    await executeMigrations({ migrations, query, schema, migrationsTable, options });
 
     if (options.typesDirectory) {
       const entities = await loadEntities(options.entitiesDirectory);
@@ -51,15 +51,17 @@ export const executeMigrations = async ({
   schema,
   query,
   migrationsTable,
+  options,
 }: {
   migrations: iMigration[];
   schema: string;
   migrationsTable: string;
   query: QueryFunction;
+  options: iVerboseConfig;
 }) => {
   for (const migration of migrations) {
     debug(chalk.dim('> Generating propagated queries...'));
-    const allQueries = await migration.up({ schema, query });
+    const allQueries = await migration.up({ schema, query, extra: options.extraOptions });
     const queries = Array.isArray(allQueries) ? allQueries : [allQueries];
 
     try {
@@ -71,7 +73,7 @@ export const executeMigrations = async ({
     } catch (error) {
       debug(chalk.dim('> Migration failed, reverting...'));
 
-      const allQueries = await migration.down({ schema, query });
+      const allQueries = await migration.down({ schema, query, extra: options.extraOptions });
       const queries = Array.isArray(allQueries) ? allQueries : [allQueries];
       for (const sql of queries) {
         try {
