@@ -20,32 +20,36 @@ export type EmployeesEntity = {
   /**
    * ID of the employees manager
    */
-  manager_id?: string;
+  managerId?: string;
 
   /**
    * ID of the employees department
    */
-  department_id?: string;
+  departmentId?: string;
 
   /**
    * Firstname of the employee
    */
-  first_name: string;
+  firstName: string;
 
   /**
    * Lastname of the employee
    */
-  last_name: string;
+  lastName: string;
 
   /**
    * Generated full name of the employee
    * can not be changed directly
    */
-  full_name: string;
+  fullName: string;
 
-  is_suspended: boolean;
+  isSuspended?: boolean;
 
-  joined_at: Date;
+  joinedAt: Date;
 
-  time_since_join: number;
+  timeSinceJoin: number;
+
+  gender: "MALE" | "FEMALE" | "OTHER";
+
+  updatedAt: Date;
 };

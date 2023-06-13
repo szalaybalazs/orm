@@ -56,6 +56,7 @@ export const createChangesProgram = (program: Command) => {
         if (change.key === 'VIEW') {
         } else if (change.key === 'FUNCTION') {
         } else if (change.kind === 'TABLE') {
+          // console.log(JSON.stringify(change, null, 2));
           const { changes } = change;
           changes.dropped.forEach((col) => {
             console.log(chalk.dim(`-   Dropped column "${col}"`));
@@ -89,6 +90,30 @@ export const createChangesProgram = (program: Command) => {
           changes.indices.updated.forEach((index) => {
             console.log(chalk.blue(`~   Index updated: "${index.from.name}"`));
           });
+          if (changes.triggers) {
+            if (changes.triggers.change === 'CREATE') console.log(chalk.green(`+   Trigger function added to table`));
+            else if (changes.triggers.change === 'UPDATE') console.log(chalk.blue(`~   Trigger function updated`));
+            else console.log(chalk.red(`-   Trigger function dropped`));
+
+            if (changes.triggers.change !== 'DELETE') {
+              changes.triggers.created.forEach((trigger) => {
+                console.log(
+                  chalk.green(`+     Trigger added to "${trigger.key}":`),
+                  chalk.reset(`setting to: "${trigger.set}"`),
+                );
+              });
+              changes.triggers.deleted.forEach((trigger) => {
+                console.log(chalk.red(`+     Trigger dropped from "${trigger.key}")`));
+              });
+              changes.triggers.updated.forEach((trigger) => {
+                console.log(
+                  chalk.blue(`~     Trigger updated: "${trigger.key}":`),
+                  chalk.reset(`("${trigger.from.set}" -> "${trigger.to.set}")`),
+                );
+              });
+            }
+          }
+
           // console.log(changes);
         }
         console.log('');

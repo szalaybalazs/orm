@@ -19,7 +19,9 @@ export type DepartmentsEntity = {
   /**
    * ID of the departments lead
    */
-  lead_id?: string;
+  leadId?: string;
 
-  created_at: Date;
+  createdAt: Date;
+
+  updatedAt: Date;
 };

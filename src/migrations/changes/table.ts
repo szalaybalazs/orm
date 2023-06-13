@@ -3,6 +3,7 @@ import { getChangesForColumn } from './column';
 import { getCommentChanges } from './comments';
 import { getForeignKeyChanges } from './foreign';
 import { getIndexChanges } from './indices';
+import { getTriggerChanges } from './trigger';
 
 /**
  * Generates all the changes for columns
@@ -32,8 +33,9 @@ export const getChangesForTables = (key: string, oldEntity: iTableEntity, newEnt
   const indices = getIndexChanges(key, oldEntity.indices ?? [], newEntity?.indices ?? []);
   const foreign = getForeignKeyChanges({ snapshot: oldEntity, state: newEntity });
   const comments = getCommentChanges(newEntity, oldEntity);
+  const triggers = getTriggerChanges(oldEntity, newEntity);
 
-  return { changes, dropped, added, indices, comments, foreign };
+  return { changes, dropped, added, indices, comments, foreign, triggers };
 };
 
 const getType = (key: string, entity: iTableEntity): number => {

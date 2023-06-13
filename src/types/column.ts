@@ -23,7 +23,12 @@ export interface iForeignDefinition extends iForeignReference {
   source: string;
   name: string;
 }
-export interface iBaseColumnOptions {
+
+export interface iUpdaterFunction<T> {
+  set?: T;
+}
+
+export interface iBaseColumnOptions<T = undefined> {
   name?: string;
 
   primary?: boolean;
@@ -31,9 +36,10 @@ export interface iBaseColumnOptions {
   comment?: string;
 
   reference?: iForeignReference;
+  onUpdate?: T;
 }
 
-export interface iRegularColumnOptions extends iBaseColumnOptions {
+export interface iRegularColumnOptions<T = undefined> extends iBaseColumnOptions<iUpdaterFunction<T>> {
   kind?: 'REGULAR';
 
   unique?: boolean;
@@ -42,39 +48,44 @@ export interface iRegularColumnOptions extends iBaseColumnOptions {
   array?: boolean;
 }
 
-export interface iNumberColumn extends iRegularColumnOptions {
+type tNumberDefault = number | DefaultFunction<number>;
+export interface iNumberColumn extends iRegularColumnOptions<tNumberDefault> {
   type: eNumberType;
-  default?: number | DefaultFunction<number>;
+  default?: tNumberDefault;
 
   // todo: handle
   precision?: number;
 }
 
 type eDateDefaults = 'CURRENT_TIMESTAMP' | 'NOW()' | 'now()' | 'now' | 'today' | 'tomorrow' | 'yesterday';
-
-export interface iDateColumn extends iRegularColumnOptions {
+type tDateDefault = eDateDefaults | Date | DefaultFunction<eDateDefaults | Date>;
+export interface iDateColumn extends iRegularColumnOptions<tDateDefault> {
   type: eDateTypes;
-  default?: eDateDefaults | Date | DefaultFunction<eDateDefaults | Date>;
+  default?: tDateDefault;
 
   // todo: handle
   precision?: number;
 }
 
-export interface iStringColumn extends iRegularColumnOptions {
+type tStringDefault = string | DefaultFunction<string>;
+export interface iStringColumn extends iRegularColumnOptions<tStringDefault> {
   type: eStringType;
-  default?: string | DefaultFunction<string>;
+  default?: tStringDefault;
 }
-export interface iBinaryColumn extends iRegularColumnOptions {
+
+export interface iBinaryColumn extends iRegularColumnOptions<tStringDefault> {
   type: eBinaryType;
-  default?: string | DefaultFunction<string>;
+  default?: tStringDefault;
 }
-export interface iIntervalColumn extends iRegularColumnOptions {
+export interface iIntervalColumn extends iRegularColumnOptions<tStringDefault> {
   type: eIntervalType;
-  default?: string | DefaultFunction<string>;
+  default?: tStringDefault;
 }
-export interface iBooleanColumn extends iRegularColumnOptions {
+
+type tBooleanDefault = boolean | DefaultFunction<boolean>;
+export interface iBooleanColumn extends iRegularColumnOptions<tBooleanDefault> {
   type: eBooleanType;
-  default?: boolean | DefaultFunction<boolean>;
+  default?: tBooleanDefault;
 }
 
 export interface iUUIDColumn extends iBaseColumnOptions {

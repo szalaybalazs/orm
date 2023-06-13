@@ -1,4 +1,4 @@
-import { iForeignDefinition, tColumn } from './column';
+import { iForeignDefinition, iUpdaterFunction, tColumn } from './column';
 import { iIndex } from './entity';
 import { iExtensionChanges } from './extension';
 import { iCustomType, iDependency } from './types';
@@ -39,6 +39,7 @@ export interface iTableChanges {
   indices?: Partial<iIndexChange>;
   comments?: iCommentChanges;
   foreign?: iForeignChanges;
+  triggers?: Partial<iTriggerChanges>;
 }
 
 export interface iViewChanges {
@@ -86,10 +87,28 @@ export interface iTypeChanges {
   updated: iTypeChange[];
 }
 
+export interface iTriggerChange extends iUpdaterFunction<any> {
+  key: string;
+}
+
+export interface iTriggerUpdate {
+  key: string;
+  from: iTriggerChange;
+  to: iTriggerChange;
+}
+
+export interface iTriggerChanges {
+  created: iTriggerChange[];
+  deleted: iTriggerChange[];
+  updated: iTriggerUpdate[];
+  change: 'UPDATE' | 'DELETE' | 'CREATE';
+}
+
 export interface iChanges {
   deleted: string[];
   created: string[];
   updated: eUpdate[];
   extensions?: iExtensionChanges;
   types?: iTypeChanges;
+  triggers?: iTriggerChanges;
 }

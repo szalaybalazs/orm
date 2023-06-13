@@ -5,6 +5,7 @@ import { editComment } from './comment';
 import { createForeignKey, dropForeignKey } from './foreign';
 import { createIndex, createIndicesForTable, dropIndex } from './indices';
 import { changePrimaries, getPrimaryKeys } from './primary';
+import { createTrigger, dropTrigger, updateTriggerFunction } from './trigger';
 
 /**
  * Create table creation query
@@ -145,6 +146,17 @@ export const updateTable = async (
     if (state.columns?.[key]) up.push(editComment(state.name, key, to));
     if (snapshot.columns?.[key]) down.push(editComment(state.name, key, from));
   });
+
+  if (changes.triggers?.change === 'CREATE') {
+    up.push(...(await createTrigger(state, changes.triggers.created)));
+    down.push(...(await dropTrigger(state)));
+  } else if (changes.triggers?.change === 'DELETE') {
+    up.push(...(await dropTrigger(snapshot)));
+    down.push(...(await createTrigger(snapshot, changes.triggers.deleted)));
+  } else if (changes.triggers?.change === 'UPDATE') {
+    up.push(await updateTriggerFunction(state));
+    down.push(await updateTriggerFunction(snapshot));
+  }
 
   // todo: handle unique values by created a separate index for each of them
   // So the uniqueness can be dropped by dropping the underlying index

@@ -62,6 +62,13 @@ const employee: tEntity = {
       type: 'enum',
       enum: ['MALE', 'FEMALE', 'OTHER'],
     },
+    updatedAt: {
+      type: 'timestamp with time zone',
+      default: 'CURRENT_TIMESTAMP',
+      onUpdate: {
+        set: 'now()',
+      },
+    },
   },
   indices: [
     {

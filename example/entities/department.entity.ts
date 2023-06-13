@@ -28,6 +28,14 @@ const department: tEntity = {
       type: 'timestamptz',
       default: 'now',
     },
+
+    updatedAt: {
+      type: 'timestamptz',
+      default: 'now',
+      // onUpdate: {
+      //   set: 'CURRENT_TIMESTAMP',
+      // },
+    },
   },
 };
 

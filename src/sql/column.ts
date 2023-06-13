@@ -56,7 +56,7 @@ export const createColumn = async (table: string, key: string, column: tColumn):
 const getColumnOptions = async (
   table: string,
   column: tColumn,
-): Promise<Partial<iRegularColumnOptions & { default: any }>> => {
+): Promise<Partial<iRegularColumnOptions<any> & { default: any }>> => {
   const options = {};
 
   if (column.kind === 'COMPUTED') return options;
