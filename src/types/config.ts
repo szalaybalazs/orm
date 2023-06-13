@@ -16,6 +16,7 @@ export interface iOrmConfig extends iPostgresConfig {
   migrationsTable?: string;
   verbose?: boolean;
   extraOptions?: { [key: string]: string | number | boolean };
+  schema?: string;
 }
 
 export interface iVerboseConfig extends iOrmConfig {

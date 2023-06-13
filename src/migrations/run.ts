@@ -16,7 +16,7 @@ import { getAvailableMigrations } from './migrations';
  */
 export const runMutations = async (options: iVerboseConfig) => {
   const migrationsTable = options.migrationsTable || '__migrations__';
-  const schema = 'public';
+  const schema = options.schema || 'public';
   debug(chalk.dim(`Running migrations using table: ${migrationsTable}...`));
 
   // Creating SQL handler

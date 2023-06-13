@@ -8,7 +8,7 @@ import { getExecutedMigrations } from './migrations';
 
 export const revertMigrations = async (options: iVerboseConfig) => {
   const migrationsTable = options.migrationsTable || '__migrations__';
-  const schema = 'public';
+  const schema = options.schema || 'public';
 
   const { query, close } = createPostgresConnection(options);
   try {

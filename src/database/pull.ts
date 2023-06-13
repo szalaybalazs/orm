@@ -13,7 +13,7 @@ import { NumberTypes } from '../types/datatypes';
  * @returns entity map
  */
 export const pullSchema = async (options: iVerboseConfig): Promise<{ [key: string]: tEntity }> => {
-  const schema = 'public';
+  const schema = options.schema || 'public';
   const migrationsTable = options.migrationsTable || '__migrations__';
   const { query, close } = createPostgresConnection(options);
   try {

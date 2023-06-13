@@ -1,6 +1,6 @@
 {
   "name": "undiorm",
-  "version": "0.0.70",
+  "version": "0.0.75",
   "description": "Lightweight PG Orm",
   "main": "./index.js",
   "bin": {
@@ -56,7 +56,6 @@
     "pluralize": "^8.0.0",
     "prettier": "^2.7.1",
     "sql-formatter": "^11.0.2",
-    "sql-highlight": "^4.2.1",
-    "undiorm": "latest"
+    "sql-highlight": "^4.2.1"
   }
 }

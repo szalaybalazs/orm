@@ -188,7 +188,9 @@ export const getChange = async (
  * @returns
  */
 export const getTypeForColumn = (table: string, name: string, column: tColumn): eAllTypes | string => {
-  if (column.type === 'enum') return (column as any).enumName || `${table}_${name}_enum`.replace(/-/g, '_');
+  if (column.type === 'enum') {
+    return `"\${ctx.schema}".${(column as any).enumName || `${table}_${name}_enum`.replace(/-/g, '_')}`;
+  }
 
   return `${column.type}${(column as any).array ? '[]' : ''}`;
 };
