@@ -65,6 +65,9 @@ const employee: tEntity = {
     updatedAt: {
       type: 'timestamp with time zone',
       default: 'CURRENT_TIMESTAMP',
+      onInsert: {
+        set: 'now()',
+      },
       onUpdate: {
         set: 'now()',
       },
@@ -77,9 +80,9 @@ const employee: tEntity = {
       },
     },
   },
-  beforeUpdate: {
-    procedure: `INSERT INTO "__SCHEMA__"."user-snapshot" SELECT OLD.*;`,
-  },
+  // beforeUpdate: {
+  //   procedure: `INSERT INTO "__SCHEMA__"."user-snapshot" SELECT OLD.*;`,
+  // },
   indices: [
     {
       columns: ['id'],

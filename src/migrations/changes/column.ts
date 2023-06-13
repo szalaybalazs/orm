@@ -1,7 +1,7 @@
 import { compareObjects } from '../../core/compare';
 import { iChange, tColumn } from '../../types';
 
-const FIELD_BLACKLIST = ['comment', 'enum', 'reference', 'onUpdate'];
+const FIELD_BLACKLIST = ['comment', 'enum', 'reference', 'onUpdate', 'onDelete', 'onInsert'];
 
 /**
  * List all the changes for columns

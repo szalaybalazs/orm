@@ -15,15 +15,19 @@ export interface iIndex {
   includes?: (string | { column: string })[];
 }
 
+export interface iProcedure {
+  procedure?: string;
+}
+
 export interface iTableEntity {
   type?: 'TABLE';
   name: string;
   comment?: string;
   columns: Record<string, tColumn>;
   indices?: iIndex[];
-  beforeUpdate?: {
-    procedure?: string;
-  };
+  beforeInsert?: iProcedure;
+  beforeUpdate?: iProcedure;
+  beforeDelete?: iProcedure;
 }
 
 export interface iViewEntity {

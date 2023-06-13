@@ -135,9 +135,15 @@ The repo contains an example folder - feel free to clone and play around with it
   - [x] View support
     - [ ] Add 'with check' option
   - [ ] Function support
-  - [x] Trigger support
+  - [ ] Trigger support
+    - [x] Add `onInsert.set`
     - [x] Add `onUpdate.set`
-    - [x] Add `beforeUpdate` SQL code
+    - [x] Add `onDelete.set`
+    - [x] Add `beforeInsert` procedure SQL code
+    - [x] Add `beforeUpdate` procedure SQL code
+    - [x] Add `beforeDelete` procedure SQL code
+    - [ ] Add `preventDefault` logic
+    - [ ] Add conditional logic
   - [ ] GIS Support
   - [ ] Convert codebase to classes for easier maintenance
   - [ ] Handle naming conventions

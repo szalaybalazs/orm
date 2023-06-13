@@ -101,12 +101,12 @@ export interface iProcedureChange {
   from: { procedure?: string };
   to: { procedure?: string };
 }
+
+export type eTriggerChange = 'CREATED' | 'DELETED' | 'UPDATED';
 export interface iTriggerChanges {
-  created: iTriggerChange[];
-  deleted: iTriggerChange[];
-  updated: iTriggerUpdate[];
-  change: 'UPDATE' | 'DELETE' | 'CREATE';
-  beforeUpdate?: iProcedureChange;
+  insert?: eTriggerChange;
+  update?: eTriggerChange;
+  delete?: eTriggerChange;
 }
 
 export interface iChanges {

@@ -1,5 +1,6 @@
 import { iTableChanges, iTableEntity, tColumn } from '../types';
-import { iForeignDefinition } from '../types/column';
+import { eTriggerChange } from '../types/changes';
+import { eTriggerType, iForeignDefinition } from '../types/column';
 import { changeColumn, createColumn, getColumn } from './column';
 import { editComment } from './comment';
 import { createForeignKey, dropForeignKey } from './foreign';
@@ -147,16 +148,31 @@ export const updateTable = async (
     if (snapshot.columns?.[key]) down.push(editComment(state.name, key, from));
   });
 
-  if (changes.triggers?.change === 'CREATE') {
-    up.push(...(await createTrigger(state, changes.triggers.created)));
-    down.push(...(await dropTrigger(state)));
-  } else if (changes.triggers?.change === 'DELETE') {
-    up.push(...(await dropTrigger(snapshot)));
-    down.push(...(await createTrigger(snapshot, changes.triggers.deleted)));
-  } else if (changes.triggers?.change === 'UPDATE') {
-    up.push(await updateTriggerFunction(state));
-    down.push(await updateTriggerFunction(snapshot));
-  }
+  await Promise.all(
+    Object.keys(changes.triggers ?? {}).map(async (key) => {
+      const change = changes.triggers?.[key] as eTriggerChange;
+      if (change === 'CREATED') {
+        up.push(...(await createTrigger(state, key.toUpperCase() as eTriggerType)));
+        down.push(...dropTrigger(state, key.toUpperCase() as eTriggerType));
+      } else if (change === 'UPDATED') {
+        up.push(await updateTriggerFunction(state, key.toUpperCase() as eTriggerType));
+        down.push(await updateTriggerFunction(snapshot, key.toUpperCase() as eTriggerType));
+      } else if (change === 'DELETED') {
+        up.push(...dropTrigger(state, key.toUpperCase() as eTriggerType));
+        down.push(...(await createTrigger(snapshot, key.toUpperCase() as eTriggerType)));
+      }
+    }),
+  );
+  // if (changes.triggers?.change === 'CREATE') {
+  //   up.push(...(await createTrigger(state, changes.triggers.created)));
+  //   down.push(...(await dropTrigger(state)));
+  // } else if (changes.triggers?.change === 'DELETE') {
+  //   up.push(...(await dropTrigger(snapshot)));
+  //   down.push(...(await createTrigger(snapshot, changes.triggers.deleted)));
+  // } else if (changes.triggers?.change === 'UPDATE') {
+  //   up.push(await updateTriggerFunction(state));
+  //   down.push(await updateTriggerFunction(snapshot));
+  // }
 
   // todo: handle unique values by created a separate index for each of them
   // So the uniqueness can be dropped by dropping the underlying index

@@ -1,66 +1,116 @@
 import { deepEqual } from '../../core/object';
-import { iTableEntity, tColumn } from '../../types';
-import { iProcedureChange, iTriggerChange, iTriggerChanges } from '../../types/changes';
-import { iUpdaterFunction } from '../../types/column';
+import { iTableEntity } from '../../types';
+import { eTriggerChange, iTriggerChanges } from '../../types/changes';
+import { eTriggerType, iUpdaterFunction, tRegularColumn } from '../../types/column';
+import { iProcedure } from '../../types/entity';
 
-const getUpdatedColumns = (table: iTableEntity): iTriggerChange[] => {
-  const columns = Object.keys(table.columns);
-  const updated = columns.map((key) => {
-    const column = table.columns[key];
-    if (column.kind === 'RESOLVED') return false;
-    if (column.kind === 'COMPUTED') return false;
-    if (!column.onUpdate) return false;
-    return { key, ...column.onUpdate };
-  });
+interface iUpdaters {
+  old: { key: string; updater: iUpdaterFunction<any> }[];
+  new: { key: string; updater: iUpdaterFunction<any> }[];
+}
+interface iProcedures {
+  old: iProcedure;
+  new: iProcedure;
+}
 
-  return updated.filter(Boolean) as ({ key: string } & iUpdaterFunction<any>)[];
+/**
+ * Get change for a list of updaters and procedures
+ * @param updaters
+ * @param procedures
+ * @returns
+ */
+const getChange = (updaters: iUpdaters, procedures: iProcedures): eTriggerChange | undefined => {
+  const oldTriggers = updaters.old.length + (procedures.old?.procedure ? 1 : 0);
+  const newTriggers = updaters.new.length + (procedures.new?.procedure ? 1 : 0);
+
+  if (oldTriggers > 0 && newTriggers === 0) return 'DELETED';
+  if (oldTriggers === 0 && newTriggers > 0) return 'CREATED';
+
+  if (updaters.new.length !== updaters.old.length) return 'UPDATED';
+  if (!deepEqual(procedures?.new, procedures?.old)) return 'UPDATED';
+
+  const keys = Array.from(new Set([...updaters.old.map(({ key }) => key), ...updaters.new.map(({ key }) => key)]));
+  if (
+    keys.some((key) => {
+      const oldUpdater = updaters.old.find((u) => u.key === key);
+      const newUpdater = updaters.new.find((u) => u.key === key);
+      return !deepEqual(oldUpdater?.updater, newUpdater?.updater);
+    })
+  )
+    return 'UPDATED';
+
+  return undefined;
 };
 
-const getChangeType = (
-  oldColumns: iTriggerChange[],
-  newColumns: iTriggerChange[],
-  before: iProcedureChange,
-  changes: number,
-) => {
-  if (changes < 1) return null;
-  if (!oldColumns.length && !before.from) return 'CREATE';
-  if (!newColumns.length && !before.to) return 'DELETE';
-  return 'UPDATE';
+/**
+ * Get updater for a column
+ * @param column
+ * @param kind
+ * @returns
+ */
+const getUpdater = (column: tRegularColumn, kind: eTriggerType) => {
+  if (kind === 'INSERT') return column.onInsert;
+  if (kind === 'UPDATE') return column.onUpdate;
+  if (kind === 'DELETE') return column.onDelete;
+  return undefined;
 };
+
+/**
+ * Get updaters for a table
+ * @param table
+ * @param kind
+ * @returns
+ */
+export const getUpdaters = (table: iTableEntity, kind: eTriggerType) => {
+  const cols = Object.entries(table.columns);
+  const updaters = cols.map(([key, col]) => ({ key, updater: getUpdater(col as tRegularColumn, kind) }));
+
+  return updaters.filter((u) => !!u.updater);
+};
+
+/**
+ * Get procedure for a table and a trigger kind
+ * @param table
+ * @param kind
+ * @returns
+ */
+export const getProcedure = (table: iTableEntity, kind: eTriggerType) => {
+  if (kind === 'INSERT') return table.beforeInsert;
+  if (kind === 'UPDATE') return table.beforeUpdate;
+  if (kind === 'DELETE') return table.beforeDelete;
+  return undefined;
+};
+
+/**
+ * Get trigger changes for a table and a snapshot
+ * @param oldTable
+ * @param newTable
+ * @returns
+ */
 export const getTriggerChanges = (oldTable: iTableEntity, newTable: iTableEntity): Partial<iTriggerChanges> => {
-  const oldColumns = getUpdatedColumns(oldTable);
-  const newColumns = getUpdatedColumns(newTable);
-  const updatedColumns = oldColumns.filter((col) => {
-    const newCol = newColumns.find((c) => c.key === col.key);
-    if (!newCol) return false;
-    return !deepEqual(col, newCol);
-  });
-
-  const created = newColumns.filter((column) => !oldColumns.find((oldColumn) => oldColumn.key === column.key));
-  const deleted = oldColumns.filter((column) => !newColumns.find((newColumn) => newColumn.key === column.key));
-  const updated = updatedColumns.map(({ key }) => {
-    const from = oldColumns.find((col) => col.key === key);
-    const to = newColumns.find((col) => col.key === key);
-    return { key, from, to };
-  });
-
-  const beforeUpdate = {
-    from: oldTable.beforeUpdate,
-    to: newTable.beforeUpdate,
-  };
-  const procedureChanged = !deepEqual(beforeUpdate.from ?? {}, beforeUpdate.to ?? {});
-  const changes = created.length + deleted.length + updated.length + (procedureChanged ? 1 : 0);
-
-  const change = getChangeType(oldColumns, newColumns, beforeUpdate, changes);
-
-  if (changes === 0) return {};
-  const changeSet: Partial<iTriggerChanges> = {
-    created,
-    deleted,
-    updated,
-    change,
-    beforeUpdate: procedureChanged ? beforeUpdate : undefined,
+  const state: iTriggerChanges = {
+    insert: getChange(
+      {
+        old: getUpdaters(oldTable, 'INSERT'),
+        new: getUpdaters(newTable, 'INSERT'),
+      },
+      { old: oldTable.beforeInsert, new: newTable.beforeInsert },
+    ),
+    update: getChange(
+      {
+        old: getUpdaters(oldTable, 'UPDATE'),
+        new: getUpdaters(newTable, 'UPDATE'),
+      },
+      { old: oldTable.beforeUpdate, new: newTable.beforeUpdate },
+    ),
+    delete: getChange(
+      {
+        old: getUpdaters(oldTable, 'DELETE'),
+        new: getUpdaters(newTable, 'DELETE'),
+      },
+      { old: oldTable.beforeDelete, new: newTable.beforeDelete },
+    ),
   };
 
-  return changeSet;
+  return state;
 };

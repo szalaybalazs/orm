@@ -1,5 +1,7 @@
+import { getProcedure, getUpdaters } from '../migrations/changes/trigger';
 import { iTableEntity } from '../types';
-import { iTriggerChange } from '../types/changes';
+import { eTriggerType } from '../types/column';
+import { iProcedure } from '../types/entity';
 
 /**
  * Get the name of the trigger function
@@ -7,8 +9,8 @@ import { iTriggerChange } from '../types/changes';
  * @param name
  * @returns
  */
-const getFunctionName = (name: string) => {
-  return `${name}_update_trigger_function`.replace(/-/g, '_');
+const getFunctionName = (name: string, action: eTriggerType = 'UPDATE') => {
+  return `${name}_${action.toLowerCase()}_trigger_function`.replace(/-/g, '_');
 };
 
 /**
@@ -17,8 +19,13 @@ const getFunctionName = (name: string) => {
  * @param name
  * @returns
  */
-const getTriggerName = (name: string) => {
-  return `__SCHEMA___${name}_update_trigger`;
+const getTriggerName = (name: string, action: eTriggerType = 'UPDATE') => {
+  return `__SCHEMA___${name}_${action?.toLowerCase()}_trigger`;
+};
+
+const formatProcedure = (procedure: iProcedure) => {
+  if (!procedure?.procedure) return null;
+  return `${procedure.procedure.trim().replace(/;$/, '')};`;
 };
 
 /**
@@ -27,40 +34,41 @@ const getTriggerName = (name: string) => {
  * @param triggers
  * @returns
  */
-export const updateTriggerFunction = async (table: iTableEntity) => {
-  const funcName = getFunctionName(table.name);
+export const updateTriggerFunction = async (
+  table: iTableEntity,
+  kind: eTriggerType = 'UPDATE',
+): Promise<string | null> => {
+  const funcName = getFunctionName(table.name, kind);
 
+  const updaters = getUpdaters(table, kind);
   const columns = await Promise.all(
-    Object.keys(table.columns).map(async (key) => {
-      const column = table.columns[key];
-      if (column.kind === 'COMPUTED') return '';
-      if (column.kind === 'RESOLVED') return '';
-      if (!column?.onUpdate?.set) return '';
-      const set = column?.onUpdate?.set;
+    updaters.map(async ({ key, updater }) => {
+      const set = updater?.set;
       const value = typeof set === 'function' ? await set() : set;
+      if (!value) return undefined;
 
       return `NEW.${key} = ${value};`;
     }),
   );
 
-  if (columns.length === 0) return '';
+  const procedure = formatProcedure(getProcedure(table, kind));
 
-  const beforeUpdate = table.beforeUpdate?.procedure
-    ? `${table.beforeUpdate.procedure.trim().replace(/;$/, '')};\n`
-    : '';
+  if (columns.length === 0 && !procedure) return null;
 
-  // todo: after update
-
-  const func = `
+  return `
     CREATE OR REPLACE FUNCTION "__SCHEMA__".${funcName}() RETURNS TRIGGER AS $$
     BEGIN
-      ${beforeUpdate}${columns.filter(Boolean).join('\n')}
+        ${[procedure, ...columns].filter(Boolean).join('\n        ')}
       RETURN NEW;
     END;
     $$ LANGUAGE plpgsql;
   `;
+};
 
-  return func;
+const getTrigger = (type: eTriggerType) => {
+  if (type === 'DELETE') return 'DELETE';
+  if (type === 'UPDATE') return 'UPDATE';
+  return 'INSERT';
 };
 
 /**
@@ -69,16 +77,16 @@ export const updateTriggerFunction = async (table: iTableEntity) => {
  * @param triggers
  * @returns
  */
-export const createTrigger = async (table: iTableEntity, triggers: iTriggerChange[]): Promise<string[]> => {
-  if (triggers.length === 0) return [];
+export const createTrigger = async (table: iTableEntity, kind: eTriggerType = 'UPDATE'): Promise<string[]> => {
+  const funcName = getFunctionName(table.name, kind);
+  const triggerName = getTriggerName(table.name, kind);
 
-  const funcName = getFunctionName(table.name);
-  const triggerName = getTriggerName(table.name);
+  const func = await updateTriggerFunction(table, kind);
+  if (!func) return [];
 
-  const func = await updateTriggerFunction(table);
   const trigger = `
     CREATE TRIGGER "${triggerName}"
-    BEFORE UPDATE ON "__SCHEMA__"."${table.name}"
+    BEFORE ${getTrigger(kind)} ON "__SCHEMA__"."${table.name}"
     FOR EACH ROW
     EXECUTE FUNCTION "__SCHEMA__".${funcName}();
   `;
@@ -91,10 +99,10 @@ export const createTrigger = async (table: iTableEntity, triggers: iTriggerChang
  * @param table
  * @returns
  */
-export const dropTrigger = (table: iTableEntity) => {
-  const funcName = getFunctionName(table.name);
+export const dropTrigger = (table: iTableEntity, kind: eTriggerType = 'UPDATE') => {
+  const funcName = getFunctionName(table.name, kind);
 
-  const triggerName = getTriggerName(table.name);
+  const triggerName = getTriggerName(table.name, kind);
   return [
     `DROP TRIGGER IF EXISTS "${triggerName}" ON "__SCHEMA__"."${table.name}";`,
     `DROP FUNCTION IF EXISTS "__SCHEMA__".${funcName}() CASCADE;`,

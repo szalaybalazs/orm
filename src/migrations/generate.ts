@@ -13,6 +13,17 @@ import { getMigrationTemplate } from './template';
 // todo: move extension creation to migration
 // todo: save default value for stanpshots by running resolver functions when saving
 
+const checkForDataLoss = (queries: string[]) => {
+  return queries.some((query) => {
+    const sql = query.trim().toLowerCase();
+    if (sql.startsWith('create trigger')) return false;
+    if (sql.startsWith('create or replace function')) return false;
+    if (sql.startsWith('drop trigger')) return false;
+    if (sql.startsWith('drop function')) return false;
+    return sql.includes(' drop ');
+  });
+};
+
 /**
  * Generate new migration
  * @param id id of the migration
@@ -40,7 +51,7 @@ export const generateMigration = async (id: string, name: string, options: iVerb
   debug(chalk.dim('Checking for changes...'));
   if (queries.up.length === 0) throw new Error('NO_CHANGES');
 
-  if (queries.up.some((sql) => sql.toLowerCase().includes(' drop '))) {
+  if (checkForDataLoss(queries.up)) {
     const answers = await prompt([
       {
         type: 'confirm',

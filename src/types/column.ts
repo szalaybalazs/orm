@@ -27,6 +27,7 @@ export interface iForeignDefinition extends iForeignReference {
 export interface iUpdaterFunction<T> {
   set?: T;
 }
+export type eTriggerType = 'INSERT' | 'UPDATE' | 'DELETE';
 
 export interface iBaseColumnOptions<T = undefined> {
   name?: string;
@@ -36,7 +37,11 @@ export interface iBaseColumnOptions<T = undefined> {
   comment?: string;
 
   reference?: iForeignReference;
+
+  // Triggers
+  onInsert?: T;
   onUpdate?: T;
+  onDelete?: T;
 }
 
 export interface iRegularColumnOptions<T = undefined> extends iBaseColumnOptions<iUpdaterFunction<T>> {
