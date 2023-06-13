@@ -77,6 +77,9 @@ const employee: tEntity = {
       },
     },
   },
+  beforeUpdate: {
+    procedure: `INSERT INTO "__SCHEMA__"."user-snapshot" SELECT OLD.*;`,
+  },
   indices: [
     {
       columns: ['id'],

@@ -97,11 +97,16 @@ export interface iTriggerUpdate {
   to: iTriggerChange;
 }
 
+interface iProcedureChange {
+  from: { procedure?: string };
+  to: { procedure?: string };
+}
 export interface iTriggerChanges {
   created: iTriggerChange[];
   deleted: iTriggerChange[];
   updated: iTriggerUpdate[];
   change: 'UPDATE' | 'DELETE' | 'CREATE';
+  beforeUpdate?: iProcedureChange;
 }
 
 export interface iChanges {

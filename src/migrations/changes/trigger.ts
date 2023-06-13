@@ -32,11 +32,29 @@ export const getTriggerChanges = (oldTable: iTableEntity, newTable: iTableEntity
     const to = newColumns.find((col) => col.key === key);
     return { key, from, to };
   });
-  const changes = created.length + deleted.length + updated.length;
+
+  const beforeUpdate = {
+    from: oldTable.beforeUpdate,
+    to: newTable.beforeUpdate,
+  };
+  const procedureChanged = !deepEqual(beforeUpdate.from ?? {}, beforeUpdate.to ?? {});
+  const changes = created.length + deleted.length + updated.length + (procedureChanged ? 1 : 0);
 
   const change =
-    oldColumns.length > 0 && newColumns.length > 0 ? 'UPDATE' : oldColumns.length > 0 ? 'DELETE' : 'CREATE';
+    (oldColumns.length > 0 && newColumns.length > 0) || procedureChanged
+      ? 'UPDATE'
+      : oldColumns.length > 0
+      ? 'DELETE'
+      : 'CREATE';
 
   if (changes === 0) return {};
-  return { created, deleted, updated, change };
+  const changeSet: Partial<iTriggerChanges> = {
+    created,
+    deleted,
+    updated,
+    change,
+    beforeUpdate: procedureChanged ? beforeUpdate : undefined,
+  };
+
+  return changeSet;
 };

@@ -95,6 +95,17 @@ export const createChangesProgram = (program: Command) => {
             else if (changes.triggers.change === 'UPDATE') console.log(chalk.blue(`~   Trigger function updated`));
             else console.log(chalk.red(`-   Trigger function dropped`));
 
+            if (changes.triggers.change !== 'DELETE' && changes.triggers.beforeUpdate) {
+              console.log(
+                chalk.blue(`~     Trigger procedure udpated: "beforeUpdate":`),
+                chalk.reset(
+                  `(${formatChange(changes.triggers.beforeUpdate.from?.procedure)} -> ${formatChange(
+                    changes.triggers.beforeUpdate.to?.procedure,
+                  )})`,
+                ),
+              );
+            }
+
             if (changes.triggers.change !== 'DELETE') {
               changes.triggers.created.forEach((trigger) => {
                 console.log(

@@ -21,6 +21,9 @@ export interface iTableEntity {
   comment?: string;
   columns: Record<string, tColumn>;
   indices?: iIndex[];
+  beforeUpdate?: {
+    procedure?: string;
+  };
 }
 
 export interface iViewEntity {

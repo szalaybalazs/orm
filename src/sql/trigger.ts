@@ -45,10 +45,16 @@ export const updateTriggerFunction = async (table: iTableEntity) => {
 
   if (columns.length === 0) return '';
 
+  const beforeUpdate = table.beforeUpdate?.procedure
+    ? `${table.beforeUpdate.procedure.trim().replace(/;$/, '')};\n`
+    : '';
+
+  // todo: after update
+
   const func = `
     CREATE OR REPLACE FUNCTION "__SCHEMA__".${funcName}() RETURNS TRIGGER AS $$
     BEGIN
-      ${columns.filter(Boolean).join('\n')}
+      ${beforeUpdate}${columns.filter(Boolean).join('\n')}
       RETURN NEW;
     END;
     $$ LANGUAGE plpgsql;
