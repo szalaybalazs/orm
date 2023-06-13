@@ -136,6 +136,8 @@ The repo contains an example folder - feel free to clone and play around with it
     - [ ] Add 'with check' option
   - [ ] Function support
   - [ ] Trigger support
+    - [x] Add `onUpdate.set`
+    - [ ] Add `beforeUpdate` SQL code
   - [ ] GIS Support
   - [ ] Convert codebase to classes for easier maintenance
   - [ ] Handle naming conventions

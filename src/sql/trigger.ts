@@ -1,26 +1,22 @@
-// `
-//         CREATE OR REPLACE FUNCTION "${ctx.schema}".user_snapshot_function() RETURNS TRIGGER AS $$
-//         BEGIN
-//             NEW.updated_at = NOW();
-//             INSERT INTO "${ctx.schema}"."user-snapshot"
-//             SELECT OLD.*;
-//             RETURN NEW;
-//         END;
-//         $$ LANGUAGE plpgsql;
-
 import { iTableEntity } from '../types';
 import { iTriggerChange } from '../types/changes';
 
-//         CREATE TRIGGER "${ctx.schema}_user_snapshot_trigger"
-//         BEFORE UPDATE ON "${ctx.schema}"."user"
-//         FOR EACH ROW
-//         EXECUTE FUNCTION "${ctx.schema}".user_snapshot_function();
-//       `,
-
+/**
+ * Get the name of the trigger function
+ * DO NOT CHANGE THIS CODE, it will break existing databases
+ * @param name
+ * @returns
+ */
 const getFunctionName = (name: string) => {
   return `${name}_update_trigger_function`.replace(/-/g, '_');
 };
 
+/**
+ * Get the name of the trigger function
+ * DO NOT CHANGE THIS CODE, it will break existing databases
+ * @param name
+ * @returns
+ */
 const getTriggerName = (name: string) => {
   return `__SCHEMA___${name}_update_trigger`;
 };
@@ -52,7 +48,7 @@ export const updateTriggerFunction = async (table: iTableEntity) => {
   const func = `
     CREATE OR REPLACE FUNCTION "__SCHEMA__".${funcName}() RETURNS TRIGGER AS $$
     BEGIN
-      ${columns.filter(Boolean)}
+      ${columns.filter(Boolean).join('\n')}
       RETURN NEW;
     END;
     $$ LANGUAGE plpgsql;

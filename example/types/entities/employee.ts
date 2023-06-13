@@ -52,4 +52,6 @@ export type EmployeesEntity = {
   gender: "MALE" | "FEMALE" | "OTHER";
 
   updatedAt: Date;
+
+  lastUpdate: Date;
 };
