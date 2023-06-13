@@ -1,6 +1,6 @@
 import { deepEqual } from '../../core/object';
 import { iTableEntity, tColumn } from '../../types';
-import { iTriggerChange, iTriggerChanges } from '../../types/changes';
+import { iProcedureChange, iTriggerChange, iTriggerChanges } from '../../types/changes';
 import { iUpdaterFunction } from '../../types/column';
 
 const getUpdatedColumns = (table: iTableEntity): iTriggerChange[] => {
@@ -16,6 +16,17 @@ const getUpdatedColumns = (table: iTableEntity): iTriggerChange[] => {
   return updated.filter(Boolean) as ({ key: string } & iUpdaterFunction<any>)[];
 };
 
+const getChangeType = (
+  oldColumns: iTriggerChange[],
+  newColumns: iTriggerChange[],
+  before: iProcedureChange,
+  changes: number,
+) => {
+  if (changes < 1) return null;
+  if (!oldColumns.length && !before.from) return 'CREATE';
+  if (!newColumns.length && !before.to) return 'DELETE';
+  return 'UPDATE';
+};
 export const getTriggerChanges = (oldTable: iTableEntity, newTable: iTableEntity): Partial<iTriggerChanges> => {
   const oldColumns = getUpdatedColumns(oldTable);
   const newColumns = getUpdatedColumns(newTable);
@@ -40,12 +51,7 @@ export const getTriggerChanges = (oldTable: iTableEntity, newTable: iTableEntity
   const procedureChanged = !deepEqual(beforeUpdate.from ?? {}, beforeUpdate.to ?? {});
   const changes = created.length + deleted.length + updated.length + (procedureChanged ? 1 : 0);
 
-  const change =
-    (oldColumns.length > 0 && newColumns.length > 0) || procedureChanged
-      ? 'UPDATE'
-      : oldColumns.length > 0
-      ? 'DELETE'
-      : 'CREATE';
+  const change = getChangeType(oldColumns, newColumns, beforeUpdate, changes);
 
   if (changes === 0) return {};
   const changeSet: Partial<iTriggerChanges> = {

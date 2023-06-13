@@ -97,7 +97,7 @@ export interface iTriggerUpdate {
   to: iTriggerChange;
 }
 
-interface iProcedureChange {
+export interface iProcedureChange {
   from: { procedure?: string };
   to: { procedure?: string };
 }
