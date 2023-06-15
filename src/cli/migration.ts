@@ -36,6 +36,8 @@ export const createMigrationProgram = (program: Command) => {
         // todo: handle config errors
         if (error.message === 'NO_CHANGES') {
           broadcast(chalk.cyan('No changes found in schema, skipping...'));
+        } else if (error.message.startsWith('Duplicate types')) {
+          broadcast(chalk.red('[ERROR]'), chalk.reset(error.message));
         } else broadcast(error);
       }
     });

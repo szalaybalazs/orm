@@ -1,6 +1,6 @@
 {
   "name": "undiorm",
-  "version": "0.0.82",
+  "version": "0.0.85",
   "description": "Lightweight PG Orm",
   "main": "./index.js",
   "bin": {

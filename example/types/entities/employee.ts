@@ -54,4 +54,6 @@ export type EmployeesEntity = {
   updatedAt: Date;
 
   lastUpdate: Date;
+
+  fruit: "alma" | "körte" | "barack";
 };

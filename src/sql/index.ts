@@ -109,11 +109,13 @@ export const generateQueries = async (
   if (changes.types) {
     changes.types.deleted.forEach((type) => {
       up.unshift(dropType(type.name));
-      down.push(createType(type.name, type.values));
+      const newType = createType(type.name, type.values);
+      if (!down.includes(newType)) down.push(newType);
     });
 
     changes.types.created.forEach((type) => {
-      up.unshift(createType(type.name, type.values));
+      const newType = createType(type.name, type.values);
+      if (!up.includes(newType)) up.unshift(newType);
       down.push(dropType(type.name));
     });
 

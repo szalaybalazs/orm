@@ -24,4 +24,6 @@ export type DepartmentsEntity = {
   createdAt: Date;
 
   updatedAt: Date;
+
+  fruit: "alma" | "körte" | "barack";
 };

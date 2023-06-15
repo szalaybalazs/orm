@@ -5,12 +5,39 @@ import { iTables, tColumn } from '../../types';
 import { iTypeChange, iTypeChanges } from '../../types/changes';
 import { iCustomType } from '../../types/types';
 
+/**
+ * Removed duplicate
+ * @param types
+ * @returns
+ */
+const processDuplicates = (types: iCustomType[]): iCustomType[] => {
+  const newTypes: iCustomType[] = [];
+  types.map((type) => {
+    const sameNamed = newTypes.filter((t) => t.name === type.name);
+    const index = newTypes.findIndex(
+      (t) => t.name === type.name && compareArrays(t.values, type.values) && type.type === t.type,
+    );
+    if (index < 0 && sameNamed.length > 0) {
+      throw new Error(
+        `Duplicate types: ${type.type} "${type.name}" found in state with different values: ${type.values.join(
+          ', ',
+        )} <> ${sameNamed.find((s) => !compareArrays(s.values, type.values)).values.join(', ')}`,
+      );
+    }
+    if (index < 0) return newTypes.push(type);
+
+    newTypes[index].dependencies.push(...type.dependencies);
+  });
+
+  return newTypes;
+};
+
 export const getTypeChanges = (snapshot: iTables, state: iTables): iTypeChanges => {
   debug(chalk.dim('> Calculating changes in types'));
   const oldTypes = getTypesFromState(snapshot);
   const newTypes = getTypesFromState(state);
 
-  const created = newTypes.filter((t) => !oldTypes.find((type) => type.name === t.name));
+  const created = processDuplicates(newTypes.filter((t) => !oldTypes.find((type) => type.name === t.name)));
   const deleted = oldTypes.filter((t) => !newTypes.find((type) => type.name === t.name));
 
   const updated = getChangedTypes(oldTypes, newTypes);
@@ -21,6 +48,8 @@ export const getTypeChanges = (snapshot: iTables, state: iTables): iTypeChanges 
     updated,
   };
 };
+
+// const removeDuplicates = (types: iCustomType[]): iCustomType[] => {}
 
 const getChangedTypes = (oldTypes: iCustomType[], newTypes: iCustomType[]): iTypeChange[] => {
   const updates: iTypeChange[] = [];
@@ -45,7 +74,6 @@ const getChangedTypes = (oldTypes: iCustomType[], newTypes: iCustomType[]): iTyp
       });
     }
   });
-
   return updates;
 };
 
@@ -62,7 +90,7 @@ const getTypesFromState = (state: iTables) => {
       if (column.kind === 'RESOLVED') return;
       if (column.type === 'enum') {
         const type: iCustomType = {
-          name: column.name || `${entityName}_${key}_enum`,
+          name: column.name || column.enumName || `${entityName}_${key}_enum`,
           type: 'ENUM',
           values: column.enum.sort(),
           dependencies: [

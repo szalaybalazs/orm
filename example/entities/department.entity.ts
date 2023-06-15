@@ -36,6 +36,12 @@ const department: tEntity = {
       //   set: 'CURRENT_TIMESTAMP',
       // },
     },
+    fruit: {
+      type: 'enum',
+      enum: ['alma', 'körte', 'barack'],
+      default: 'alma',
+      enumName: 'fruit',
+    },
   },
 };
 

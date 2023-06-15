@@ -79,6 +79,12 @@ const employee: tEntity = {
         set: 'now()',
       },
     },
+    fruit: {
+      type: 'enum',
+      enum: ['alma', 'körte', 'barack', 'citrom'],
+      default: 'alma',
+      enumName: 'fruit',
+    },
   },
   // beforeUpdate: {
   //   procedure: `INSERT INTO "__SCHEMA__"."user-snapshot" SELECT OLD.*;`,
