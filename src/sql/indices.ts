@@ -1,5 +1,6 @@
 import { chalk } from '../core/chalk';
 import { broadcast } from '../core/log';
+import { convertKey } from '../core/naming';
 import { getIndexChanges, getIndexName } from '../migrations/changes/indices';
 import { iIndex, iTableEntity } from '../types';
 // todo: prevent duplicates
@@ -11,13 +12,21 @@ import { iIndex, iTableEntity } from '../types';
  */
 export const createIndex = (table: string, index: iIndex): string[] => {
   const columns = index.columns.map((column) => {
-    if (typeof column === 'string') return `"${column}"`;
+    if (typeof column === 'string') return `"${convertKey(column, 'SNAKE')}"`;
 
-    return `"${column.column}" ${column.order ?? ''} ${column.nulls ? `NULLS ${column.nulls}` : ''}`.trim();
+    const col = convertKey(column.column, 'SNAKE');
+    return `"${col}" ${column.order ?? ''} ${column.nulls ? `NULLS ${column.nulls}` : ''}`.trim();
   });
 
   const method = index.method ? `USING ${index.method}` : '';
-  const include = index.includes?.length ? `INCLUDE (${index.includes})` : '';
+  const include = index.includes?.length
+    ? `INCLUDE (${index.includes.map((column) => {
+        if (typeof column === 'string') return `"${convertKey(column, 'SNAKE')}"`;
+        return `"${convertKey(column.column, 'SNAKE')}"`.trim();
+      })})`
+    : '';
+
+  const where = index.where ? `WHERE ${index.where}` : '';
 
   const unique = index.unique ? 'UNIQUE' : '';
   const queries = [
@@ -25,6 +34,7 @@ export const createIndex = (table: string, index: iIndex): string[] => {
       CREATE ${unique} INDEX 
       "${index.name}" ON "__SCHEMA__"."${table}" ${method}
       (${columns}) ${include}
+      ${where}
     `,
   ];
 

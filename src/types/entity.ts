@@ -13,6 +13,8 @@ export interface iIndex {
 
   columns: (string | { column: string; order?: 'ASC' | 'DESC'; nulls?: 'FIRST' | 'LAST' })[];
   includes?: (string | { column: string })[];
+
+  where?: string;
 }
 
 export interface iProcedure {
