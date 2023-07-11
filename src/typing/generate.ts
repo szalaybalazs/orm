@@ -1,6 +1,6 @@
 import { format } from 'prettier';
 import { convertKey, pascalize } from '../core/naming';
-import { iRegularColumnOptions, tEntity } from '../types';
+import { iRegularColumnOptions, tEntity, tRegularColumn } from '../types';
 import { eNamingConvention } from '../types/config';
 import { getEntitiyKeys } from '../utils';
 import { formatComment } from './comment';
@@ -52,6 +52,7 @@ export const generateTypeForEntity = (
     return `${comment}'${convertKey(key, namingConvention)}'${nullable ? '?' : ''}: ${getType(
       type,
       (column as any).enum,
+      (column as any).array,
     )}`;
   });
 
