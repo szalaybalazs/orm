@@ -3,7 +3,7 @@ import { eForeignDelete, iForeignDefinition } from '../types/column';
 export const createForeignKey = (foreign: iForeignDefinition) => {
   return `
     CONSTRAINT "${foreign.name}"
-    FOREIGN KEY ("${foreign.column}") 
+    FOREIGN KEY ("${foreign.source}") 
     REFERENCES "__SCHEMA__"."${foreign.table}" ("${foreign.column}")
     ON DELETE ${getDeleteEvent(foreign.onDelete)}
   `;
