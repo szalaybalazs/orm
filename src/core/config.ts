@@ -80,10 +80,10 @@ export const parseConfig = async (params: any): Promise<iVerboseConfig> => {
   });
 
   const configuration = { ...config, ...params };
-  const entitiesDirectory = getDirectory(configuration.entities || '.orm/entities');
-  const migrationsDirectory = getDirectory(configuration.migrations || '.orm/migrations');
-  const snapshotsDirectory = getDirectory(configuration.snapshots || '.orm/snapshots');
-  const typesDirectory = getDirectory(configuration.types || '.');
+  const entitiesDirectory = getDirectory(configuration.entities || '.orm/entities', params.config);
+  const migrationsDirectory = getDirectory(configuration.migrations || '.orm/migrations', params.config);
+  const snapshotsDirectory = getDirectory(configuration.snapshots || '.orm/snapshots', params.config);
+  const typesDirectory = getDirectory(configuration.types || '.', params.config);
 
   // Creating directories if they dont exist
   await Promise.all([
@@ -111,9 +111,11 @@ export const parseConfig = async (params: any): Promise<iVerboseConfig> => {
   return res;
 };
 
-const getDirectory = (dir: string) => {
+const getDirectory = (dir: string, configFile: string) => {
   if (isAbsolute(dir)) return dir;
-  return join(process.cwd(), dir || '.');
+  const segments = configFile.split('/');
+  if (configFile.endsWith('.js') || configFile.endsWith('.ts') || configFile.endsWith('.json')) segments.pop();
+  return join(segments.join('/'), dir || '.');
 };
 
 const typeImport = process.env.NODE_ENV === 'development' ? './src/types' : 'undiorm/src/types';
