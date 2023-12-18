@@ -64,9 +64,10 @@ const getColumnOptions = async (
 
   if (column.type === 'uuid') {
     return {
-      default: (column as iUUIDColumn).generated ? 'uuid_generate_v4()' : undefined,
+      default: (column as iUUIDColumn).generated ? 'uuid_generate_v4()' : await getDefault(table, column),
       primary: column.primary,
       nullable: column.nullable,
+      array: column.array,
     };
   }
 
@@ -168,9 +169,13 @@ export const getChange = async (
     if ([undefined, null, void 0].includes(to)) return `DROP DEFAULT`;
     return `SET DEFAULT ${await getDefault(table, { ...column, default: to } as any)}`;
   }
-  if (key === 'nullable') return `${to ? 'SET' : 'DROP'} NOT NULL`;
+  if (key === 'nullable') return `${!to ? 'SET' : 'DROP'} NOT NULL`;
   if (key === 'array' || key === 'type') {
     // todo: handle default update
+
+    // handling uuid type transition
+    if (to === 'uuid' && (column as iUUIDColumn).generated) return `TYPE UUID SET DEFAULT uuid_generate_v4()`;
+    if (to === 'uuid') return `TYPE UUID USING "${column.name}"::UUID`;
     const type = getTypeForColumn(table, column.name, { ...column, [key]: to });
     const using = `USING ARRAY["${column.name}"]::${getTypeForColumn(table, column.name, { ...column, [key]: to })}`;
 
@@ -212,6 +217,7 @@ export const getTypeCompatibility = (from: tRegularColumn, to: tRegularColumn) =
   if (includesBoth(IntervalTypes, from.type, to.type)) return true;
   if (includesBoth(BinaryTypes, from.type, to.type)) return true;
   if (includesBoth(BooleanTypes, from.type, to.type)) return true;
+  if (StringTypes.includes(from.type as any) && UUIDTypes.includes(to.type as any)) return true;
 
   return false;
 };

@@ -10,7 +10,7 @@ export const getDefault = async (table: string, column: tColumn): Promise<string
   if (column.kind === 'COMPUTED') return null;
   if (column.kind === 'RESOLVED') return null;
 
-  if (column.type === 'uuid') return `uuid_generate_v4()`;
+  if (column.type === 'uuid' && column.generated) return `uuid_generate_v4()`;
 
   const value = typeof column.default === 'function' ? await column.default() : column.default;
   const type = typeof value;

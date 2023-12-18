@@ -57,10 +57,10 @@ export const createIndex = (table: string, index: iIndex): string[] => {
  * @returns SQL query
  */
 export const dropIndex = (table: string, name: string, unique: boolean) => {
-  const queries = [`ALTER TABLE "__SCHEMA__"."${table}" DROP CONSTRAINT "${name}" CASCADE`];
+  const queries = [`DROP INDEX IF EXISTS "__SCHEMA__"."${name}" CASCADE`];
 
   if (unique) {
-    queries.push(`DROP INDEX IF EXISTS "__SCHEMA__"."${name}" CASCADE`);
+    queries.push(`ALTER TABLE "__SCHEMA__"."${table}" DROP CONSTRAINT "${name}" CASCADE`);
   }
 
   return queries;

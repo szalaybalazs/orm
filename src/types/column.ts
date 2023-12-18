@@ -98,6 +98,8 @@ export interface iUUIDColumn extends iBaseColumnOptions {
   type: eUUIDType;
   generated?: boolean;
   nullable?: boolean;
+  array?: boolean;
+  default?: tStringDefault;
 }
 
 export interface iEnumColumn extends iBaseColumnOptions {

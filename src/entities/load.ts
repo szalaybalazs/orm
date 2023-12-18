@@ -27,7 +27,11 @@ export const loadEntities = async (directory: string): Promise<tLoadedEntity[]> 
 
       // Loading from JS or TS file
       if (entity.endsWith('.js') || entity.endsWith('.ts')) {
-        const module = await import(entityPath).catch(() => null);
+        const module = await import(entityPath).catch((error) => {
+          debug(chalk.red(`> Failed to load entity: '${entity}'`));
+          debug(chalk.red(error));
+          return null;
+        });
 
         if (!module) {
           debug(chalk.dim(`> No default export was found for entity: '${entity}', returning null...`));

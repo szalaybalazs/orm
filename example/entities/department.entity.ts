@@ -15,7 +15,7 @@ const department: tEntity = {
       nullable: false,
     },
     description: {
-      type: 'varchar',
+      type: 'uuid',
       nullable: true,
     },
     lead_id: {
@@ -38,7 +38,7 @@ const department: tEntity = {
     },
     fruit: {
       type: 'enum',
-      enum: ['alma', 'körte', 'barack'],
+      enum: ['alma', 'körte', 'barack', 'citrom'],
       default: 'alma',
       enumName: 'fruit',
     },
