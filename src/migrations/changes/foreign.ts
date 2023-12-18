@@ -64,5 +64,5 @@ export const getForeignKeys = (table: iTableEntity): iForeignDefinition[] => {
 };
 
 export const getForeignKeyName = (table: string, foreign: iForeignDefinition) => {
-  return `${table}_${foreign.source}_fkey`;
+  return `fk_${table}_${foreign.source}_fkey`;
 };

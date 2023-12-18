@@ -23,6 +23,10 @@ const department: tEntity = {
       comment: 'ID of the departments lead',
       generated: false,
       nullable: true,
+      reference: {
+        table: 'employees',
+        column: 'id',
+      },
     },
     created_at: {
       type: 'timestamptz',

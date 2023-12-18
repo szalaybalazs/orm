@@ -14,7 +14,8 @@ const getDeleteEvent = (method?: eForeignDelete) => {
   if (method === 'DEFAULT') return 'SET DEFAULT';
   if (method === 'RESTRICT') return 'RESTRICT';
   if (method === 'SKIP') return 'NO ACTION';
-  return 'CASCADE';
+  if (method === 'CASCADE') return 'CASCADE';
+  return 'NO ACTION';
 };
 
 export const dropForeignKey = (foreign: iForeignDefinition) => {
