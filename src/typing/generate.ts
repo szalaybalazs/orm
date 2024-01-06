@@ -5,6 +5,7 @@ import { eNamingConvention } from '../types/config';
 import { getEntitiyKeys } from '../utils';
 import { formatComment } from './comment';
 import { getType } from './parse';
+import { prettier } from '../utils/formatter';
 
 const template = `// ==========
 // THIS IS AN AUTOMATICALLY GENERATED FILE
@@ -64,7 +65,7 @@ export const generateTypeForEntity = (
     .replace(/__COMMENT__/g, formatComment(entityComment))
     .replace(/__KEYS__/g, includeKeys ? getKeys(entity, keysName) : '');
 
-  return { name, keysName: includeKeys ? keysName : undefined, type: format(content, { parser: 'babel-ts' }) };
+  return { name, keysName: includeKeys ? keysName : undefined, type: prettier(content, { parser: 'babel-ts' }) };
 };
 
 const indexTemplate = `// =========
@@ -88,5 +89,5 @@ export const generateExports = (types: { key: string; keysName?: string; name: s
 
   const content = indexTemplate.replace(/__EXPORTS__/g, exports.flat().filter(Boolean).join('\n'));
 
-  return format(content, { parser: 'babel-ts' });
+  return prettier(content, { parser: 'babel-ts' });
 };

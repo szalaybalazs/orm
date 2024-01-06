@@ -1,8 +1,8 @@
 import { ensureDir, existsSync, readFileSync, writeFileSync } from 'fs-extra';
 import { isAbsolute, join } from 'path';
-import { format } from 'prettier';
 import { program } from '../cli';
 import { iOrmConfig, iVerboseConfig } from '../types';
+import { prettier } from '../utils/formatter';
 import { chalk } from './chalk';
 import { broadcast, debug, formatObject } from './log';
 
@@ -136,7 +136,7 @@ export default config;
  */
 export const saveConfig = async (config: iOrmConfig) => {
   try {
-    const content = await format(template.replace('__TEMPLATE__', JSON.stringify(config)), { parser: 'babel-ts' });
+    const content = prettier(template.replace('__TEMPLATE__', JSON.stringify(config)), { parser: 'babel-ts' });
     writeFileSync(join(process.cwd(), '.ormconfig.ts'), content as string, 'utf-8');
   } catch (error) {}
 };

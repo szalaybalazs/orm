@@ -1,5 +1,6 @@
 import { format } from 'prettier';
 import { format as formatSql } from 'sql-formatter';
+import { prettier } from '../utils/formatter';
 
 const typeImport = process.env.NODE_ENV === 'development' ? '../../src/types/migration' : 'undiorm/src/types';
 
@@ -50,7 +51,7 @@ export const getMigrationTemplate = (id: string, name: string, up: string[], dow
   const timestamp = `new Date('${new Date().toUTCString()}')`;
 
   const template = getTemplate({ id, name, timestamp, up: upSql, down: downSql });
-  return format(String(template), {
+  return await prettier(String(template), {
     singleQuote: true,
     parser: 'babel',
     printWidth: 120,

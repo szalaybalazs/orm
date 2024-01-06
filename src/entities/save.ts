@@ -5,6 +5,7 @@ import { formatId } from '../core/id';
 import { broadcast } from '../core/log';
 import { formatSql } from '../core/sql';
 import { tEntity } from '../types';
+import { prettier } from '../utils/formatter';
 
 const typeImport = process.env.NODE_ENV === 'development' ? './src/types' : 'undiorm/src/types';
 const template = `
@@ -29,7 +30,7 @@ export const saveEntities = async (entities: { [key: string]: tEntity }, entitie
     await emptyDir(base);
   }
 
-  const savePromises = Object.keys(entities).map((key) => {
+  const savePromises = Object.keys(entities).map(async (key) => {
     const entity: any = entities[key];
     if (!entity) return;
 
@@ -38,7 +39,7 @@ export const saveEntities = async (entities: { [key: string]: tEntity }, entitie
     const entityContent = JSON.stringify({ ...entity, key: undefined }).replace(/"resolver":(\s+)?(".+")/, resolver);
     const content = template.replace(/__KEY__/g, formatId(key)).replace(/__ENTITY__/g, entityContent);
 
-    return writeFile(join(base, `${key}.entity.ts`), format(content, { parser: 'babel-ts' }), 'utf8');
+    return writeFile(join(base, `${key}.entity.ts`), await prettier(content, { parser: 'babel-ts' }), 'utf8');
   });
 
   await Promise.all(savePromises);
