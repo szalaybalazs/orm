@@ -115,7 +115,9 @@ const getDirectory = (dir: string, configFile: string) => {
   if (isAbsolute(dir)) return dir;
   const segments = configFile.split('/');
   if (configFile.endsWith('.js') || configFile.endsWith('.ts') || configFile.endsWith('.json')) segments.pop();
-  return join(segments.join('/'), dir || '.');
+  const configDir = segments.join('/');
+  if (isAbsolute(configDir)) return join(configDir, dir || '.');
+  return join(process.cwd(), configDir, dir || '.');
 };
 
 const typeImport = process.env.NODE_ENV === 'development' ? './src/types' : 'undiorm/src/types';
@@ -134,7 +136,7 @@ export default config;
  */
 export const saveConfig = async (config: iOrmConfig) => {
   try {
-    const content = format(template.replace('__TEMPLATE__', JSON.stringify(config)), { parser: 'babel-ts' });
-    writeFileSync(join(process.cwd(), '.ormconfig.ts'), content, 'utf-8');
+    const content = await format(template.replace('__TEMPLATE__', JSON.stringify(config)), { parser: 'babel-ts' });
+    writeFileSync(join(process.cwd(), '.ormconfig.ts'), content as string, 'utf-8');
   } catch (error) {}
 };
