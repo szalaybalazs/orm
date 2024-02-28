@@ -8,8 +8,8 @@ import { runMutations } from './migrations/run';
 export class Database {
   config: iVerboseConfig;
 
-  constructor(params: any) {
-    this.loadConfig(params);
+  constructor(params?: any) {
+    if (params) this.loadConfig(params);
   }
 
   loadConfig = async (params: any) => {
