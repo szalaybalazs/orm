@@ -148,3 +148,5 @@ dist
 /ormconfig.ts
 
 .DS_Store
+
+/lib
