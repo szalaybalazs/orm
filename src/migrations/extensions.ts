@@ -18,7 +18,9 @@ export const createExtensions = async (state: iTables, query: QueryFunction): Pr
  */
 export const createExtensionQueries = (state: iTables): string[] => {
   const extensions: Set<eExtension> = new Set();
-  const tableList = Object.values(state).map((table) => (table.type !== 'VIEW' && Object.values(table.columns)) || []);
+  const tableList = Object.values(state).map(
+    (table) => (table.type !== 'VIEW' && table.type !== 'FUNCTION' && Object.values(table.columns)) || [],
+  );
   const columns: tRegularColumn[] = tableList.flat().filter((c) => c.kind === 'REGULAR') as tRegularColumn[];
   const types = columns.map((column) => column.type);
 
