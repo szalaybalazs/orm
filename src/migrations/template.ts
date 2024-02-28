@@ -51,7 +51,7 @@ export const getMigrationTemplate = (id: string, name: string, up: string[], dow
   const timestamp = `new Date('${new Date().toUTCString()}')`;
 
   const template = getTemplate({ id, name, timestamp, up: upSql, down: downSql });
-  return await prettier(String(template), {
+  return prettier(String(template), {
     singleQuote: true,
     parser: 'babel',
     printWidth: 120,

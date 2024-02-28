@@ -1,6 +1,6 @@
 {
   "name": "undiorm",
-  "version": "0.0.96",
+  "version": "0.0.97",
   "description": "Lightweight PG Orm",
   "main": "./lib/api.js",
   "types": "./lib/api.d.ts",
