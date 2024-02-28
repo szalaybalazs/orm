@@ -146,3 +146,7 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/node
 /ormconfig.ts
+
+.DS_Store
+
+/lib
