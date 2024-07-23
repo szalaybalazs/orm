@@ -38,7 +38,14 @@ export const getIndexChanges = (table: string, oldIndices: iIndex[], newIndices:
 
   const duplicateList = Array.from(duplicate);
   if (duplicateList.length > 0) {
-    broadcast(chalk.yellow('WARNING:'), chalk.reset(`The following indices are defined more than once:`));
+    // todo: handle this once, instead of per-table basis
+    broadcast('');
+    broadcast(
+      chalk.yellow.bold('WARNING:'),
+      chalk.reset(`The following indices are defined more than once in the`),
+      chalk.bold(table),
+      chalk.reset('table:'),
+    );
     duplicateList.forEach((name) => {
       broadcast(chalk.reset(`- ${name}`));
     });
