@@ -9,6 +9,7 @@ export const formatSql = (sql: string) => {
       language: 'postgresql',
       expressionWidth: 60,
       keywordCase: 'upper',
+      parser: 'sql',
     });
   } catch (error) {
     debug(chalk.dim('Failed to format SQL: '), error.message);

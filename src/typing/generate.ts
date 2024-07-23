@@ -88,6 +88,5 @@ export const generateExports = (types: { key: string; keysName?: string; name: s
   ]);
 
   const content = indexTemplate.replace(/__EXPORTS__/g, exports.flat().filter(Boolean).join('\n'));
-
   return prettier(content, { parser: 'babel-ts' });
 };
