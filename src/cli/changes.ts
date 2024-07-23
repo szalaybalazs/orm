@@ -8,7 +8,30 @@ import { loadLastSnapshot } from '../snapshots';
 import { generateQueries } from '../sql';
 import { iTableChanges } from '../types';
 import { addOptions } from './options';
+import { deepEqual } from '../core/object';
 
+const isChangeEmpty = (change: iTableChanges) => {
+  return deepEqual(change, {
+    changes: {},
+    dropped: [],
+    added: {},
+    indices: {
+      dropped: [],
+      updated: [],
+      created: [],
+    },
+    comments: {},
+    foreign: {
+      dropped: [],
+      added: [],
+    },
+    triggers: {
+      insert: undefined,
+      update: undefined,
+      delete: undefined,
+    },
+  });
+};
 /**
  * Create PostgresORM banner command
  * @param program commander program
@@ -50,85 +73,90 @@ export const createChangesProgram = (program: Command) => {
         console.log('');
       });
 
-      changes.updated.forEach((change) => {
-        console.log(chalk.blue(`~ Updated "${change.key}"`));
+      changes.updated
+        .filter((update) => {
+          if (update.kind !== 'TABLE') return true;
+          return !isChangeEmpty(update.changes);
+        })
+        .forEach((change) => {
+          console.log(chalk.blue(`~ Updated "${change.key}"`));
 
-        if (change.key === 'VIEW') {
-        } else if (change.key === 'FUNCTION') {
-        } else if (change.kind === 'TABLE') {
-          // console.log(JSON.stringify(change, null, 2));
-          const { changes } = change;
-          changes.dropped.forEach((col) => {
-            console.log(chalk.dim(`-   Dropped column "${col}"`));
-          });
-          Object.keys(changes.added).forEach((col) => {
-            console.log(chalk.dim(`+   Added column "${col}"`));
-          });
-          Object.entries(changes.changes).forEach(([col, changes]) => {
-            console.log(chalk.dim(`~   Update column "${col}":`));
-            (changes as any).forEach((change) => {
-              console.log(
-                chalk.dim(`       Set "${change.key}": ${formatChange(change.from)} -> ${formatChange(change.to)}`),
-              );
+          if (change.key === 'VIEW') {
+          } else if (change.key === 'FUNCTION') {
+          } else if (change.kind === 'TABLE') {
+            // console.log(JSON.stringify(change, null, 2));
+            const { changes } = change;
+            changes.dropped.forEach((col) => {
+              console.log(chalk.dim(`-   Dropped column "${col}"`));
             });
-            // changes.forEach(change => {
-            //   change.
-            // })
-          });
-          changes.indices.dropped.forEach((index) => {
-            console.log(chalk.red(`-   Index dropped: "${index.name}"`));
-          });
-          changes.indices.created.forEach((index) => {
-            console.log(chalk.green(`+   Index created: "${index.name}"`));
-          });
-          changes.foreign.dropped.forEach((foreign) => {
-            console.log(chalk.red(`-   Foreign key dropped: "${foreign.name}"`));
-          });
-          changes.foreign.added.forEach((foreign) => {
-            console.log(chalk.green(`+   Foreign key created: "${foreign.name}"`));
-          });
-          changes.indices.updated.forEach((index) => {
-            console.log(chalk.blue(`~   Index updated: "${index.from.name}"`));
-          });
-          // if (changes.triggers) {
-          //   if (changes.triggers.change === 'CREATE') console.log(chalk.green(`+   Trigger function added to table`));
-          //   else if (changes.triggers.change === 'UPDATE') console.log(chalk.blue(`~   Trigger function updated`));
-          //   else console.log(chalk.red(`-   Trigger function dropped`));
+            Object.keys(changes.added).forEach((col) => {
+              console.log(chalk.dim(`+   Added column "${col}"`));
+            });
+            Object.entries(changes.changes).forEach(([col, changes]) => {
+              console.log(chalk.dim(`~   Update column "${col}":`));
+              (changes as any).forEach((change) => {
+                console.log(
+                  chalk.dim(`       Set "${change.key}": ${formatChange(change.from)} -> ${formatChange(change.to)}`),
+                );
+              });
+              // changes.forEach(change => {
+              //   change.
+              // })
+            });
+            changes.indices.dropped.forEach((index) => {
+              console.log(chalk.red(`-   Index dropped: "${index.name}"`));
+            });
+            changes.indices.created.forEach((index) => {
+              console.log(chalk.green(`+   Index created: "${index.name}"`));
+            });
+            changes.foreign.dropped.forEach((foreign) => {
+              console.log(chalk.red(`-   Foreign key dropped: "${foreign.name}"`));
+            });
+            changes.foreign.added.forEach((foreign) => {
+              console.log(chalk.green(`+   Foreign key created: "${foreign.name}"`));
+            });
+            changes.indices.updated.forEach((index) => {
+              console.log(chalk.blue(`~   Index updated: "${index.from.name}"`));
+            });
+            // if (changes.triggers) {
+            //   if (changes.triggers.change === 'CREATE') console.log(chalk.green(`+   Trigger function added to table`));
+            //   else if (changes.triggers.change === 'UPDATE') console.log(chalk.blue(`~   Trigger function updated`));
+            //   else console.log(chalk.red(`-   Trigger function dropped`));
 
-          //   if (changes.triggers.change !== 'DELETE' && changes.triggers.beforeUpdate) {
-          //     console.log(
-          //       chalk.blue(`~     Trigger procedure udpated: "beforeUpdate":`),
-          //       chalk.reset(
-          //         `(${formatChange(changes.triggers.beforeUpdate.from?.procedure)} -> ${formatChange(
-          //           changes.triggers.beforeUpdate.to?.procedure,
-          //         )})`,
-          //       ),
-          //     );
-          //   }
+            //   if (changes.triggers.change !== 'DELETE' && changes.triggers.beforeUpdate) {
+            //     console.log(
+            //       chalk.blue(`~     Trigger procedure udpated: "beforeUpdate":`),
+            //       chalk.reset(
+            //         `(${formatChange(changes.triggers.beforeUpdate.from?.procedure)} -> ${formatChange(
+            //           changes.triggers.beforeUpdate.to?.procedure,
+            //         )})`,
+            //       ),
+            //     );
+            //   }
 
-          //   if (changes.triggers.change !== 'DELETE') {
-          //     changes.triggers.created.forEach((trigger) => {
-          //       console.log(
-          //         chalk.green(`+     Trigger added to "${trigger.key}":`),
-          //         chalk.reset(`setting to: "${trigger.set}"`),
-          //       );
-          //     });
-          //     changes.triggers.deleted.forEach((trigger) => {
-          //       console.log(chalk.red(`+     Trigger dropped from "${trigger.key}")`));
-          //     });
-          //     changes.triggers.updated.forEach((trigger) => {
-          //       console.log(
-          //         chalk.blue(`~     Trigger updated: "${trigger.key}":`),
-          //         chalk.reset(`("${trigger.from.set}" -> "${trigger.to.set}")`),
-          //       );
-          //     });
-          //   }
-          // }
+            //   if (changes.triggers.change !== 'DELETE') {
+            //     changes.triggers.created.forEach((trigger) => {
+            //       console.log(
+            //         chalk.green(`+     Trigger added to "${trigger.key}":`),
+            //         chalk.reset(`setting to: "${trigger.set}"`),
+            //       );
+            //     });
+            //     changes.triggers.deleted.forEach((trigger) => {
+            //       console.log(chalk.red(`+     Trigger dropped from "${trigger.key}")`));
+            //     });
+            //     changes.triggers.updated.forEach((trigger) => {
+            //       console.log(
+            //         chalk.blue(`~     Trigger updated: "${trigger.key}":`),
+            //         chalk.reset(`("${trigger.from.set}" -> "${trigger.to.set}")`),
+            //       );
+            //     });
+            //   }
+            // }
 
-          // console.log(changes);
-        }
-        console.log('');
-      });
+            // console.log(changes);
+          }
+          console.log('');
+        });
       changes.extensions?.added?.forEach((ext) => {
         console.log(chalk.green(`+ Extension added: "${ext}"`));
       });
