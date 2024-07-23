@@ -1,3 +1,5 @@
+import { chalk } from '../../core/chalk';
+import { broadcast } from '../../core/log';
 import { deepEqual } from '../../core/object';
 import { iIndex, iIndexChange } from '../../types';
 
@@ -19,8 +21,12 @@ export const getIndexChanges = (table: string, oldIndices: iIndex[], newIndices:
   const created = newNamedIndicesFiltered.filter((index) => !oldNames.includes(index.name));
 
   const same = newNamedIndices.filter((index) => oldNames.includes(index.name));
+
+  const duplicate: Set<string> = new Set();
   const updatedIndices = same.map((newIndex) => {
-    const oldIndex = oldNamedIndicies.find((i) => i.name === newIndex.name);
+    const oldIndices = oldNamedIndicies.filter((index) => index.name === newIndex.name);
+    if (oldIndices.length > 1) duplicate.add(newIndex.name);
+    const oldIndex = oldIndices[0];
 
     if (!newIndex || !oldIndex) return null;
     const isSame = deepEqual(oldIndex, newIndex);
@@ -29,6 +35,18 @@ export const getIndexChanges = (table: string, oldIndices: iIndex[], newIndices:
     return { from: oldIndex, to: newIndex };
   });
   const updated = updatedIndices.filter(Boolean);
+
+  const duplicateList = Array.from(duplicate);
+  if (duplicateList.length > 0) {
+    broadcast(chalk.yellow('WARNING:'), chalk.reset(`The following indices are defined more than once:`));
+    duplicateList.forEach((name) => {
+      broadcast(chalk.reset(`- ${name}`));
+    });
+    broadcast(
+      chalk.cyan(`To fix this error either define a unique name for each index or remove the duplicate indices`),
+    );
+    broadcast('');
+  }
 
   return {
     dropped,
